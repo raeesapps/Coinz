@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/leaderboard_nav_home"
+        android:icon="@drawable/home_24dp"
+        android:title="Home"
+        />
+
+    <item
+        android:id="@+id/leaderboard_nav_game"
+        android:icon="@drawable/game_24dp"
+        android:title="Game"
+        />
+
+
+    <item
+        android:id="@+id/leaderboard_nav_messaging"
+        android:icon="@drawable/messaging_24dp"
+        android:title="Messaging"
+        />
+</menu>

@@ -19,7 +19,7 @@ public class SplashScreenController extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent menu = new Intent(getApplicationContext(), MenuController.class);
+                Intent menu = new Intent(getApplicationContext(), LeaderboardController.class);
                 startActivity(menu);
                 handler.removeCallbacks(this);
             }

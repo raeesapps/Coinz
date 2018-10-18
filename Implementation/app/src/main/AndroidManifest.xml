@@ -26,7 +26,8 @@
         <activity android:name=".MenuController" />
         <activity
             android:name=".LoginController"
-            android:label="@string/title_activity_login_controller"></activity>
+            android:label="@string/title_activity_login_controller" />
+        <activity android:name=".LeaderboardController"></activity>
     </application>
 
 </manifest>
