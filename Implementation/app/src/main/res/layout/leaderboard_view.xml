@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".LeaderboardController">
 
     <LinearLayout
@@ -18,23 +18,23 @@
 
         <ImageView
             android:id="@+id/imageView"
-            app:srcCompat="@drawable/logo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/logo" />
+            android:contentDescription="@string/logo"
+            app:srcCompat="@drawable/logo" />
 
         <Button
             android:id="@+id/toggle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:text="Toggle Daily Scores" />
 
 
         <ListView
             android:id="@+id/scores"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
 
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/navigation"
@@ -44,4 +44,4 @@
 
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>
