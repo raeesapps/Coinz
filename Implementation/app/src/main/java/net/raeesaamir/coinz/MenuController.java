@@ -19,7 +19,7 @@ public class MenuController extends AppCompatActivity {
     /**
      * The different options in the menu
      */
-    private static final List<String> MENU_OPTIONS = Lists.newArrayList("Play", "Wallet", "Trade", "Leaderboard", "About");
+    private static final List<String> MENU_OPTIONS = Lists.newArrayList("Play", "Wallet", "Messaging", "Leaderboard", "About");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
