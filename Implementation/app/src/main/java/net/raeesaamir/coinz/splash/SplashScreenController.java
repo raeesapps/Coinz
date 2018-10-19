@@ -1,9 +1,13 @@
-package net.raeesaamir.coinz;
+package net.raeesaamir.coinz.splash;
 
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.messaging.MessagingController;
 
 public class SplashScreenController extends AppCompatActivity {
 
@@ -19,7 +23,7 @@ public class SplashScreenController extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent menu = new Intent(getApplicationContext(), LeaderboardController.class);
+                Intent menu = new Intent(getApplicationContext(), MessagingController.class);
                 startActivity(menu);
                 handler.removeCallbacks(this);
             }

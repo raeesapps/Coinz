@@ -1,4 +1,4 @@
-package net.raeesaamir.coinz;
+package net.raeesaamir.coinz.menu;
 
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +7,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.common.collect.Lists;
+
+import net.raeesaamir.coinz.R;
 
 import java.util.List;
 
