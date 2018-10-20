@@ -25,6 +25,8 @@ public enum MenuItem {
     }
 
     public String nameOfItem() {
-        return name().toLowerCase();
+        String name = name();
+        name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+        return name;
     }
 }
