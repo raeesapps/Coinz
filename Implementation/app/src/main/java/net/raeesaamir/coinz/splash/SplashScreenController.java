@@ -4,10 +4,9 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.messaging.MessagingController;
+import net.raeesaamir.coinz.menu.MenuController;
 
 public class SplashScreenController extends AppCompatActivity {
 
@@ -23,7 +22,7 @@ public class SplashScreenController extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent menu = new Intent(getApplicationContext(), MessagingController.class);
+                Intent menu = new Intent(getApplicationContext(), MenuController.class);
                 startActivity(menu);
                 handler.removeCallbacks(this);
             }

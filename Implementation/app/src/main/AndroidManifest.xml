@@ -28,7 +28,10 @@
             android:name=".authentication.LoginController"
             android:label="@string/title_activity_login_controller" />
         <activity android:name=".leaderboard.LeaderboardController" />
-        <activity android:name=".messaging.MessagingController"></activity>
+        <activity android:name=".messaging.MessagingController" />
+        <activity android:name=".wallet.WalletController" />
+        <activity android:name=".game.GameController" />
+        <activity android:name=".about.AboutController"></activity>
     </application>
 
 </manifest>
