@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.leaderboard.LeaderboardFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 
 public class AboutController extends AppCompatActivity {
@@ -31,8 +30,7 @@ public class AboutController extends AppCompatActivity {
                 case R.id.about_nav_home:
                     selectedFragment = new MenuFragment();
                     break;
-                case R.id.about_nav_leaderboard:
-                    selectedFragment = new LeaderboardFragment();
+                case R.id.about_nav_game:
                     break;
             }
 

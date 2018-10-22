@@ -1,29 +1,43 @@
 package net.raeesaamir.coinz.leaderboard;
 
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
-
-import java.util.Arrays;
-import java.util.List;
+import net.raeesaamir.coinz.menu.MenuFragment;
 
 public class LeaderboardController extends AppCompatActivity {
-
-    private static final List<Integer> LOREM_IPSUM = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.leaderboard_view);
-        populateScores();
+        configureBottomNavigationBar();
     }
 
-    private void populateScores() {
-        ListView scores = findViewById(R.id.scores);
-        ArrayAdapter<Integer> integerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, LOREM_IPSUM);
-        scores.setAdapter(integerArrayAdapter);
+    private void configureBottomNavigationBar() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {
+            Fragment selectedFragment = null;
+
+            switch(item.getItemId()) {
+                case R.id.leaderboard_nav_game:
+                    break;
+                case R.id.leaderboard_nav_home:
+                    selectedFragment = new MenuFragment();
+                    break;
+                case R.id.leaderboard_nav_leaderboard:
+                    selectedFragment = new LeaderboardFragment();
+                    break;
+            }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+
+            return true;
+        });
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LeaderboardFragment()).commit();
     }
 }

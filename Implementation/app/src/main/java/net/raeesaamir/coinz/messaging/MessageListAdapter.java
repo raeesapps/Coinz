@@ -6,11 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.User;
 
+import java.util.Date;
 import java.util.List;
 
 public class MessageListAdapter<U extends User, M extends Message<U>> extends RecyclerView.Adapter {
@@ -18,6 +19,44 @@ public class MessageListAdapter<U extends User, M extends Message<U>> extends Re
     private enum MessageType {
         MESSAGE_SENT,
         MESSAGE_RECEIVED;
+    }
+
+    public static class ReceivedMessageHolder<U extends User, M extends Message<U>> extends RecyclerView.ViewHolder {
+
+        private final TextView messageText;
+        private final TextView timeText;
+        private final TextView nameText;
+
+        ReceivedMessageHolder(View itemView) {
+            super(itemView);
+            messageText = itemView.findViewById(R.id.text_message_body);
+            timeText = itemView.findViewById(R.id.text_message_time);
+            nameText = itemView.findViewById(R.id.text_message_name);
+        }
+
+        void bind(M message) {
+            messageText.setText(message.message());
+
+            Date date = new Date(message.createdAt());
+            timeText.setText(date.toGMTString());
+
+            U user = message.sender();
+            nameText.setText(user.name());
+        }
+    }
+
+    public class SentMessageHolder<U extends User, M extends Message<U>> extends RecyclerView.ViewHolder {
+
+        private final TextView messageText;
+
+        SentMessageHolder(View itemView) {
+            super(itemView);
+            messageText = itemView.findViewById(R.id.text_message_body);
+        }
+
+        void bind(M message) {
+            messageText.setText(message.message());
+        }
     }
 
     private static final MessageType getType(int ordinal) {

@@ -1,44 +1,43 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-
-import com.google.common.collect.Lists;
+import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.authentication.simple.SimpleUser;
-import net.raeesaamir.coinz.messaging.simple.SimpleMessage;
-
-import java.util.List;
+import net.raeesaamir.coinz.menu.MenuFragment;
 
 public class MessagingController extends AppCompatActivity {
-
-    public static final class MessagingControllerLoremIpsum {
-        public static final SimpleUser USER = new SimpleUser("Raees");
-        public static final SimpleUser USER2 = new SimpleUser("Faheed");
-        public static final List<SimpleMessage> MESSAGES = Lists.newArrayList(
-                new SimpleMessage("u idiot", 23, USER),
-                new SimpleMessage("suck it", 24, USER2),
-                new SimpleMessage("i can't believe you did that!!", 24, USER2),
-                new SimpleMessage("listen u really think i care?", 26, USER)
-        );
-
-    }
-
-    private RecyclerView recyclerView;
-    private MessageListAdapter<SimpleUser, SimpleMessage> simpleMessageListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.messaging_view);
+        configureBottomNavigationBar();
+    }
 
-        recyclerView = findViewById(R.id.message_list);
-        simpleMessageListAdapter = new MessageListAdapter(MessagingControllerLoremIpsum.MESSAGES, MessagingControllerLoremIpsum.USER);
-        recyclerView.setAdapter(simpleMessageListAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    private void configureBottomNavigationBar() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {
+            Fragment selectedFragment = null;
 
+            switch(item.getItemId()) {
+                case R.id.messaging_nav_messaging:
+                    selectedFragment = new MessagingFragment();
+                    break;
+                case R.id.messaging_nav_home:
+                    selectedFragment = new MenuFragment();
+                    break;
+                case R.id.messaging_nav_game:
+                    break;
+            }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+
+            return true;
+        });
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagingFragment()).commit();
     }
 }

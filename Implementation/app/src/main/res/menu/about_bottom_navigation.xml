@@ -15,8 +15,8 @@
 
 
     <item
-        android:id="@+id/about_nav_leaderboard"
-        android:icon="@drawable/leaderboard_24dp"
-        android:title="Leaderboard"
+        android:id="@+id/about_nav_game"
+        android:icon="@drawable/game_24dp"
+        android:title="Game"
         />
 </menu>

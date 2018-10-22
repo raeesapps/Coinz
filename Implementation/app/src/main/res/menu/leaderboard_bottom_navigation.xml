@@ -15,8 +15,8 @@
 
 
     <item
-        android:id="@+id/leaderboard_nav_messaging"
-        android:icon="@drawable/messaging_24dp"
-        android:title="Messaging"
+        android:id="@+id/leaderboard_nav_leaderboard"
+        android:icon="@drawable/leaderboard_24dp"
+        android:title="Leaderboard"
         />
 </menu>
