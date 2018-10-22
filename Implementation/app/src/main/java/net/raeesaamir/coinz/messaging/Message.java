@@ -12,17 +12,17 @@ public interface Message<U extends User> {
      * The message contents
      * @return a string containing the message contents
      */
-    public String message();
+    String message();
 
     /**
      * The user object
      * @return The user object
      */
-    public U sender();
+    U sender();
 
     /**
      * The date at which the message was created at.
      * @return A long representing creation date
      */
-    public long createdAt();
+    long createdAt();
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/about_nav_home"
+        android:icon="@drawable/home_24dp"
+        android:title="Home"
+        />
+
+    <item
+        android:id="@+id/about_nav_about"
+        android:icon="@drawable/about_24dp"
+        android:title="About"
+        />
+
+
+    <item
+        android:id="@+id/about_nav_leaderboard"
+        android:icon="@drawable/leaderboard_24dp"
+        android:title="Leaderboard"
+        />
+</menu>
