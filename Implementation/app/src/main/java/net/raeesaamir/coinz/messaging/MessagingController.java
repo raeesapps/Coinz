@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 
 public class MessagingController extends AppCompatActivity {
@@ -31,6 +32,7 @@ public class MessagingController extends AppCompatActivity {
                     selectedFragment = new MenuFragment();
                     break;
                 case R.id.messaging_nav_game:
+                    selectedFragment = new GameFragment();
                     break;
             }
 

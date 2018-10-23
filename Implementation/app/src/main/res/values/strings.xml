@@ -15,4 +15,5 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiczE2MTc5MTAiLCJhIjoiY2pubG1zdWRsMTh0MTNwdGQ1Znp6NXRoNCJ9.Gl6nGxiyoJI6rbUo6L6orQ</string>
 </resources>

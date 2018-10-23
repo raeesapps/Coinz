@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 
 public class LeaderboardController extends AppCompatActivity {
@@ -25,6 +26,7 @@ public class LeaderboardController extends AppCompatActivity {
 
             switch(item.getItemId()) {
                 case R.id.leaderboard_nav_game:
+                    selectedFragment = new GameFragment();
                     break;
                 case R.id.leaderboard_nav_home:
                     selectedFragment = new MenuFragment();
