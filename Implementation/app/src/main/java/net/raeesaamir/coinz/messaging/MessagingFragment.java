@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.simple.SimpleUser;
+import net.raeesaamir.coinz.authentication.simple.SimpleUserManager;
 import net.raeesaamir.coinz.messaging.simple.SimpleMessage;
 
 import java.util.List;
@@ -21,13 +22,11 @@ import java.util.List;
 public class MessagingFragment extends Fragment {
 
     private static final class MessagingControllerLoremIpsum {
-        public static final SimpleUser USER = new SimpleUser("Raees");
-        public static final SimpleUser USER2 = new SimpleUser("Faheed");
         public static final List<SimpleMessage> MESSAGES = Lists.newArrayList(
-                new SimpleMessage("u idiot", 23, USER),
-                new SimpleMessage("suck it", 24, USER2),
-                new SimpleMessage("i can't believe you did that!!", 24, USER2),
-                new SimpleMessage("listen u really think i care?", 26, USER)
+                new SimpleMessage("u idiot", 23, SimpleUserManager.USERS.get(0)),
+                new SimpleMessage("suck it", 24, SimpleUserManager.USERS.get(1)),
+                new SimpleMessage("i can't believe you did that!!", 24, SimpleUserManager.USERS.get(1)),
+                new SimpleMessage("listen u really think i care?", 26, SimpleUserManager.USERS.get(0))
         );
 
     }
@@ -50,7 +49,7 @@ public class MessagingFragment extends Fragment {
     private void populateMessages() {
         RecyclerView recyclerView = view.findViewById(R.id.message_list);
         MessageListAdapter<SimpleUser, SimpleMessage> simpleMessageListAdapter =
-                new MessageListAdapter(MessagingControllerLoremIpsum.MESSAGES, MessagingControllerLoremIpsum.USER);
+                new MessageListAdapter(MessagingControllerLoremIpsum.MESSAGES, SimpleUserManager.USERS.get(0));
         recyclerView.setAdapter(simpleMessageListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }

@@ -8,9 +8,9 @@
         />
 
     <item
-        android:id="@+id/messaging_nav_users"
-        android:icon="@drawable/leaderboard_24dp"
-        android:title="Users"
+        android:id="@+id/messaging_nav_messaging"
+        android:icon="@drawable/messaging_24dp"
+        android:title="Messaging"
         />
 
 

@@ -10,12 +10,12 @@ import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 
-public class MessagingController extends AppCompatActivity {
+public class UserListController extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.messaging_view);
+        setContentView(R.layout.user_list_view);
         configureBottomNavigationBar();
     }
 
@@ -40,6 +40,6 @@ public class MessagingController extends AppCompatActivity {
 
             return true;
         });
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagingFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserListFragment()).commit();
     }
 }

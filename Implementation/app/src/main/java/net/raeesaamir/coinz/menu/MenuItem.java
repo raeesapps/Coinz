@@ -4,13 +4,14 @@ import net.raeesaamir.coinz.about.AboutController;
 import net.raeesaamir.coinz.game.GameController;
 import net.raeesaamir.coinz.leaderboard.LeaderboardController;
 import net.raeesaamir.coinz.messaging.MessagingController;
+import net.raeesaamir.coinz.messaging.UserListController;
 import net.raeesaamir.coinz.wallet.WalletController;
 
 public enum MenuItem {
 
     PLAY(GameController.class),
     WALLET(WalletController.class),
-    MESSAGING(MessagingController.class),
+    MESSAGING(UserListController.class),
     LEADERBOARD(LeaderboardController.class),
     ABOUT(AboutController.class);
 
