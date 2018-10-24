@@ -10,11 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.authentication.LoginController;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +28,12 @@ import java.util.List;
 public class MenuFragment extends Fragment {
 
     private static final List<MenuItem> MENU_ITEMS = Arrays.asList(MenuItem.values());
+    private static final String WELCOME_STRING = "Welcome \n";
+
     private View view;
+
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
 
     @Nullable
     @Override
@@ -34,7 +45,24 @@ public class MenuFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         populateListView();
+        populateUserInformation();
+    }
+
+    private void populateUserInformation() {
+        Preconditions.checkNotNull(mUser);
+
+        TextView welcomeMessage = view.findViewById(R.id.welcomeMessage);
+        welcomeMessage.setText(WELCOME_STRING + mUser.getEmail() + "!");
+
+        Button signOutButton = view.findViewById(R.id.signOut);
+        signOutButton.setOnClickListener((View view) -> {
+            mAuth.signOut();
+            Intent login = new Intent(getContext(), LoginController.class);
+            startActivity(login);
+        });
     }
 
     /**
