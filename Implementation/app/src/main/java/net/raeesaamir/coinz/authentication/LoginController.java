@@ -32,6 +32,9 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.menu.MenuController;
@@ -184,18 +187,43 @@ public class LoginController extends AppCompatActivity implements LoaderCallback
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-
-            firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
-                if(!task.isSuccessful()) {
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
-                    showProgress(false);
-                } else {
-                    Intent menu = new Intent(this, MenuController.class);
-                    startActivity(menu);
-                }
-            });
+            performLoginOrRegistration(email, password);
         }
+    }
+
+    private void performLoginOrRegistration(String email, String password) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
+            try {
+                throw task.getException();
+            } catch(FirebaseAuthUserCollisionException existsUser) {
+                performLogin(email, password);
+            } catch (FirebaseAuthWeakPasswordException weakPassword) {
+                mPasswordView.setError(getString(R.string.error_invalid_password));
+                mPasswordView.requestFocus();
+                showProgress(false);
+            } catch(FirebaseAuthInvalidCredentialsException invalidCredentials) {
+                mPasswordView.setError(getString(R.string.error_invalid_email));
+                mPasswordView.requestFocus();
+                showProgress(false);
+            } catch(Exception ignoredException) {
+                if(!ignoredException.getClass().equals(FirebaseAuthWeakPasswordException.class) && !ignoredException.getClass().equals(FirebaseAuthInvalidCredentialsException.class)) {
+                    performLogin(email, password);
+                }
+            }
+        });
+    }
+
+    private void performLogin(String email, String password) {
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
+            if(!task.isSuccessful()) {
+                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.requestFocus();
+                showProgress(false);
+            } else {
+                Intent menu = new Intent(this, MenuController.class);
+                startActivity(menu);
+            }
+        });
     }
 
     private boolean isEmailValid(String email) {
