@@ -26,7 +26,7 @@ public class UserListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.menu_fragment, container, false);
+        return inflater.inflate(R.layout.user_list_fragment, container, false);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class UserListFragment extends Fragment {
     }
 
     private void populateUserList() {
-        ListView usernamesList = view.findViewById(R.id.users);
+        ListView usernamesList = view.findViewById(R.id.usersListView);
 
         List<String> usernames = Lists.newArrayList();
         SimpleUserManager.USERS.forEach(x -> usernames.add(x.name()));
