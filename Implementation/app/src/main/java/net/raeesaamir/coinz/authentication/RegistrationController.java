@@ -34,7 +34,7 @@ public class RegistrationController extends AuthenticationController {
         mConfirmPasswordView = findViewById(R.id.confirmPassword);
         mConfirmPasswordView.setOnEditorActionListener((TextView textView, int id, KeyEvent keyEvent) -> {
                     if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                        attemptLogin();
+                        attemptAuthentication();
                         return true;
                     }
                     return false;
@@ -52,7 +52,7 @@ public class RegistrationController extends AuthenticationController {
     }
 
     @Override
-    protected void attemptLogin() {
+    protected void attemptAuthentication() {
         // Reset errors.
         mNameView.setError(null);
         mEmailView.setError(null);

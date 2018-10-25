@@ -30,7 +30,7 @@ public class AuthenticationController extends AppCompatActivity {
     protected EditText mEmailView;
     protected EditText mPasswordView;
     private View mProgressView;
-    private View mLoginFormView;
+    private View mAuthenticationFormView;
 
     public int getContentView() {
         return -1;
@@ -51,21 +51,21 @@ public class AuthenticationController extends AppCompatActivity {
         mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener((TextView textView, int id, KeyEvent keyEvent) -> {
                     if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                        attemptLogin();
+                        attemptAuthentication();
                         return true;
                     }
                     return false;
                 }
         );
 
-        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        Button mEmailSignInButton = findViewById(R.id.authenticate_button);
         mEmailSignInButton.setOnClickListener((View view) -> {
-                    attemptLogin();
+                    attemptAuthentication();
                 }
         );
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        mAuthenticationFormView = findViewById(R.id.authentication_form);
+        mProgressView = findViewById(R.id.authentication_progress);
 
         firebaseAuth = FirebaseAuth.getInstance();
     }
@@ -76,7 +76,7 @@ public class AuthenticationController extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    protected void attemptLogin() {
+    protected void attemptAuthentication() {
 
         // Reset errors.
         mEmailView.setError(null);
@@ -152,12 +152,12 @@ public class AuthenticationController extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+            mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mAuthenticationFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -173,7 +173,7 @@ public class AuthenticationController extends AppCompatActivity {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 }
