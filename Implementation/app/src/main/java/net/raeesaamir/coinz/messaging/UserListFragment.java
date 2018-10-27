@@ -13,15 +13,23 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.common.collect.Lists;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.authentication.simple.SimpleUserManager;
 
 import java.util.List;
 
 public class UserListFragment extends Fragment {
 
     private View view;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
 
     @Nullable
     @Override
@@ -33,14 +41,15 @@ public class UserListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         populateUserList();
     }
 
     private void populateUserList() {
         ListView usernamesList = view.findViewById(R.id.usersListView);
 
-        List<String> usernames = Lists.newArrayList();
-        SimpleUserManager.USERS.forEach(x -> usernames.add(x.name()));
+        List<String> usernames = getUsernames();
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, usernames);
         usernamesList.setAdapter(arrayAdapter);
@@ -50,5 +59,32 @@ public class UserListFragment extends Fragment {
             intent.putExtra("username", username);
             startActivity(intent);
         });
+    }
+
+    private List<String> getUsernames() {
+
+        List<String> usernames = Lists.newArrayList();
+
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference usersdRef = rootRef.child("users");
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String name = ds.child("name").getValue(String.class);
+
+                    if(name.equals(mUser.getDisplayName()))
+                        continue;
+
+                    usernames.add(name);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        };
+        usersdRef.addListenerForSingleValueEvent(eventListener);
+
+        return usernames;
     }
 }

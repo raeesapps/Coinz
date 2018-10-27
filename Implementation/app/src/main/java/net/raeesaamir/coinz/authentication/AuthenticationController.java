@@ -61,8 +61,7 @@ public class AuthenticationController extends AppCompatActivity {
         Button mEmailSignInButton = findViewById(R.id.authenticate_button);
         mEmailSignInButton.setOnClickListener((View view) -> {
                     attemptAuthentication();
-                }
-        );
+        });
 
         mAuthenticationFormView = findViewById(R.id.authentication_form);
         mProgressView = findViewById(R.id.authentication_progress);

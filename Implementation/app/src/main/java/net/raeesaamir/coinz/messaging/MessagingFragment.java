@@ -11,32 +11,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.collect.Lists;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.authentication.simple.SimpleUser;
-import net.raeesaamir.coinz.authentication.simple.SimpleUserManager;
-import net.raeesaamir.coinz.messaging.simple.SimpleMessage;
-
-import java.util.List;
 
 public class MessagingFragment extends Fragment {
 
-    private static final class MessagingControllerLoremIpsum {
-        public static final List<SimpleMessage> MESSAGES = Lists.newArrayList(
-                new SimpleMessage("u idiot", 23, SimpleUserManager.USERS.get(0)),
-                new SimpleMessage("suck it", 24, SimpleUserManager.USERS.get(1)),
-                new SimpleMessage("i can't believe you did that!!", 24, SimpleUserManager.USERS.get(1)),
-                new SimpleMessage("listen u really think i care?", 26, SimpleUserManager.USERS.get(0))
-        );
-
-    }
-
     private View view;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         populateMessages();
     }
 
@@ -48,8 +39,8 @@ public class MessagingFragment extends Fragment {
 
     private void populateMessages() {
         RecyclerView recyclerView = view.findViewById(R.id.message_list);
-        MessageListAdapter<SimpleUser, SimpleMessage> simpleMessageListAdapter =
-                new MessageListAdapter(MessagingControllerLoremIpsum.MESSAGES, SimpleUserManager.USERS.get(0));
+        MessageListAdapter simpleMessageListAdapter =
+                new MessageListAdapter(Lists.newArrayList(), mUser.getDisplayName());
         recyclerView.setAdapter(simpleMessageListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }

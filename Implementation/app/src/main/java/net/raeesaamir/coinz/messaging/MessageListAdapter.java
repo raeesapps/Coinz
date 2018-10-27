@@ -2,26 +2,23 @@ package net.raeesaamir.coinz.messaging;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.authentication.User;
 
-import java.util.Date;
 import java.util.List;
 
-public class MessageListAdapter<U extends User, M extends Message<U>> extends RecyclerView.Adapter {
+public class MessageListAdapter extends RecyclerView.Adapter {
 
     private enum MessageType {
         MESSAGE_SENT,
         MESSAGE_RECEIVED;
     }
 
-    public static class ReceivedMessageHolder<U extends User, M extends Message<U>> extends RecyclerView.ViewHolder {
+    public static class ReceivedMessageHolder extends RecyclerView.ViewHolder {
 
         private final TextView messageText;
         private final TextView timeText;
@@ -34,18 +31,14 @@ public class MessageListAdapter<U extends User, M extends Message<U>> extends Re
             nameText = itemView.findViewById(R.id.text_message_name);
         }
 
-        void bind(M message) {
-            messageText.setText(message.message());
-
-            Date date = new Date(message.createdAt());
-            timeText.setText(date.toGMTString());
-
-            U user = message.sender();
-            nameText.setText(user.name());
+        void bind(FirebaseMessage message) {
+            messageText.setText(message.getMessageText());
+            timeText.setText(message.getMessageTimeAsString());
+            nameText.setText(message.getMessageUser());
         }
     }
 
-    public class SentMessageHolder<U extends User, M extends Message<U>> extends RecyclerView.ViewHolder {
+    public class SentMessageHolder extends RecyclerView.ViewHolder {
 
         private final TextView messageText;
 
@@ -54,8 +47,8 @@ public class MessageListAdapter<U extends User, M extends Message<U>> extends Re
             messageText = itemView.findViewById(R.id.text_message_body);
         }
 
-        void bind(M message) {
-            messageText.setText(message.message());
+        void bind(FirebaseMessage message) {
+            messageText.setText(message.getMessageText());
         }
     }
 
@@ -63,24 +56,19 @@ public class MessageListAdapter<U extends User, M extends Message<U>> extends Re
         return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
     }
 
-    private List<M> messageList;
-    private U user;
+    private List<FirebaseMessage> messageList;
+    private String user;
 
-    public MessageListAdapter(List<M> messageList, U user) {
+    public MessageListAdapter(List<FirebaseMessage> messageList, String user) {
         this.messageList = messageList;
         this.user = user;
-
-        Log.i("MessageListAdapter", "constructor");
-
     }
 
     @Override
     public int getItemViewType(int position) {
-        M message = messageList.get(position);
+        FirebaseMessage message = messageList.get(position);
         MessageType type;
-        U user = message.sender();
-
-        Log.i("MessageListAdapter", "getItemViewType");
+        String user = message.getMessageUser();
 
 
         if (user.equals(this.user)) {
@@ -94,20 +82,16 @@ public class MessageListAdapter<U extends User, M extends Message<U>> extends Re
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        M message = messageList.get(position);
+        FirebaseMessage message = messageList.get(position);
         MessageType type = MessageListAdapter.getType(viewHolder.getItemViewType());
-
-        Log.i("MessageListAdapter", "onBindViewholder");
 
         switch(type) {
             case MESSAGE_SENT:
-                SentMessageHolder<U, M> sentMessageHolder = (SentMessageHolder<U, M>) viewHolder;
-                Log.i("BINDING", message.message());
+                SentMessageHolder sentMessageHolder = (SentMessageHolder) viewHolder;
                 sentMessageHolder.bind(message);
                 break;
             case MESSAGE_RECEIVED:
-                ReceivedMessageHolder<U, M> receivedMessageHolder = (ReceivedMessageHolder<U, M>) viewHolder;
-                Log.i("BINDING", message.message());
+                ReceivedMessageHolder receivedMessageHolder = (ReceivedMessageHolder) viewHolder;
                 receivedMessageHolder.bind(message);
                 break;
         }
@@ -124,16 +108,14 @@ public class MessageListAdapter<U extends User, M extends Message<U>> extends Re
         View view;
         MessageType messageType = MessageListAdapter.getType(viewType);
 
-        Log.i("MessageListAdapter", "onCreateViewHolder");
-
         if(messageType.equals(MessageType.MESSAGE_RECEIVED)) {
             view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.item_message_received, viewGroup, false);
-            return new ReceivedMessageHolder<U, M>(view);
+            return new ReceivedMessageHolder(view);
         } else {
             view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.item_message_sent, viewGroup, false);
-            return new SentMessageHolder<U, M>(view);
+            return new SentMessageHolder(view);
         }
 
     }

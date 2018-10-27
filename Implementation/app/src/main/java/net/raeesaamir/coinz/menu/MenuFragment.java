@@ -55,7 +55,7 @@ public class MenuFragment extends Fragment {
         Preconditions.checkNotNull(mUser);
 
         TextView welcomeMessage = view.findViewById(R.id.welcomeMessage);
-        welcomeMessage.setText(WELCOME_STRING + mUser.getEmail() + "!");
+        welcomeMessage.setText(WELCOME_STRING + mUser.getDisplayName() + "!");
 
         Button signOutButton = view.findViewById(R.id.signOut);
         signOutButton.setOnClickListener((View view) -> {
