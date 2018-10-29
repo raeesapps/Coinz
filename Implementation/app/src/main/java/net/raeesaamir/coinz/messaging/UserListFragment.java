@@ -48,45 +48,39 @@ public class UserListFragment extends Fragment {
     private void populateUserList() {
         ListView usernamesList = view.findViewById(R.id.usersListView);
 
-        List<String> usernames = getUsernames();
-
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, usernames);
-        usernamesList.setAdapter(arrayAdapter);
-        usernamesList.setOnItemClickListener((AdapterView<?> adapterView, View view, int position, long l) -> {
-            String username = usernames.get(position);
-            Intent intent = new Intent(getContext(), MessagingController.class);
-            intent.putExtra("username", username);
-            startActivity(intent);
-        });
-    }
-
-    private List<String> getUsernames() {
-
-        List<String> usernames = Lists.newArrayList();
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference users = db.collection("Users");
 
-        Task<QuerySnapshot> task = users.get();
-        if (task.isSuccessful()) {
-            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+        users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task)-> {
+            if (task.isSuccessful()) {
 
-                if (!documentSnapshot.contains("uid")) {
-                    continue;
+                List<String> usernames = Lists.newArrayList();
+                for (DocumentSnapshot documentSnapshot : task.getResult()) {
+
+                    if (!documentSnapshot.contains("uid")) {
+                        continue;
+                    }
+
+                    String uid = (String) documentSnapshot.get("uid");
+
+                    if (uid.equals(mUser.getUid())) {
+                        continue;
+                    }
+
+                    String displayName = (String) documentSnapshot.get("displayName");
+                    usernames.add(displayName);
+                    System.out.println(displayName);
                 }
 
-                String uid = (String) documentSnapshot.get("uid");
-
-                if (uid.equals(mUser.getUid())) {
-                    continue;
-                }
-
-                String displayName = (String) documentSnapshot.get("displayName");
-                usernames.add(displayName);
-                System.out.println(displayName);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, usernames);
+                usernamesList.setAdapter(arrayAdapter);
+                usernamesList.setOnItemClickListener((AdapterView<?> adapterView, View view, int position, long l) -> {
+                    String username = usernames.get(position);
+                    Intent intent = new Intent(getContext(), MessagingController.class);
+                    intent.putExtra("username", username);
+                    startActivity(intent);
+                });
             }
-        }
-
-        return usernames;
+        });
     }
 }
