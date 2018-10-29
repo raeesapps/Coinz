@@ -12,21 +12,20 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Lists;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import net.raeesaamir.coinz.R;
 
 import java.util.List;
 
 public class UserListFragment extends Fragment {
-
     private View view;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
@@ -65,25 +64,28 @@ public class UserListFragment extends Fragment {
 
         List<String> usernames = Lists.newArrayList();
 
-        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference usersdRef = rootRef.child("users");
-        ValueEventListener eventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String name = ds.child("name").getValue(String.class);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference users = db.collection("Users");
 
-                    if(name.equals(mUser.getDisplayName()))
-                        continue;
+        Task<QuerySnapshot> task = users.get();
+        if (task.isSuccessful()) {
+            for (DocumentSnapshot documentSnapshot : task.getResult()) {
 
-                    usernames.add(name);
+                if (!documentSnapshot.contains("uid")) {
+                    continue;
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        };
-        usersdRef.addListenerForSingleValueEvent(eventListener);
+                String uid = (String) documentSnapshot.get("uid");
+
+                if (uid.equals(mUser.getUid())) {
+                    continue;
+                }
+
+                String displayName = (String) documentSnapshot.get("displayName");
+                usernames.add(displayName);
+                System.out.println(displayName);
+            }
+        }
 
         return usernames;
     }

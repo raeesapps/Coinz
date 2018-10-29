@@ -117,6 +117,9 @@ public class RegistrationController extends AuthenticationController {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name).build());
 
+                FirebaseUserDocument userDocument = new FirebaseUserDocument(email, user.getUid(), name);
+                userDocument.getFuture();
+
                 Intent menu = new Intent(getApplicationContext(), MenuController.class);
                 startActivity(menu);
             } else {
