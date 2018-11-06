@@ -1,13 +1,12 @@
 package net.raeesaamir.coinz;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Map;
-
 public abstract class FirestoreDocument {
 
-    public abstract Map<String, Object> getDocument();
+    public abstract ImmutableMap<String, Object> getDocument();
     public abstract String getDocumentName();
     public abstract String getCollectionName();
 

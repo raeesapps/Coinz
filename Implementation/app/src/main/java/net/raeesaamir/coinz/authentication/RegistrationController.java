@@ -117,7 +117,7 @@ public class RegistrationController extends AuthenticationController {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name).build());
 
-                FirebaseUserDocument userDocument = new FirebaseUserDocument(email, user.getUid(), name);
+                FirestoreUser userDocument = new FirestoreUser(email, user.getUid(), name);
                 userDocument.getFuture();
 
                 Intent menu = new Intent(getApplicationContext(), MenuController.class);
@@ -128,7 +128,7 @@ public class RegistrationController extends AuthenticationController {
                     throw task.getException();
                 } catch(FirebaseAuthUserCollisionException collisionException) {
                     throwEmailError(R.string.error_email_exists);
-                } catch(Exception ignored) {}
+                } catch(Exception e) { e.printStackTrace(); }
             }
 
         });

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.authentication.FirestoreUser;
 
 import java.util.List;
 
@@ -31,10 +32,10 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             nameText = itemView.findViewById(R.id.text_message_name);
         }
 
-        void bind(FirebaseMessage message) {
+        void bind(FirestoreMessage message) {
             messageText.setText(message.getMessageText());
             timeText.setText(message.getMessageTimeAsString());
-            nameText.setText(message.getMessageUser());
+            nameText.setText(message.getMessageToUser().getDisplayName());
         }
     }
 
@@ -47,7 +48,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             messageText = itemView.findViewById(R.id.text_message_body);
         }
 
-        void bind(FirebaseMessage message) {
+        void bind(FirestoreMessage message) {
             messageText.setText(message.getMessageText());
         }
     }
@@ -56,22 +57,22 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
     }
 
-    private List<FirebaseMessage> messageList;
-    private String user;
+    private List<FirestoreMessage> messageList;
+    private FirestoreUser user;
 
-    public MessageListAdapter(List<FirebaseMessage> messageList, String user) {
+    public MessageListAdapter(List<FirestoreMessage> messageList, FirestoreUser user) {
         this.messageList = messageList;
         this.user = user;
     }
 
     @Override
     public int getItemViewType(int position) {
-        FirebaseMessage message = messageList.get(position);
+        FirestoreMessage message = messageList.get(position);
+        FirestoreUser fromUser = message.getMessageFromUser();
         MessageType type;
-        String user = message.getMessageUser();
 
 
-        if (user.equals(this.user)) {
+        if (fromUser.equals(this.user)) {
             type = MessageType.MESSAGE_SENT;
         } else {
             type = MessageType.MESSAGE_RECEIVED;
@@ -82,7 +83,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        FirebaseMessage message = messageList.get(position);
+        FirestoreMessage message = messageList.get(position);
         MessageType type = MessageListAdapter.getType(viewHolder.getItemViewType());
 
         switch(type) {

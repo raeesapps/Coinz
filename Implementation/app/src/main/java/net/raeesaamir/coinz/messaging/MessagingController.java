@@ -40,6 +40,8 @@ public class MessagingController extends AppCompatActivity {
 
             return true;
         });
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagingFragment()).commit();
+
+        String username = getIntent().getStringExtra("username");
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagingFragment(username)).commit();
     }
 }

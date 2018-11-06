@@ -1,24 +1,26 @@
 package net.raeesaamir.coinz.authentication;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import net.raeesaamir.coinz.FirestoreDocument;
 
 import java.util.Map;
 
-public class FirebaseUserDocument extends FirestoreDocument {
+public class FirestoreUser extends FirestoreDocument {
 
     private String email;
     private String uid;
     private String displayName;
 
-    public FirebaseUserDocument(String email, String uid, String displayName) {
+    public FirestoreUser(String email, String uid, String displayName) {
         this.email = email;
         this.uid = uid;
         this.displayName = displayName;
     }
 
-    public FirebaseUserDocument() {
+    public FirestoreUser() {
 
     }
 
@@ -47,14 +49,8 @@ public class FirebaseUserDocument extends FirestoreDocument {
     }
 
     @Override
-    public Map<String, Object> getDocument() {
-        Map<String, Object> doc = Maps.newHashMap();
-
-        doc.put("email", email);
-        doc.put("uid", uid);
-        doc.put("displayName", displayName);
-
-        return doc;
+    public ImmutableMap<String, Object> getDocument() {
+        return ImmutableMap.<String, Object>builder().put("uid", uid).put("email", email).put("displayName", displayName).build();
     }
 
     @Override
@@ -65,5 +61,25 @@ public class FirebaseUserDocument extends FirestoreDocument {
     @Override
     public String getCollectionName() {
         return "Users";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+
+        if(!(obj instanceof FirestoreUser)) {
+            return false;
+        }
+
+        FirestoreUser otherUsr = (FirestoreUser) obj;
+        return Objects.equal(email, otherUsr.email) && Objects.equal(uid, otherUsr.uid)
+                && Objects.equal(displayName, otherUsr.displayName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email, uid, displayName);
     }
 }

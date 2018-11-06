@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.authentication.FirestoreUser;
 
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class UserListFragment extends Fragment {
                 List<String> usernames = Lists.newArrayList();
                 for (DocumentSnapshot documentSnapshot : task.getResult()) {
 
-                    if (!documentSnapshot.contains("uid")) {
+                    if (!documentSnapshot.contains("uid") || !documentSnapshot.contains("email") || !documentSnapshot.contains("displayName")) {
                         continue;
                     }
 
@@ -69,8 +70,8 @@ public class UserListFragment extends Fragment {
 
                     String displayName = (String) documentSnapshot.get("displayName");
                     usernames.add(displayName);
-                    System.out.println(displayName);
                 }
+
 
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, usernames);
                 usernamesList.setAdapter(arrayAdapter);
@@ -82,5 +83,7 @@ public class UserListFragment extends Fragment {
                 });
             }
         });
+
+        FirestoreMessage.createExampleConversation();
     }
 }
