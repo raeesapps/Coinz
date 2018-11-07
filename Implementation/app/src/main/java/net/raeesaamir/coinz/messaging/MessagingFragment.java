@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Lists;
@@ -26,11 +28,15 @@ import java.util.List;
 
 public class MessagingFragment extends Fragment {
 
+    private Button button;
+    private List<FirestoreMessage> firestoreMessageList = Lists.newArrayList();
+    private EditText messageContents;
     private View view;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private FirestoreUser otherUser;
     private FirestoreUser thisUser;
+    private MessageListAdapter simpleMessageListAdapter;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -39,9 +45,21 @@ public class MessagingFragment extends Fragment {
         this.mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
         this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
-
+        this.button = view.findViewById(R.id.button_chatbox_send);
+        this.messageContents = view.findViewById(R.id.edittext_chatbox);
         setOtherUser(getActivity().getIntent().getStringExtra("username"));
+        setOnSend();
         populateMessages();
+    }
+
+    private void setOnSend() {
+        button.setOnClickListener((View view) -> {
+            String messageString = messageContents.getText().toString();
+            FirestoreMessage message = new FirestoreMessage(messageString, thisUser, otherUser);
+            message.getFuture();
+            firestoreMessageList.add(message);
+            simpleMessageListAdapter.notifyDataSetChanged();
+        });
     }
 
     @Nullable
@@ -96,7 +114,6 @@ public class MessagingFragment extends Fragment {
 
             if(task.isSuccessful()) {
 
-                List<FirestoreMessage> firestoreMessageList = Lists.newArrayList();
                 for(DocumentSnapshot snapshot: task.getResult()) {
 
                     if(!snapshot.contains("messageText") || !snapshot.contains("messageTime")
@@ -131,7 +148,7 @@ public class MessagingFragment extends Fragment {
                 }
 
 
-                MessageListAdapter simpleMessageListAdapter =
+                simpleMessageListAdapter =
                         new MessageListAdapter(firestoreMessageList, thisUser);
                 recyclerView.setAdapter(simpleMessageListAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
