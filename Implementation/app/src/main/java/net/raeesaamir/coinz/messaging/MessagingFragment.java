@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Lists;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +39,8 @@ public class MessagingFragment extends Fragment {
         this.mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
         this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
+
+        setOtherUser(getActivity().getIntent().getStringExtra("username"));
         populateMessages();
     }
 
@@ -47,6 +48,42 @@ public class MessagingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.messaging_fragment, container, false);
+    }
+
+    private void setOtherUser(String username) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference users = db.collection("Users");
+
+        users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
+
+            if(task.isSuccessful()) {
+
+                if(thisUser == null) {
+                    this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
+                }
+
+                if(otherUser == null) {
+                    setOtherUser(getActivity().getIntent().getStringExtra("username"));
+                }
+
+                for(DocumentSnapshot snapshot: task.getResult()) {
+
+                    if(!snapshot.contains("uid") || !snapshot.contains("displayName") ||
+                            !snapshot.contains("email")) {
+                        continue;
+                    }
+
+                    if(snapshot.get("displayName").equals(username)) {
+                        String uid = snapshot.getString("uid");
+                        String displayName = snapshot.getString("displayName");
+                        String email = snapshot.getString("email");
+                        otherUser = new FirestoreUser(email, uid, displayName);
+                    }
+
+                }
+            }
+
+        });
     }
 
     private void populateMessages() {
@@ -63,7 +100,7 @@ public class MessagingFragment extends Fragment {
                 for(DocumentSnapshot snapshot: task.getResult()) {
 
                     if(!snapshot.contains("messageText") || !snapshot.contains("messageTime")
-                            || !snapshot.contains("messageToUser") || snapshot.contains("messageFromUser")) {
+                            || !snapshot.contains("messageToUser") || !snapshot.contains("messageFromUser")) {
                         continue;
                     }
 
@@ -93,13 +130,13 @@ public class MessagingFragment extends Fragment {
 
                 }
 
+
+                MessageListAdapter simpleMessageListAdapter =
+                        new MessageListAdapter(firestoreMessageList, thisUser);
+                recyclerView.setAdapter(simpleMessageListAdapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             }
 
         });
-
-        MessageListAdapter simpleMessageListAdapter =
-                new MessageListAdapter(Lists.newArrayList(), thisUser);
-        recyclerView.setAdapter(simpleMessageListAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    }
+        }
 }

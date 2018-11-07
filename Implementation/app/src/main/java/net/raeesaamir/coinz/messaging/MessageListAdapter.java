@@ -2,6 +2,7 @@ package net.raeesaamir.coinz.messaging;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         void bind(FirestoreMessage message) {
             messageText.setText(message.getMessageText());
             timeText.setText(message.getMessageTimeAsString());
-            nameText.setText(message.getMessageToUser().getDisplayName());
+            nameText.setText(message.getMessageFromUser().getDisplayName());
         }
     }
 
@@ -70,7 +71,6 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         FirestoreMessage message = messageList.get(position);
         FirestoreUser fromUser = message.getMessageFromUser();
         MessageType type;
-
 
         if (fromUser.equals(this.user)) {
             type = MessageType.MESSAGE_SENT;

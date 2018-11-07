@@ -47,7 +47,6 @@ public class FirestoreMessage extends FirestoreDocument {
                 }
 
                 FirestoreMessage firestoreMessage = new FirestoreMessage("Hello", from, to);
-                System.out.println("FUTURE SUCCESSFUL");
                 firestoreMessage.getFuture();
             }
 
