@@ -22,12 +22,35 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
+import net.raeesaamir.coinz.DownloadFileTask;
 import net.raeesaamir.coinz.R;
 
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
+
+    public static class GeoJsonDownloadTask extends DownloadFileTask {
+
+        @Override
+        public String readStream(InputStream inputStream) {
+
+            /*
+            long date = new Date().getTime();
+            String dateFormatted = DATE_FORMATTER.format(date);*/
+
+
+
+
+            return null;
+        }
+    }
 
     private String tag = "GameFragment";
     private View view;
@@ -143,27 +166,49 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private void initializeLocationLayer() {
-
+        if(mapView == null) {
+            Log.d(tag, "map view is null");
+        } else {
+            locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
+            locationLayerPlugin.setLocationLayerEnabled(true);
+            locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
+            locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
+        }
     }
 
     @Override
     public void onConnected() {
-
+        Log.d(tag, "[onConnected] requesting location update");
+        locationEngine.requestLocationUpdates();
     }
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-
+        Log.d(tag, "Permissions: " + permissionsToExplain.toString());
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
+        if(location == null) {
+            Log.d(tag, "[onLocationChanged] location is null");
+        } else {
+            Log.d(tag, "[onLocationChanged] location is not null");
+            originalLocation = location;
+            setCameraPosition(location);
+        }
+
     }
 
     @Override
     public void onPermissionResult(boolean granted) {
+        Log.d(tag, "[onPermissionResult] granted == " + granted);
 
+        if(granted) {
+            enableLocation();
+        } else {
+
+        }
     }
 
     @Override
