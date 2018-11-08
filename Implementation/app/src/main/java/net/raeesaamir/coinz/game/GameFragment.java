@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -28,25 +30,71 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import net.raeesaamir.coinz.DownloadFileTask;
 import net.raeesaamir.coinz.R;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
-    public static class GeoJsonDownloadTask extends DownloadFileTask {
+    public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 
         @Override
-        public String readStream(InputStream inputStream) {
+        public FeatureCollection readStream(String jSONDocument) {
 
-            /*
-            long date = new Date().getTime();
-            String dateFormatted = DATE_FORMATTER.format(date);*/
+            try {
 
+                JSONObject jsonObject = new JSONObject(jSONDocument);
 
+                String featureCollectionType = jsonObject.getString("type");
+                String featureCollectionDateGenerated = jsonObject.getString("date-generated");
+                String featureCollectionTimeGenerated = jsonObject.getString("time-generated");
+                String featureCollectionApproximateTimeRemaining = jsonObject.getString("approximate-time-remaining");
 
+                JSONObject featureCollectionRatesJSONObject = jsonObject.getJSONObject("rates");
+
+                ImmutableMap<Currency, Double> featureCollectionRates = new ImmutableMap.Builder<Currency, Double>()
+                        .put(Currency.SHIL, featureCollectionRatesJSONObject.getDouble("SHIL"))
+                        .put(Currency.DOLR, featureCollectionRatesJSONObject.getDouble("DOLR"))
+                        .put(Currency.QUID, featureCollectionRatesJSONObject.getDouble("QUID"))
+                        .put(Currency.PENY, featureCollectionRatesJSONObject.getDouble("PENY")).build();
+
+                JSONArray featureCollectionFeaturesJSONArray = jsonObject.getJSONArray("features");
+                ImmutableList.Builder<Feature> featureBuilder = new ImmutableList.Builder<>();
+                for(int i = 0; i < featureCollectionFeaturesJSONArray.length(); i++) {
+                    JSONObject featureJSONObject = featureCollectionFeaturesJSONArray.getJSONObject(i);
+
+                    String featureType = featureJSONObject.getString("type");
+
+                    JSONObject featurePropertiesJSONObject = featureJSONObject.getJSONObject("properties");
+                    String featurePropertiesId = featurePropertiesJSONObject.getString("id");
+                    String featurePropertiesValue = featurePropertiesJSONObject.getString("value");
+                    Currency featurePropertiesCurrency = Currency.fromString(featurePropertiesJSONObject.getString("currency"));
+                    String featurePropertiesMarkerSymbol = featurePropertiesJSONObject.getString("marker-symbol");
+                    String featurePropertiesMarkerColor = featurePropertiesJSONObject.getString("markr-color");
+                    Feature.Properties featureProperties = new Feature.Properties(featurePropertiesId, featurePropertiesValue, featurePropertiesCurrency, featurePropertiesMarkerSymbol, featurePropertiesMarkerColor);
+
+                    JSONObject featureGeometryJSONObject = featureJSONObject.getJSONObject("geometry");
+                    String featureGeometryType = featureJSONObject.getString("type");
+                    JSONArray featureGeometryCoordinatesJSONArray = featureGeometryJSONObject.getJSONArray("coordinates");
+                    ImmutableList<Double> featureGeometryCoordinates = new ImmutableList.Builder<Double>().add(featureGeometryCoordinatesJSONArray.getDouble(0))
+                            .add(featureGeometryCoordinatesJSONArray.getDouble(1)).build();
+                    Feature.Geometry featureGeometry = new Feature.Geometry(featureGeometryType, featureGeometryCoordinates);
+
+                    Feature feature = new Feature(featureType, featureProperties, featureGeometry);
+                    featureBuilder.add(feature);
+                }
+
+                ImmutableList<Feature> featureCollectionFeatures = featureBuilder.build();
+
+                FeatureCollection featureCollection = new FeatureCollection(featureCollectionType, featureCollectionDateGenerated, featureCollectionTimeGenerated, featureCollectionApproximateTimeRemaining, featureCollectionRates, featureCollectionFeatures);
+                return featureCollection;
+            } catch(Exception e) {
+
+            }
 
             return null;
         }

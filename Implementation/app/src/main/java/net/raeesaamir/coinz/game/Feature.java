@@ -1,6 +1,6 @@
 package net.raeesaamir.coinz.game;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 public class Feature {
 
@@ -43,9 +43,9 @@ public class Feature {
 
     public static final class Geometry {
         private final String type;
-        private final List<String> coordinates;
+        private final ImmutableList<Double> coordinates;
 
-        public Geometry(String type, List<String> coordinates) {
+        public Geometry(String type, ImmutableList<Double> coordinates) {
             this.type = type;
             this.coordinates = coordinates;
         }
@@ -54,7 +54,7 @@ public class Feature {
             return type;
         }
 
-        public List<String> getCoordinates() {
+        public ImmutableList<Double> getCoordinates() {
             return coordinates;
         }
     }

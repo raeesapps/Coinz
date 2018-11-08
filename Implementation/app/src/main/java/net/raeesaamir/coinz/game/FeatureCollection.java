@@ -1,8 +1,7 @@
 package net.raeesaamir.coinz.game;
 
-import com.google.common.collect.Maps;
-
-import java.util.Map;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public class FeatureCollection {
 
@@ -10,14 +9,16 @@ public class FeatureCollection {
     private final String dateGenerated;
     private final String timeGenerated;
     private final String approximateTimeRemaining;
-    private final Map<Currency, Double> rates;
+    private final ImmutableMap<Currency, Double> rates;
+    private final ImmutableList<Feature> features;
 
-    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, Map<Currency, Double> rates) {
+    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ImmutableMap<Currency, Double> rates, ImmutableList<Feature> features) {
         this.type = type;
         this.dateGenerated = dateGenerated;
         this.timeGenerated = timeGenerated;
         this.approximateTimeRemaining = approximateTimeRemaining;
         this.rates = rates;
+        this.features = features;
     }
 
     public String getType() {
@@ -36,7 +37,11 @@ public class FeatureCollection {
         return approximateTimeRemaining;
     }
 
-    public Map<Currency, Double> getRates() {
+    public ImmutableMap<Currency, Double> getRates() {
         return rates;
+    }
+
+    public ImmutableList<Feature> getFeatures() {
+        return features;
     }
 }
