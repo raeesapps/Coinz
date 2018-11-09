@@ -12,14 +12,16 @@ public class FeatureCollection {
     private final String approximateTimeRemaining;
     private final ImmutableMap<Currency, Double> rates;
     private final ImmutableList<Feature> features;
+    private final String jsonData;
 
-    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ImmutableMap<Currency, Double> rates, ImmutableList<Feature> features) {
+    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ImmutableMap<Currency, Double> rates, ImmutableList<Feature> features, String jsonData) {
         this.type = type;
         this.dateGenerated = dateGenerated;
         this.timeGenerated = timeGenerated;
         this.approximateTimeRemaining = approximateTimeRemaining;
         this.rates = rates;
         this.features = features;
+        this.jsonData = jsonData;
     }
 
     public String getType() {
@@ -44,6 +46,10 @@ public class FeatureCollection {
 
     public ImmutableList<Feature> getFeatures() {
         return features;
+    }
+
+    public String getJsonData() {
+        return jsonData;
     }
 
     @Override

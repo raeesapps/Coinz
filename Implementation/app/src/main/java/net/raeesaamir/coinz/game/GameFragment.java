@@ -1,5 +1,7 @@
 package net.raeesaamir.coinz.game;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -41,6 +43,8 @@ import java.util.List;
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
+    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
+
     public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 
         @Override
@@ -110,7 +114,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 ImmutableList<Feature> featureCollectionFeatures = featureBuilder.build();
 
-                FeatureCollection featureCollection = new FeatureCollection(featureCollectionType, featureCollectionDateGenerated, featureCollectionTimeGenerated, featureCollectionApproximateTimeRemaining, featureCollectionRates, featureCollectionFeatures);
+                FeatureCollection featureCollection = new FeatureCollection(featureCollectionType, featureCollectionDateGenerated, featureCollectionTimeGenerated, featureCollectionApproximateTimeRemaining, featureCollectionRates, featureCollectionFeatures, jSONDocument);
                 System.out.println(featureCollection.toString());
                 return featureCollection;
             } catch(Exception e) {
@@ -151,7 +155,17 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
         String url = FEATURE_COLLECTION_URL + dateFormatted + "/coinzmap.geojson";
         try {
-            featureCollection = new GeoJsonDownloadTask().execute(url).get();
+
+            SharedPreferences preferences = getContext().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+
+            if(preferences.contains("jsonData")) {
+
+                String jSONDocument = preferences.getString("jsonData", "");
+                featureCollection = new GeoJsonDownloadTask().readStream(jSONDocument);
+            } else {
+                featureCollection = new GeoJsonDownloadTask().execute(url).get();
+                preferences.edit().putString("jsonData", featureCollection.getJsonData());
+            }
         } catch(Exception e) {
             e.printStackTrace();
         }
