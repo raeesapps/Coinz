@@ -35,11 +35,12 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
-
+    private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
     public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 
         @Override
@@ -54,6 +55,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 String featureCollectionTimeGenerated = jsonObject.getString("time-generated");
                 String featureCollectionApproximateTimeRemaining = jsonObject.getString("approximate-time-remaining");
 
+                System.out.println("featureCollectionType"+featureCollectionType);
+                System.out.println("featureCollectionDateGenerated"+featureCollectionDateGenerated);
+                System.out.println("featureCollectionTimeGenerated"+featureCollectionTimeGenerated);
+                System.out.println("featureCollectionApproxTimeRemaining"+featureCollectionApproximateTimeRemaining);
+
                 JSONObject featureCollectionRatesJSONObject = jsonObject.getJSONObject("rates");
 
                 ImmutableMap<Currency, Double> featureCollectionRates = new ImmutableMap.Builder<Currency, Double>()
@@ -62,9 +68,17 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                         .put(Currency.QUID, featureCollectionRatesJSONObject.getDouble("QUID"))
                         .put(Currency.PENY, featureCollectionRatesJSONObject.getDouble("PENY")).build();
 
+                System.out.println("rates"+featureCollectionRates.toString());
+
                 JSONArray featureCollectionFeaturesJSONArray = jsonObject.getJSONArray("features");
+
+                System.out.println("LENGTH"+featureCollectionFeaturesJSONArray.length());
+
                 ImmutableList.Builder<Feature> featureBuilder = new ImmutableList.Builder<>();
                 for(int i = 0; i < featureCollectionFeaturesJSONArray.length(); i++) {
+
+                    System.out.println("INDEX= "+i);
+
                     JSONObject featureJSONObject = featureCollectionFeaturesJSONArray.getJSONObject(i);
 
                     String featureType = featureJSONObject.getString("type");
@@ -74,8 +88,10 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                     String featurePropertiesValue = featurePropertiesJSONObject.getString("value");
                     Currency featurePropertiesCurrency = Currency.fromString(featurePropertiesJSONObject.getString("currency"));
                     String featurePropertiesMarkerSymbol = featurePropertiesJSONObject.getString("marker-symbol");
-                    String featurePropertiesMarkerColor = featurePropertiesJSONObject.getString("markr-color");
+                    String featurePropertiesMarkerColor = featurePropertiesJSONObject.getString("marker-color");
                     Feature.Properties featureProperties = new Feature.Properties(featurePropertiesId, featurePropertiesValue, featurePropertiesCurrency, featurePropertiesMarkerSymbol, featurePropertiesMarkerColor);
+
+                    System.out.println(featureProperties.toString());
 
                     JSONObject featureGeometryJSONObject = featureJSONObject.getJSONObject("geometry");
                     String featureGeometryType = featureJSONObject.getString("type");
@@ -84,16 +100,21 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                             .add(featureGeometryCoordinatesJSONArray.getDouble(1)).build();
                     Feature.Geometry featureGeometry = new Feature.Geometry(featureGeometryType, featureGeometryCoordinates);
 
+                    System.out.println(featureGeometry.toString());
+
                     Feature feature = new Feature(featureType, featureProperties, featureGeometry);
                     featureBuilder.add(feature);
+
+                    System.out.println(feature.toString());
                 }
 
                 ImmutableList<Feature> featureCollectionFeatures = featureBuilder.build();
 
                 FeatureCollection featureCollection = new FeatureCollection(featureCollectionType, featureCollectionDateGenerated, featureCollectionTimeGenerated, featureCollectionApproximateTimeRemaining, featureCollectionRates, featureCollectionFeatures);
+                System.out.println(featureCollection.toString());
                 return featureCollection;
             } catch(Exception e) {
-
+                e.printStackTrace();
             }
 
             return null;
@@ -111,6 +132,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private LocationLayerPlugin locationLayerPlugin;
     private Location originalLocation;
 
+    private FeatureCollection featureCollection;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -122,6 +145,17 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
         configureMapView(savedInstanceState);
+
+        long date = new Date().getTime();
+        String dateFormatted = DATE_FORMATTER.format(date);
+
+        String url = FEATURE_COLLECTION_URL + dateFormatted + "/coinzmap.geojson";
+        try {
+            featureCollection = new GeoJsonDownloadTask().execute(url).get();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void configureMapView(@Nullable Bundle savedInstanceState) {

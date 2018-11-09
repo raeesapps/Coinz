@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.game;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 public class Feature {
@@ -39,6 +40,12 @@ public class Feature {
         public String getMarkerColor() {
             return markerColor;
         }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this).add("id", id).add("value", value)
+                    .add("currency", currency).add("markerSymbol", markerSymbol).add("markerColor", markerColor).toString();
+        }
     }
 
     public static final class Geometry {
@@ -56,6 +63,11 @@ public class Feature {
 
         public ImmutableList<Double> getCoordinates() {
             return coordinates;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this).add("type", type).add("coordinates", coordinates).toString();
         }
     }
 
@@ -79,5 +91,10 @@ public class Feature {
 
     public Properties getProperties() {
         return properties;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("type", type).add("geometry", geometry).add("properties", properties).toString();
     }
 }

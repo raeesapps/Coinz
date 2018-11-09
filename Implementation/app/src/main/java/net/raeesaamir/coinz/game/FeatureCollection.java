@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.game;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -43,5 +44,12 @@ public class FeatureCollection {
 
     public ImmutableList<Feature> getFeatures() {
         return features;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("type", type).add("dateGenerated", dateGenerated)
+                .add("timeGenerated", timeGenerated).add("approximateTimeRemaining", approximateTimeRemaining).
+                add("rates", rates).add("features", features).toString();
     }
 }
