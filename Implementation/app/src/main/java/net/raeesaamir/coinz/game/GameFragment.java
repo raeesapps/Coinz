@@ -2,6 +2,8 @@ package net.raeesaamir.coinz.game;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,6 +22,9 @@ import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -35,7 +40,6 @@ import net.raeesaamir.coinz.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +53,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
         @Override
         public FeatureCollection readStream(String jSONDocument) {
+
+
 
             try {
 
@@ -183,6 +189,42 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync((MapboxMap m) -> {
 
+            for(Feature feature: featureCollection.getFeatures()) {
+
+                Feature.Geometry geometry = feature.getGeometry();
+                double x = geometry.getCoordinates().get(0);
+                double y = geometry.getCoordinates().get(1);
+
+                Feature.Properties properties = feature.getProperties();
+                String markerColor = properties.getMarkerColor();
+                int resource = -1;
+                switch(markerColor) {
+                    case "#ff0000":
+                        resource = R.drawable.purple_marker;
+                        break;
+                    case "#0000ff":
+                        resource = R.drawable.blue_marker;
+                        break;
+                    case "#008000":
+                        resource = R.drawable.green_marker;
+                        break;
+                    case "#ffdf00":
+                        resource = R.drawable.yellow_marker;
+                        break;
+                    default:
+                        break;
+
+                }
+
+                IconFactory iconFactory = IconFactory.getInstance(getActivity());
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
+                Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
+
+                m.addMarker(new MarkerOptions().setPosition(new LatLng(y,x)).setIcon(icon));
+
+
+
+            }
         });
 
     }
