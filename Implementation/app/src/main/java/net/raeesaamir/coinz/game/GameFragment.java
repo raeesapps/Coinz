@@ -13,9 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -24,6 +27,7 @@ import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -43,6 +47,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
@@ -188,6 +193,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync((MapboxMap m) -> {
+            Map<Marker, Feature> markerFeatureMap = Maps.newHashMap();
 
             for(Feature feature: featureCollection.getFeatures()) {
 
@@ -197,6 +203,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 Feature.Properties properties = feature.getProperties();
                 String markerColor = properties.getMarkerColor();
+                String value = properties.getValue() + " " + properties.getCurrency().toString().toLowerCase();
                 int resource = -1;
                 switch(markerColor) {
                     case "#ff0000":
@@ -220,11 +227,21 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
                 Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
 
-                m.addMarker(new MarkerOptions().setPosition(new LatLng(y,x)).setIcon(icon));
-
-
-
+                Marker marker = m.addMarker(new MarkerOptions().setPosition(new LatLng(y,x)).setIcon(icon));
+                markerFeatureMap.put(marker, feature);
             }
+
+            m.setOnMarkerClickListener((@NonNull Marker marker) -> {
+                Preconditions.checkArgument(markerFeatureMap.containsKey(marker));
+
+                Feature feature = markerFeatureMap.get(marker);
+                Feature.Properties properties = feature.getProperties();
+                String value = properties.getValue() + " " + properties.getCurrency().toString().toLowerCase();
+
+                Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+                return true;
+            });
+
         });
 
     }
