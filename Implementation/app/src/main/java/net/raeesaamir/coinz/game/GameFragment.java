@@ -156,15 +156,21 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         String url = FEATURE_COLLECTION_URL + dateFormatted + "/coinzmap.geojson";
         try {
 
-            SharedPreferences preferences = getContext().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+            SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
 
-            if(preferences.contains("jsonData")) {
+            if(preferences.contains(dateFormatted)) {
 
-                String jSONDocument = preferences.getString("jsonData", "");
+                System.out.println("jsondata exists");
+
+                String jSONDocument = preferences.getString(dateFormatted, "");
                 featureCollection = new GeoJsonDownloadTask().readStream(jSONDocument);
+                System.out.println("jsondata"+featureCollection.getFeatures());
             } else {
+
+                System.out.println("jsondata does not exist");
+
                 featureCollection = new GeoJsonDownloadTask().execute(url).get();
-                preferences.edit().putString("jsonData", featureCollection.getJsonData());
+                preferences.edit().putString(dateFormatted, featureCollection.getJsonData()).commit();
             }
         } catch(Exception e) {
             e.printStackTrace();
