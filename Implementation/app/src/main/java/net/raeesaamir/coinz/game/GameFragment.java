@@ -16,9 +16,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -41,9 +40,6 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import net.raeesaamir.coinz.DownloadFileTask;
 import net.raeesaamir.coinz.R;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -52,87 +48,15 @@ import java.util.Map;
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
-    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
+    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Preferences";
 
     public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 
         @Override
         public FeatureCollection readStream(String jSONDocument) {
 
-
-
-            try {
-
-                JSONObject jsonObject = new JSONObject(jSONDocument);
-
-                String featureCollectionType = jsonObject.getString("type");
-                String featureCollectionDateGenerated = jsonObject.getString("date-generated");
-                String featureCollectionTimeGenerated = jsonObject.getString("time-generated");
-                String featureCollectionApproximateTimeRemaining = jsonObject.getString("approximate-time-remaining");
-
-                System.out.println("featureCollectionType"+featureCollectionType);
-                System.out.println("featureCollectionDateGenerated"+featureCollectionDateGenerated);
-                System.out.println("featureCollectionTimeGenerated"+featureCollectionTimeGenerated);
-                System.out.println("featureCollectionApproxTimeRemaining"+featureCollectionApproximateTimeRemaining);
-
-                JSONObject featureCollectionRatesJSONObject = jsonObject.getJSONObject("rates");
-
-                ImmutableMap<Currency, Double> featureCollectionRates = new ImmutableMap.Builder<Currency, Double>()
-                        .put(Currency.SHIL, featureCollectionRatesJSONObject.getDouble("SHIL"))
-                        .put(Currency.DOLR, featureCollectionRatesJSONObject.getDouble("DOLR"))
-                        .put(Currency.QUID, featureCollectionRatesJSONObject.getDouble("QUID"))
-                        .put(Currency.PENY, featureCollectionRatesJSONObject.getDouble("PENY")).build();
-
-                System.out.println("rates"+featureCollectionRates.toString());
-
-                JSONArray featureCollectionFeaturesJSONArray = jsonObject.getJSONArray("features");
-
-                System.out.println("LENGTH"+featureCollectionFeaturesJSONArray.length());
-
-                ImmutableList.Builder<Feature> featureBuilder = new ImmutableList.Builder<>();
-                for(int i = 0; i < featureCollectionFeaturesJSONArray.length(); i++) {
-
-                    System.out.println("INDEX= "+i);
-
-                    JSONObject featureJSONObject = featureCollectionFeaturesJSONArray.getJSONObject(i);
-
-                    String featureType = featureJSONObject.getString("type");
-
-                    JSONObject featurePropertiesJSONObject = featureJSONObject.getJSONObject("properties");
-                    String featurePropertiesId = featurePropertiesJSONObject.getString("id");
-                    String featurePropertiesValue = featurePropertiesJSONObject.getString("value");
-                    Currency featurePropertiesCurrency = Currency.fromString(featurePropertiesJSONObject.getString("currency"));
-                    String featurePropertiesMarkerSymbol = featurePropertiesJSONObject.getString("marker-symbol");
-                    String featurePropertiesMarkerColor = featurePropertiesJSONObject.getString("marker-color");
-                    Feature.Properties featureProperties = new Feature.Properties(featurePropertiesId, featurePropertiesValue, featurePropertiesCurrency, featurePropertiesMarkerSymbol, featurePropertiesMarkerColor);
-
-                    System.out.println(featureProperties.toString());
-
-                    JSONObject featureGeometryJSONObject = featureJSONObject.getJSONObject("geometry");
-                    String featureGeometryType = featureJSONObject.getString("type");
-                    JSONArray featureGeometryCoordinatesJSONArray = featureGeometryJSONObject.getJSONArray("coordinates");
-                    ImmutableList<Double> featureGeometryCoordinates = new ImmutableList.Builder<Double>().add(featureGeometryCoordinatesJSONArray.getDouble(0))
-                            .add(featureGeometryCoordinatesJSONArray.getDouble(1)).build();
-                    Feature.Geometry featureGeometry = new Feature.Geometry(featureGeometryType, featureGeometryCoordinates);
-
-                    System.out.println(featureGeometry.toString());
-
-                    Feature feature = new Feature(featureType, featureProperties, featureGeometry);
-                    featureBuilder.add(feature);
-
-                    System.out.println(feature.toString());
-                }
-
-                ImmutableList<Feature> featureCollectionFeatures = featureBuilder.build();
-
-                FeatureCollection featureCollection = new FeatureCollection(featureCollectionType, featureCollectionDateGenerated, featureCollectionTimeGenerated, featureCollectionApproximateTimeRemaining, featureCollectionRates, featureCollectionFeatures, jSONDocument);
-                System.out.println(featureCollection.toString());
-                return featureCollection;
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-
-            return null;
+            FeatureCollection featureCollection = new Gson().fromJson(jSONDocument, FeatureCollection.class);
+            return featureCollection;
         }
     }
 
@@ -168,20 +92,16 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         try {
 
             SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+
 
             if(preferences.contains(dateFormatted)) {
-
-                System.out.println("jsondata exists");
-
                 String jSONDocument = preferences.getString(dateFormatted, "");
-                featureCollection = new GeoJsonDownloadTask().readStream(jSONDocument);
-                System.out.println("jsondata"+featureCollection.getFeatures());
+                featureCollection = gson.fromJson(jSONDocument, FeatureCollection.class);
             } else {
-
-                System.out.println("jsondata does not exist");
-
                 featureCollection = new GeoJsonDownloadTask().execute(url).get();
-                preferences.edit().putString(dateFormatted, featureCollection.getJsonData()).commit();
+                String jSONDocument = gson.toJson(featureCollection);
+                preferences.edit().putString(dateFormatted, jSONDocument).commit();
             }
         } catch(Exception e) {
             e.printStackTrace();
@@ -198,12 +118,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             for(Feature feature: featureCollection.getFeatures()) {
 
                 Feature.Geometry geometry = feature.getGeometry();
-                double x = geometry.getCoordinates().get(0);
-                double y = geometry.getCoordinates().get(1);
+                double longitude = geometry.getCoordinates()[0];
+                double latitude = geometry.getCoordinates()[1];
 
                 Feature.Properties properties = feature.getProperties();
                 String markerColor = properties.getMarkerColor();
-                String value = properties.getValue() + " " + properties.getCurrency().toString().toLowerCase();
                 int resource = -1;
                 switch(markerColor) {
                     case "#ff0000":
@@ -227,7 +146,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
                 Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
 
-                Marker marker = m.addMarker(new MarkerOptions().setPosition(new LatLng(y,x)).setIcon(icon));
+                Marker marker = m.addMarker(new MarkerOptions().setPosition(new LatLng(latitude,longitude)).setIcon(icon));
                 markerFeatureMap.put(marker, feature);
             }
 

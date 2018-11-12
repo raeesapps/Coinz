@@ -1,19 +1,25 @@
 package net.raeesaamir.coinz.game;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
+import com.google.gson.annotations.SerializedName;
 
 public class Feature {
 
     public static final class Properties {
 
         private final String id;
+
         private final String value;
-        private final Currency currency;
+
+        private final String currency;
+
+        @SerializedName("marker-symbol")
         private final String markerSymbol;
+
+        @SerializedName("marker-color")
         private final String markerColor;
 
-        public Properties(String id, String value, Currency currency, String markerSymbol, String markerColor) {
+        public Properties(String id, String value, String currency, String markerSymbol, String markerColor) {
             this.id = id;
             this.value = value;
             this.currency = currency;
@@ -29,7 +35,7 @@ public class Feature {
             return value;
         }
 
-        public Currency getCurrency() {
+        public String getCurrency() {
             return currency;
         }
 
@@ -50,9 +56,9 @@ public class Feature {
 
     public static final class Geometry {
         private final String type;
-        private final ImmutableList<Double> coordinates;
+        private final double[] coordinates;
 
-        public Geometry(String type, ImmutableList<Double> coordinates) {
+        public Geometry(String type, double[] coordinates) {
             this.type = type;
             this.coordinates = coordinates;
         }
@@ -61,7 +67,7 @@ public class Feature {
             return type;
         }
 
-        public ImmutableList<Double> getCoordinates() {
+        public double[] getCoordinates() {
             return coordinates;
         }
 

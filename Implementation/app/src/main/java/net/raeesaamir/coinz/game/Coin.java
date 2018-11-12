@@ -3,14 +3,14 @@ package net.raeesaamir.coinz.game;
 public final class Coin {
 
     private final double value;
-    private final Currency currency;
+    private final String currency;
 
-    public Coin(double value, Currency currency) {
+    public Coin(double value, String currency) {
         this.value = value;
         this.currency = currency;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 

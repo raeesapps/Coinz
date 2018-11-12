@@ -1,27 +1,61 @@
 package net.raeesaamir.coinz.game;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.gson.annotations.SerializedName;
 
 public class FeatureCollection {
 
-    private final String type;
-    private final String dateGenerated;
-    private final String timeGenerated;
-    private final String approximateTimeRemaining;
-    private final ImmutableMap<Currency, Double> rates;
-    private final ImmutableList<Feature> features;
-    private final String jsonData;
+    public static class ExchangeRates {
 
-    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ImmutableMap<Currency, Double> rates, ImmutableList<Feature> features, String jsonData) {
+        @SerializedName("SHIL")
+        private double shil;
+
+        @SerializedName("DOLR")
+        private double dolr;
+
+        @SerializedName("QUID")
+        private double quid;
+
+        @SerializedName("PENY")
+        private double peny;
+
+        public ExchangeRates(double shil, double dolr, double quid, double peny) {
+            this.shil = shil;
+            this.dolr = dolr;
+            this.quid = quid;
+            this.peny = peny;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this).add("shil",shil)
+                    .add("dolr",dolr).add("quid",quid).add("peny",peny)
+                    .toString();
+        }
+    }
+
+    private final String type;
+
+    @SerializedName("date-generated")
+    private String dateGenerated;
+
+    @SerializedName("time-generated")
+    private final String timeGenerated;
+
+    @SerializedName("approximate-time-remaining")
+    private final String approximateTimeRemaining;
+
+    private final ExchangeRates rates;
+
+    private final Feature[] features;
+
+    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ExchangeRates rates, Feature[] features) {
         this.type = type;
         this.dateGenerated = dateGenerated;
         this.timeGenerated = timeGenerated;
         this.approximateTimeRemaining = approximateTimeRemaining;
         this.rates = rates;
         this.features = features;
-        this.jsonData = jsonData;
     }
 
     public String getType() {
@@ -40,16 +74,12 @@ public class FeatureCollection {
         return approximateTimeRemaining;
     }
 
-    public ImmutableMap<Currency, Double> getRates() {
+    public ExchangeRates getRates() {
         return rates;
     }
 
-    public ImmutableList<Feature> getFeatures() {
+    public Feature[] getFeatures() {
         return features;
-    }
-
-    public String getJsonData() {
-        return jsonData;
     }
 
     @Override
