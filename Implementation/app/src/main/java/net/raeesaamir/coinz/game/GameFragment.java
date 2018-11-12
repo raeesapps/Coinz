@@ -46,6 +46,19 @@ import java.util.List;
 import java.util.Map;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
+
+    private static class LocationChangedEvent {
+        private Feature feature;
+        private int indexOfFeature;
+        private boolean atMarker;
+
+        public LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
+            this.feature = feature;
+            this.indexOfFeature = indexOfFeature;
+            this.atMarker = atMarker;
+        }
+    }
+
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
     private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Preferences";
@@ -72,6 +85,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private Location originalLocation;
 
     private FeatureCollection featureCollection;
+
+    private Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
 
     @Nullable
     @Override
@@ -112,57 +127,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private void configureMapView(@Nullable Bundle savedInstanceState) {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync((MapboxMap m) -> {
-            Map<Marker, Feature> markerFeatureMap = Maps.newHashMap();
-
-            for(Feature feature: featureCollection.getFeatures()) {
-
-                Feature.Geometry geometry = feature.getGeometry();
-                double longitude = geometry.getCoordinates()[0];
-                double latitude = geometry.getCoordinates()[1];
-
-                Feature.Properties properties = feature.getProperties();
-                String markerColor = properties.getMarkerColor();
-                int resource = -1;
-                switch(markerColor) {
-                    case "#ff0000":
-                        resource = R.drawable.purple_marker;
-                        break;
-                    case "#0000ff":
-                        resource = R.drawable.blue_marker;
-                        break;
-                    case "#008000":
-                        resource = R.drawable.green_marker;
-                        break;
-                    case "#ffdf00":
-                        resource = R.drawable.yellow_marker;
-                        break;
-                    default:
-                        break;
-
-                }
-
-                IconFactory iconFactory = IconFactory.getInstance(getActivity());
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
-                Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
-
-                Marker marker = m.addMarker(new MarkerOptions().setPosition(new LatLng(latitude,longitude)).setIcon(icon));
-                markerFeatureMap.put(marker, feature);
-            }
-
-            m.setOnMarkerClickListener((@NonNull Marker marker) -> {
-                Preconditions.checkArgument(markerFeatureMap.containsKey(marker));
-
-                Feature feature = markerFeatureMap.get(marker);
-                Feature.Properties properties = feature.getProperties();
-                String value = properties.getValue() + " " + properties.getCurrency().toString().toLowerCase();
-
-                Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
-                return true;
-            });
-
-        });
-
+        mapView.getMapAsync(this);
     }
 
     @Override
@@ -201,10 +166,64 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         if(mapboxMap == null) {
             Log.d(tag, "[onMapReady] mapBox is null");
         } else {
+
             map = mapboxMap;
 
             map.getUiSettings().setCompassEnabled(true);
             map.getUiSettings().setZoomControlsEnabled(true);
+
+            Map<Marker, Feature> markerFeatureMap = Maps.newHashMap();
+
+            for(Feature feature: featureCollection.getFeatures()) {
+
+                if(feature == null) {
+                    continue;
+                }
+
+                Feature.Geometry geometry = feature.getGeometry();
+                double longitude = geometry.getCoordinates()[0];
+                double latitude = geometry.getCoordinates()[1];
+
+                Feature.Properties properties = feature.getProperties();
+                String markerColor = properties.getMarkerColor();
+                int resource = -1;
+                switch(markerColor) {
+                    case "#ff0000":
+                        resource = R.drawable.purple_marker;
+                        break;
+                    case "#0000ff":
+                        resource = R.drawable.blue_marker;
+                        break;
+                    case "#008000":
+                        resource = R.drawable.green_marker;
+                        break;
+                    case "#ffdf00":
+                        resource = R.drawable.yellow_marker;
+                        break;
+                    default:
+                        break;
+
+                }
+
+                IconFactory iconFactory = IconFactory.getInstance(getActivity());
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
+                Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
+
+                Marker marker = map.addMarker(new MarkerOptions().setPosition(new LatLng(latitude,longitude)).setIcon(icon));
+                markerFeatureMap.put(marker, feature);
+                featureMarkerMap.put(feature, marker);
+            }
+
+            map.setOnMarkerClickListener((@NonNull Marker marker) -> {
+                Preconditions.checkArgument(markerFeatureMap.containsKey(marker));
+
+                Feature feature = markerFeatureMap.get(marker);
+                Feature.Properties properties = feature.getProperties();
+                String value = properties.getValue() + " " + properties.getCurrency().toString().toLowerCase();
+
+                Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+                return true;
+            });
 
             enableLocation();
         }
@@ -218,7 +237,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             initializeLocationLayer();
 
         } else {
-            Log.d(tag, "Permissions are granted");
+            Log.d(tag, "Permissions are not granted");
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(getActivity());
         }
@@ -231,10 +250,13 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private void initializeLocationEngine() {
         locationEngine = new LocationEngineProvider(getContext()).obtainBestLocationEngineAvailable();
+        locationEngine.addLocationEngineListener(this);
         locationEngine.setInterval(5000);
         locationEngine.setFastestInterval(1000);
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.activate();
+
+        locationEngine.requestLocationUpdates();
 
         Location lastLocation = locationEngine.getLastLocation();
         if(lastLocation != null) {
@@ -276,8 +298,56 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             Log.d(tag, "[onLocationChanged] location is not null");
             originalLocation = location;
             setCameraPosition(location);
+
+            LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
+            boolean isPlayerAtMarker = locationChangedEvent.atMarker;
+            System.out.println("PLAYER AT MARKER: " + isPlayerAtMarker);
+            if(isPlayerAtMarker) {
+                Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
+                map.removeMarker(marker);
+
+                Feature[] features = featureCollection.getFeatures();
+                int indexOfFeature = locationChangedEvent.indexOfFeature;
+                features[indexOfFeature] = null;
+
+                long date = new Date().getTime();
+                String dateFormatted = DATE_FORMATTER.format(date);
+                SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                Gson gson = new Gson();
+                String jSONDocument = gson.toJson(featureCollection);
+                preferences.edit().putString(dateFormatted, jSONDocument).commit();
+
+
+            }
         }
 
+    }
+
+    private LocationChangedEvent onPlayerChangesLocation(Location playerLocation) {
+        System.out.println("PLAYER LATITUDE: " + playerLocation.getLatitude());
+        System.out.println("PLAYER LONGITUDE: " + playerLocation.getLongitude());
+
+        Feature[] features = featureCollection.getFeatures();
+        for(int i = 0; i < features.length; i++) {
+            Feature feature = features[i];
+
+            if(feature == null) {
+                continue;
+            }
+
+            Feature.Geometry geometry = feature.getGeometry();
+            double longitude = geometry.getCoordinates()[0];
+            double latitude = geometry.getCoordinates()[1];
+
+            System.out.println("MARKER LATITUDE: "+latitude);
+            System.out.println("MARKER LONGITUDE: "+longitude);
+
+
+            if(latitude==playerLocation.getLatitude() && longitude==playerLocation.getLongitude())
+                return new LocationChangedEvent(feature, i, true);
+        }
+
+        return new LocationChangedEvent(null, -1, false);
     }
 
     @Override
