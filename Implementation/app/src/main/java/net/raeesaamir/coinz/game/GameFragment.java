@@ -324,9 +324,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private LocationChangedEvent onPlayerChangesLocation(Location playerLocation) {
-        System.out.println("PLAYER LATITUDE: " + playerLocation.getLatitude());
-        System.out.println("PLAYER LONGITUDE: " + playerLocation.getLongitude());
-
         Feature[] features = featureCollection.getFeatures();
         for(int i = 0; i < features.length; i++) {
             Feature feature = features[i];
@@ -339,11 +336,16 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             double longitude = geometry.getCoordinates()[0];
             double latitude = geometry.getCoordinates()[1];
 
-            System.out.println("MARKER LATITUDE: "+latitude);
-            System.out.println("MARKER LONGITUDE: "+longitude);
+            System.out.println("LATITUDE: " + latitude);
+            System.out.println("LONGITUDE: "+longitude);
 
+            double latitudeDelta = Math.abs(playerLocation.getLatitude() - latitude);
+            double longitudeDelta = Math.abs(playerLocation.getLongitude() - longitude);
 
-            if(latitude==playerLocation.getLatitude() && longitude==playerLocation.getLongitude())
+            System.out.println("LATITUDE DELTA: "+latitudeDelta);
+            System.out.println("LONGITUDE DELTA "+longitudeDelta);
+
+            if(latitudeDelta < 0.00004 && longitudeDelta < 0.00004)
                 return new LocationChangedEvent(feature, i, true);
         }
 
