@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
@@ -40,6 +42,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
 import net.raeesaamir.coinz.DownloadFileTask;
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.wallet.Wallet;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -77,6 +80,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private String tag = "GameFragment";
     private View view;
 
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
+
     private MapView mapView;
     private MapboxMap map;
 
@@ -89,6 +95,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
 
+    private Wallet wallet;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -100,6 +108,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
         configureMapView(savedInstanceState);
+
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
 
         long date = new Date().getTime();
         String dateFormatted = DATE_FORMATTER.format(date);
@@ -123,6 +134,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             e.printStackTrace();
         }
 
+        wallet = Wallet.fromDatabase(mUser.getUid(), dateFormatted);
     }
 
     private void configureMapView(@Nullable Bundle savedInstanceState) {
@@ -323,17 +335,19 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 map.removeMarker(marker);
 
                 Feature[] features = featureCollection.getFeatures();
-                int indexOfFeature = locationChangedEvent.indexOfFeature;
-                features[indexOfFeature] = null;
+                Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
 
-                long date = new Date().getTime();
-                String dateFormatted = DATE_FORMATTER.format(date);
+
+                wallet.addCoin(properties.getCurrency() + " " + properties.getValue());
+                wallet.getFuture();
+
+                features[locationChangedEvent.indexOfFeature] = null;
+
+                String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
                 SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
                 Gson gson = new Gson();
                 String jSONDocument = gson.toJson(featureCollection);
                 preferences.edit().putString(dateFormatted, jSONDocument).commit();
-
-
             }
         }
 
