@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.game;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -134,12 +135,25 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onStart() {
         super.onStart();
         mapView.onStart();
+
+        if(locationEngine != null){
+
+            try {
+                locationEngine.requestLocationUpdates();
+            } catch(SecurityException ignored) {}
+            locationEngine.addLocationEngineListener(this);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         mapView.onStop();
+
+        if(locationEngine != null){
+            locationEngine.removeLocationEngineListener(this);
+            locationEngine.removeLocationUpdates();
+        }
     }
 
     @Override
@@ -275,6 +289,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             locationLayerPlugin.setLocationLayerEnabled(true);
             locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
             locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
+            Lifecycle lifecycle = getLifecycle();
+            lifecycle.addObserver(locationLayerPlugin);
         }
     }
 
@@ -345,7 +361,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             System.out.println("LATITUDE DELTA: "+latitudeDelta);
             System.out.println("LONGITUDE DELTA "+longitudeDelta);
 
-            if(latitudeDelta < 0.00004 && longitudeDelta < 0.00004)
+            if(latitudeDelta < 0.0004 && longitudeDelta < 0.0004)
                 return new LocationChangedEvent(feature, i, true);
         }
 
