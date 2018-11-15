@@ -80,6 +80,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private String tag = "GameFragment";
     private View view;
 
+    private Gson gson;
+
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
 
@@ -97,6 +99,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private Wallet wallet;
 
+    private SharedPreferences preferences;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -109,6 +113,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         this.view = view;
         configureMapView(savedInstanceState);
 
+        gson = new Gson();
+
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -116,25 +122,23 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         String dateFormatted = DATE_FORMATTER.format(date);
 
         String url = FEATURE_COLLECTION_URL + dateFormatted + "/coinzmap.geojson";
+
+        preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         try {
 
-            SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-            Gson gson = new Gson();
-
-
             if(preferences.contains(dateFormatted)) {
-                String jSONDocument = preferences.getString(dateFormatted, "");
-                featureCollection = gson.fromJson(jSONDocument, FeatureCollection.class);
+                String json = preferences.getString(dateFormatted, "");
+                featureCollection = gson.fromJson(json, FeatureCollection.class);
             } else {
                 featureCollection = new GeoJsonDownloadTask().execute(url).get();
-                String jSONDocument = gson.toJson(featureCollection);
-                preferences.edit().putString(dateFormatted, jSONDocument).commit();
+                String json = gson.toJson(featureCollection);
+                preferences.edit().putString(dateFormatted, json).commit();
             }
         } catch(Exception e) {
             e.printStackTrace();
         }
 
-        wallet = Wallet.fromDatabase(mUser.getUid(), dateFormatted);
+        wallet = Wallet.fromSharedPreferences(preferences, gson, mUser.getUid(), dateFormatted);
     }
 
     private void configureMapView(@Nullable Bundle savedInstanceState) {
@@ -339,7 +343,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
 
                 wallet.addCoin(properties.getCurrency() + " " + properties.getValue());
-                wallet.getFuture();
+                wallet.saved(gson, preferences);
 
                 features[locationChangedEvent.indexOfFeature] = null;
 

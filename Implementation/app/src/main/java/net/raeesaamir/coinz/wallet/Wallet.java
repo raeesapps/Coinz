@@ -1,21 +1,35 @@
 package net.raeesaamir.coinz.wallet;
 
-import com.google.android.gms.tasks.Task;
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import android.content.SharedPreferences;
 
-import net.raeesaamir.coinz.game.Container;
+import com.google.common.base.Objects;
+import com.google.gson.Gson;
+
+import net.raeesaamir.coinz.game.LocalContainer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class Wallet extends Container {
+public class Wallet extends LocalContainer {
 
+    public static Wallet fromSharedPreferences(SharedPreferences sharedPreferences, Gson gson, String uid, String date) {
+
+        String key = uid + "_" + date;
+
+        System.out.println("[fromSharedPreferences]: "+sharedPreferences.contains(key));
+
+        if(sharedPreferences.contains(key)) {
+            String json = sharedPreferences.getString(key, "");
+            System.out.println("[JSONLOL]: "+json);
+            Wallet wallet = gson.fromJson(json, Wallet.class);
+            return wallet;
+        } else {
+            return new Wallet(uid);
+        }
+    }
+
+    /*
     public static Wallet fromDatabase(String uid, String date) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -37,7 +51,7 @@ public class Wallet extends Container {
         } else {
             return new Wallet(uid);
         }
-    }
+    }*/
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
@@ -58,22 +72,6 @@ public class Wallet extends Container {
     }
 
     @Override
-    public ImmutableMap<String, Object> getDocument() {
-        return new ImmutableMap.Builder<String, Object>().put("userUid", userUid)
-                .put("date", date).put("coins", coins).build();
-    }
-
-    @Override
-    public String getCollectionName() {
-        return "Wallets";
-    }
-
-    @Override
-    public String getDocumentName() {
-        return Integer.toString(hashCode());
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if(obj == null) {
             return false;
@@ -90,5 +88,11 @@ public class Wallet extends Container {
     @Override
     public int hashCode() {
         return Objects.hashCode(date, userUid);
+    }
+
+    public boolean saved(Gson gson, SharedPreferences sharedPreferences) {
+        String key = userUid + "_" + date;
+        String json = gson.toJson(this);
+        return sharedPreferences.edit().putString(key, json).commit();
     }
 }
