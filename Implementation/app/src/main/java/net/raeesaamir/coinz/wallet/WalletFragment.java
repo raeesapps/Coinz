@@ -9,14 +9,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.google.common.base.Preconditions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.game.FeatureCollection;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,10 +32,14 @@ public class WalletFragment extends Fragment {
 
     private View view;
     private Wallet wallet;
+    private Bank bank;
     private Gson gson;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private SharedPreferences sharedPreferences;
+    private FeatureCollection featureCollection;
+
+    private TextView bankView;
 
     @Nullable
     @Override
@@ -47,7 +55,16 @@ public class WalletFragment extends Fragment {
         this.mUser = mAuth.getCurrentUser();
         this.gson = new Gson();
         this.sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+        long date = new Date().getTime();
+        String dateFormatted = DATE_FORMATTER.format(date);
+
+        try {
+            featureCollection = FeatureCollection.fromWebsite(sharedPreferences, gson, dateFormatted);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         populateWallet();
+        populateBank();
     }
 
     private void populateWallet() {
@@ -59,5 +76,25 @@ public class WalletFragment extends Fragment {
 
         ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
         walletView.setAdapter(integerArrayAdapter);
+
+        walletView.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
+            String coin = wallet.getCoins().get(i);
+
+            bank.deposit(sharedPreferences, gson, featureCollection.getRates(), coin, wallet);
+            refreshBank();
+            integerArrayAdapter.remove(coin);
+        });
+    }
+
+    private void populateBank() {
+        this.bank = Bank.fromDatabase(mUser.getUid());
+
+        this.bankView = view.findViewById(R.id.bank);
+        refreshBank();
+    }
+
+    private void refreshBank() {
+        Preconditions.checkNotNull(this.bankView);
+        bankView.setText("TOTAL GOLD: " + bank.totalGold());
     }
 }

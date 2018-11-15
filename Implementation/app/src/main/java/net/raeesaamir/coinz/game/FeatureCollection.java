@@ -1,9 +1,32 @@
 package net.raeesaamir.coinz.game;
 
+import android.content.SharedPreferences;
+
 import com.google.common.base.MoreObjects;
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.concurrent.ExecutionException;
+
 public class FeatureCollection {
+
+    private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
+
+    public static FeatureCollection fromWebsite(SharedPreferences preferences, Gson gson, String date) throws ExecutionException, InterruptedException{
+        String url = FEATURE_COLLECTION_URL + date + "/coinzmap.geojson";
+        FeatureCollection featureCollection;
+
+        if(preferences.contains(date)) {
+            String json = preferences.getString(date, "");
+            featureCollection = gson.fromJson(json, FeatureCollection.class);
+        } else {
+            featureCollection = new GameFragment.GeoJsonDownloadTask().execute(url).get();
+            String json = gson.toJson(featureCollection);
+            preferences.edit().putString(date, json).commit();
+        }
+
+        return featureCollection;
+    }
 
     public static class ExchangeRates {
 

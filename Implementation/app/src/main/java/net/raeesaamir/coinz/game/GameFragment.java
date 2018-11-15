@@ -64,7 +64,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
-    private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
     private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Preferences";
 
     public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
@@ -121,19 +120,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         long date = new Date().getTime();
         String dateFormatted = DATE_FORMATTER.format(date);
 
-        String url = FEATURE_COLLECTION_URL + dateFormatted + "/coinzmap.geojson";
-
         preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         try {
-
-            if(preferences.contains(dateFormatted)) {
-                String json = preferences.getString(dateFormatted, "");
-                featureCollection = gson.fromJson(json, FeatureCollection.class);
-            } else {
-                featureCollection = new GeoJsonDownloadTask().execute(url).get();
-                String json = gson.toJson(featureCollection);
-                preferences.edit().putString(dateFormatted, json).commit();
-            }
+            featureCollection = FeatureCollection.fromWebsite(preferences, gson, dateFormatted);
         } catch(Exception e) {
             e.printStackTrace();
         }

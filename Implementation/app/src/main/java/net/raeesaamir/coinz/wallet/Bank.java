@@ -67,14 +67,14 @@ public class Bank extends FirestoreContainer {
         return userUid;
     }
 
-    private void deposit(SharedPreferences sharedPreferences, Gson gson, FeatureCollection.ExchangeRates exchangeRates, String coin, Wallet wallet) {
+    public void deposit(SharedPreferences sharedPreferences, Gson gson, FeatureCollection.ExchangeRates exchangeRates, String coin, Wallet wallet) {
         wallet.removeCoin(coin);
         wallet.saved(gson, sharedPreferences);
 
         String[] coinAttributes = coin.split(" ");
 
         String coinType = coinAttributes[0];
-        int coinValue = Integer.parseInt(coinAttributes[1]);
+        double coinValue = Double.parseDouble(coinAttributes[1]);
 
         double exchangeRate = -1;
         if(coinType.equals("SHIL")) {
@@ -91,6 +91,7 @@ public class Bank extends FirestoreContainer {
 
         double goldAmount = coinValue * exchangeRate;
         addCoin("GOLD "+goldAmount);
+        getFuture();
     }
 
     public double totalGold() {
