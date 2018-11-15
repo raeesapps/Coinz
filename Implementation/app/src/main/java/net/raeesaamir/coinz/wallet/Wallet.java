@@ -29,30 +29,6 @@ public class Wallet extends LocalContainer {
         }
     }
 
-    /*
-    public static Wallet fromDatabase(String uid, String date) {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference wallets = db.collection("Wallets");
-
-        Task<QuerySnapshot> snapshotTask = wallets.whereEqualTo("date", date).whereEqualTo("userUid", uid).get();
-
-        if(snapshotTask.isSuccessful()) {
-            List<DocumentSnapshot> results = snapshotTask.getResult().getDocuments();
-            DocumentSnapshot snapshot = results.get(0);
-
-            Object coinsObj = snapshot.get("coins");
-            if(!(coinsObj instanceof List)) {
-                return null;
-            }
-
-            List<String> coins = (List<String>) coinsObj;
-            return new Wallet(uid, date, coins);
-        } else {
-            return new Wallet(uid);
-        }
-    }*/
-
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
     private String date;
@@ -94,5 +70,9 @@ public class Wallet extends LocalContainer {
         String key = userUid + "_" + date;
         String json = gson.toJson(this);
         return sharedPreferences.edit().putString(key, json).commit();
+    }
+
+    public List<String> getCoins() {
+        return coins;
     }
 }

@@ -32,6 +32,22 @@ public class FeatureCollection {
                     .add("dolr",dolr).add("quid",quid).add("peny",peny)
                     .toString();
         }
+
+        public double getDolr() {
+            return dolr;
+        }
+
+        public double getPeny() {
+            return peny;
+        }
+
+        public double getQuid() {
+            return quid;
+        }
+
+        public double getShil() {
+            return shil;
+        }
     }
 
     private final String type;

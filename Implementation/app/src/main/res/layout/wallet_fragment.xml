@@ -13,6 +13,14 @@
         android:contentDescription="@string/logo"
         app:srcCompat="@drawable/logo" />
 
+    <TextView
+        android:id="@+id/bank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="24sp"
+        android:visibility="visible" />
+
     <ListView
         android:id="@+id/wallet_items"
         android:layout_width="match_parent"

@@ -1,5 +1,7 @@
 package net.raeesaamir.coinz.wallet;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,15 +12,26 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
+
 import net.raeesaamir.coinz.R;
 
-import java.util.Arrays;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class WalletFragment extends Fragment {
 
-    private static final List<Integer> LOREM_IPSUM = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Preferences";
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
+
     private View view;
+    private Wallet wallet;
+    private Gson gson;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
+    private SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
@@ -30,12 +43,21 @@ public class WalletFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+        this.gson = new Gson();
+        this.sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         populateWallet();
     }
 
     private void populateWallet() {
-        ListView wallet = view.findViewById(R.id.wallet_items);
-        ArrayAdapter<Integer> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, LOREM_IPSUM);
-        wallet.setAdapter(integerArrayAdapter);
+        long date = new Date().getTime();
+        String dateFormatted = DATE_FORMATTER.format(date);
+        this.wallet = Wallet.fromSharedPreferences(sharedPreferences, gson, mUser.getUid(), dateFormatted);
+
+        ListView walletView = view.findViewById(R.id.wallet_items);
+
+        ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
+        walletView.setAdapter(integerArrayAdapter);
     }
 }
