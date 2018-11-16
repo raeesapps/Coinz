@@ -14,9 +14,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.Task;
 import com.google.common.base.Preconditions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import net.raeesaamir.coinz.R;
@@ -24,6 +29,7 @@ import net.raeesaamir.coinz.game.FeatureCollection;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class WalletFragment extends Fragment {
 
@@ -87,14 +93,51 @@ public class WalletFragment extends Fragment {
     }
 
     private void populateBank() {
-        this.bank = Bank.fromDatabase(mUser.getUid());
-
         this.bankView = view.findViewById(R.id.bank);
-        refreshBank();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference banks = db.collection("Banks");
+
+        System.out.println("[BANK] FROM DATABASE");
+        System.out.println("[BANK]: UID="+mUser.getUid());
+
+
+        banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
+            if(!task.isSuccessful()) {
+                System.out.println("[BANK]: NOT SUCCESSFUL");
+                return;
+            }
+            this.bank = new Bank(mUser.getUid());
+            for(DocumentSnapshot snapshot: task.getResult()) {
+
+                if(!snapshot.contains("userUid") || !snapshot.contains("coins")) {
+                    continue;
+                }
+
+                System.out.println("BANK"+snapshot.get("userUid"));
+
+                if(!snapshot.get("userUid").equals(mUser.getUid())) {
+                    continue;
+                }
+                Object coinsObj = snapshot.get("coins");
+                if(!(coinsObj instanceof List)) {
+                    return;
+                }
+
+                List<String> coins = (List<String>) coinsObj;
+                this.bank = new Bank(mUser.getUid(), coins);
+                break;
+
+            }
+            refreshBank();
+
+
+        });
     }
 
     private void refreshBank() {
         Preconditions.checkNotNull(this.bankView);
+        Preconditions.checkNotNull(this.bank);
         bankView.setText("TOTAL GOLD: " + bank.totalGold());
     }
 }

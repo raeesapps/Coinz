@@ -14,7 +14,7 @@ import net.raeesaamir.coinz.R;
 public class AboutFragment extends Fragment {
 
     private static final String ABOUT_TEXT = "Designed and Developed by Raees Aamir @ www.raeesaamir.net.\n\n" +
-            "Coursework specification and GeoJSON data provided by Stephan Gilmore. \n\n" +
+            "Coursework specification and GeoJSON data provided by Stephen Gilmore. \n\n" +
             "Coinz is an assessed piece of coursework for the BSc (Hons) Computer Science's Informatics Large Practical(INFR09051) class.";
 
     private View view;

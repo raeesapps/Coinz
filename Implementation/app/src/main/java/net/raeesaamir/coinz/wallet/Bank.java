@@ -2,13 +2,8 @@ package net.raeesaamir.coinz.wallet;
 
 import android.content.SharedPreferences;
 
-import com.google.android.gms.tasks.Task;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import net.raeesaamir.coinz.game.FeatureCollection;
@@ -17,29 +12,6 @@ import net.raeesaamir.coinz.game.FirestoreContainer;
 import java.util.List;
 
 public class Bank extends FirestoreContainer {
-
-    public static Bank fromDatabase(String uid) {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference banks = db.collection("Banks");
-
-        Task<QuerySnapshot> snapshotTask = banks.whereEqualTo("userUid", uid).get();
-
-        if(snapshotTask.isSuccessful()) {
-            List<DocumentSnapshot> results = snapshotTask.getResult().getDocuments();
-            DocumentSnapshot snapshot = results.get(0);
-
-            Object coinsObj = snapshot.get("coins");
-            if(!(coinsObj instanceof List)) {
-                return null;
-            }
-
-            List<String> coins = (List<String>) coinsObj;
-            return new Bank(uid, coins);
-        } else {
-            return new Bank(uid);
-        }
-    }
 
     private String userUid;
 
@@ -59,12 +31,12 @@ public class Bank extends FirestoreContainer {
 
     @Override
     public String getDocumentName() {
-        return "Banks";
+        return userUid;
     }
 
     @Override
     public String getCollectionName() {
-        return userUid;
+        return "Banks";
     }
 
     public void deposit(SharedPreferences sharedPreferences, Gson gson, FeatureCollection.ExchangeRates exchangeRates, String coin, Wallet wallet) {
