@@ -48,8 +48,6 @@ public class MessagingFragment extends Fragment {
         this.button = view.findViewById(R.id.button_chatbox_send);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
         setOtherUser(getActivity().getIntent().getStringExtra("username"));
-        setOnSend();
-        populateMessages();
     }
 
     private void setOnSend() {
@@ -99,6 +97,9 @@ public class MessagingFragment extends Fragment {
                     }
 
                 }
+
+                setOnSend();
+                populateMessages();
             }
 
         });
@@ -155,5 +156,5 @@ public class MessagingFragment extends Fragment {
             }
 
         });
-        }
+    }
 }
