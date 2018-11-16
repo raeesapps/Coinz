@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Lists;
@@ -28,6 +29,8 @@ import java.util.List;
 
 public class MessagingFragment extends Fragment {
 
+    private long msgNanoTime;
+    private long previousMsgNanoTime = 0;
     private Button button;
     private List<FirestoreMessage> firestoreMessageList = Lists.newArrayList();
     private EditText messageContents;
@@ -53,10 +56,21 @@ public class MessagingFragment extends Fragment {
     private void setOnSend() {
         button.setOnClickListener((View view) -> {
             String messageString = messageContents.getText().toString();
-            FirestoreMessage message = new FirestoreMessage(messageString, thisUser, otherUser);
-            message.getFuture();
-            firestoreMessageList.add(message);
-            simpleMessageListAdapter.notifyDataSetChanged();
+            messageContents.setText("");
+            msgNanoTime = System.nanoTime();
+
+            if(msgNanoTime - previousMsgNanoTime < 3000000000L) {
+                Toast.makeText(getContext(), "Please wait", Toast.LENGTH_SHORT).show();
+            } else {
+                FirestoreMessage message = new FirestoreMessage(messageString, thisUser, otherUser);
+                message.getFuture();
+                firestoreMessageList.add(message);
+                simpleMessageListAdapter.notifyDataSetChanged();
+
+            }
+
+            previousMsgNanoTime = msgNanoTime;
+
         });
     }
 
