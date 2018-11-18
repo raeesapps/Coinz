@@ -22,7 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.authentication.FirestoreUser;
 
 import java.util.List;
 
@@ -83,7 +82,7 @@ public class UserListFragment extends Fragment {
                 });
             }
         });
-
-        FirestoreMessage.createExampleConversation();
     }
+
+
 }

@@ -33,24 +33,27 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             nameText = itemView.findViewById(R.id.text_message_name);
         }
 
-        void bind(FirestoreMessage message) {
+        void bind(FirestoreUser fromUser, FirebaseMessage message) {
             messageText.setText(message.getMessageText());
-            timeText.setText(message.getMessageTimeAsString());
-            nameText.setText(message.getMessageFromUser().getDisplayName());
+            timeText.setText(FirebaseMessage.getMessageTimeAsString(message));
+            nameText.setText(fromUser.getDisplayName());
         }
     }
 
     public class SentMessageHolder extends RecyclerView.ViewHolder {
 
         private final TextView messageText;
+        private final TextView timeText;
 
         SentMessageHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.text_message_body);
+            timeText = itemView.findViewById(R.id.text_message_time);
         }
 
-        void bind(FirestoreMessage message) {
+        void bind(FirebaseMessage message) {
             messageText.setText(message.getMessageText());
+            timeText.setText(FirebaseMessage.getMessageTimeAsString(message));
         }
     }
 
@@ -58,21 +61,23 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
     }
 
-    private List<FirestoreMessage> messageList;
-    private FirestoreUser user;
+    private List<FirebaseMessage> messageList;
+    private String userUid;
+    private FirestoreUser fromUser;
 
-    public MessageListAdapter(List<FirestoreMessage> messageList, FirestoreUser user) {
+    public MessageListAdapter(List<FirebaseMessage> messageList, FirestoreUser fromUser, String userUid) {
         this.messageList = messageList;
-        this.user = user;
+        this.fromUser = fromUser;
+        this.userUid = userUid;
     }
 
     @Override
     public int getItemViewType(int position) {
-        FirestoreMessage message = messageList.get(position);
-        FirestoreUser fromUser = message.getMessageFromUser();
+        FirebaseMessage message = messageList.get(position);
+        String fromUser = message.getMessageFromUser();
         MessageType type;
 
-        if (fromUser.equals(this.user)) {
+        if (fromUser.equals(this.userUid)) {
             type = MessageType.MESSAGE_SENT;
         } else {
             type = MessageType.MESSAGE_RECEIVED;
@@ -83,7 +88,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        FirestoreMessage message = messageList.get(position);
+        FirebaseMessage message = messageList.get(position);
         MessageType type = MessageListAdapter.getType(viewHolder.getItemViewType());
 
         switch(type) {
@@ -93,7 +98,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 break;
             case MESSAGE_RECEIVED:
                 ReceivedMessageHolder receivedMessageHolder = (ReceivedMessageHolder) viewHolder;
-                receivedMessageHolder.bind(message);
+                receivedMessageHolder.bind(fromUser, message);
                 break;
         }
     }

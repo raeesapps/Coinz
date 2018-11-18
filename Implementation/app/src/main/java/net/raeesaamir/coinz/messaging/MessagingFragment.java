@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
-import com.google.common.collect.Lists;
+import com.google.common.base.Preconditions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,14 +31,30 @@ import com.google.firebase.firestore.QuerySnapshot;
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.FirestoreUser;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class MessagingFragment extends Fragment {
 
+    private static final String DB_NAME = "coinz-12df3";
+
+    public static class SortedList extends ArrayList<FirebaseMessage> {
+        @Override
+        public boolean add(FirebaseMessage firebaseMessage) {
+            boolean successful = super.add(firebaseMessage);
+
+            this.sort(Comparator.comparingLong(FirebaseMessage::getMessageTime));
+
+            return successful;
+        }
+    }
+
     private long msgNanoTime;
     private long previousMsgNanoTime = 0;
+    private DatabaseReference mReference;
     private Button button;
-    private List<FirestoreMessage> firestoreMessageList = Lists.newArrayList();
+    private List<FirebaseMessage> firestoreMessageList = new SortedList();
     private EditText messageContents;
     private View view;
     private FirebaseAuth mAuth;
@@ -50,7 +72,7 @@ public class MessagingFragment extends Fragment {
         this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
         this.button = view.findViewById(R.id.button_chatbox_send);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
-        setOtherUser(getActivity().getIntent().getStringExtra("username"));
+        listen(getActivity().getIntent().getStringExtra("username"));
     }
 
     private void setOnSend() {
@@ -62,8 +84,9 @@ public class MessagingFragment extends Fragment {
             if(msgNanoTime - previousMsgNanoTime < 3000000000L) {
                 Toast.makeText(getContext(), "Please wait", Toast.LENGTH_SHORT).show();
             } else {
-                FirestoreMessage message = new FirestoreMessage(messageString, thisUser, otherUser);
-                message.getFuture();
+                Preconditions.checkNotNull(mReference);
+                FirebaseMessage message = new FirebaseMessage(messageString, thisUser.getUid(), otherUser.getUid());
+                mReference.child(Integer.toString(message.hashCode())).setValue(message);
                 firestoreMessageList.add(message);
                 simpleMessageListAdapter.notifyDataSetChanged();
 
@@ -80,7 +103,7 @@ public class MessagingFragment extends Fragment {
         return inflater.inflate(R.layout.messaging_fragment, container, false);
     }
 
-    private void setOtherUser(String username) {
+    private void listen(String username) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference users = db.collection("Users");
 
@@ -90,10 +113,6 @@ public class MessagingFragment extends Fragment {
 
                 if(thisUser == null) {
                     this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
-                }
-
-                if(otherUser == null) {
-                    setOtherUser(getActivity().getIntent().getStringExtra("username"));
                 }
 
                 for(DocumentSnapshot snapshot: task.getResult()) {
@@ -109,7 +128,6 @@ public class MessagingFragment extends Fragment {
                         String email = snapshot.getString("email");
                         otherUser = new FirestoreUser(email, uid, displayName);
                     }
-
                 }
 
                 setOnSend();
@@ -122,53 +140,39 @@ public class MessagingFragment extends Fragment {
     private void populateMessages() {
         RecyclerView recyclerView = view.findViewById(R.id.message_list);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference messages = db.collection("Messages");
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        mReference = firebaseDatabase.getReference(DB_NAME);
 
-        messages.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
-            if(task.isSuccessful()) {
+        mReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                System.out.println("[MessagingFragment]: onDataChange");
+                firestoreMessageList.clear();
+                for(DataSnapshot item: dataSnapshot.getChildren()) {
+                    FirebaseMessage firestoreMessage = item.getValue(FirebaseMessage.class);
 
-                for(DocumentSnapshot snapshot: task.getResult()) {
-
-                    if(!snapshot.contains("messageText") || !snapshot.contains("messageTime")
-                            || !snapshot.contains("messageToUser") || !snapshot.contains("messageFromUser")) {
-                        continue;
-                    }
-
-                    if((snapshot.get("messageToUser").equals(thisUser.getDocument()) || snapshot.get("messageToUser").equals(otherUser.getDocument()))
-                            && (snapshot.get("messageFromUser").equals(thisUser.getDocument()) || snapshot.get("messageFromUser").equals(otherUser.getDocument()))) {
-
-                        String messageText = snapshot.getString("messageText");
-                        long messageTime = snapshot.getLong("messageTime");
-
-                        FirestoreUser to;
-                        if(snapshot.get("messageToUser").equals(thisUser.getDocument())) {
-                            to = thisUser;
-                        } else {
-                            to = otherUser;
-                        }
-
-                        FirestoreUser from;
-                        if(snapshot.get("messageFromUser").equals(thisUser.getDocument())) {
-                            from = thisUser;
-                        } else {
-                            from = otherUser;
-                        }
-
-                        FirestoreMessage firestoreMessage = new FirestoreMessage(messageText, from, to, messageTime);
+                    if((firestoreMessage.getMessageFromUser().equals(thisUser.getUid()) &&
+                            firestoreMessage.getMessageToUser().equals(otherUser.getUid()) ||
+                            (firestoreMessage.getMessageFromUser().equals(otherUser.getUid()) &&
+                                    firestoreMessage.getMessageToUser().equals(thisUser.getUid())))) {
                         firestoreMessageList.add(firestoreMessage);
                     }
-
                 }
 
-
                 simpleMessageListAdapter =
-                        new MessageListAdapter(firestoreMessageList, thisUser);
+                        new MessageListAdapter(firestoreMessageList, otherUser, thisUser.getUid());
                 recyclerView.setAdapter(simpleMessageListAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("MessagingFragment","ERROR: " + databaseError.getMessage());
+            }
+
         });
+
+
     }
 }
