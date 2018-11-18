@@ -85,8 +85,11 @@ public class MessagingFragment extends Fragment {
                 Toast.makeText(getContext(), "Please wait", Toast.LENGTH_SHORT).show();
             } else {
                 Preconditions.checkNotNull(mReference);
+
                 FirebaseMessage message = new FirebaseMessage(messageString, thisUser.getUid(), otherUser.getUid());
-                mReference.child(Integer.toString(message.hashCode())).setValue(message);
+                String key = mReference.push().getKey();
+                mReference.child(key).setValue(message);
+
                 firestoreMessageList.add(message);
                 simpleMessageListAdapter.notifyDataSetChanged();
 

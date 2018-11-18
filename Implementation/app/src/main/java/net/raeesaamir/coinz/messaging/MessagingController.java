@@ -38,6 +38,10 @@ public class MessagingController extends AppCompatActivity {
                     break;
             }
 
+            Log.d("[MessagingController]", "FRAGMENT STATE "+ Boolean.toString(selectedFragment==null));
+
+            Log.d("[MessagingController", "FRAGMENT STATE CONTAINER " + Boolean.toString(getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null));
+
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
 
             return true;
