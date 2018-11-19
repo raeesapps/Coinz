@@ -39,7 +39,8 @@
         <activity android:name=".wallet.WalletController" />
         <activity android:name=".game.GameController" />
         <activity android:name=".about.AboutController" />
-        <activity android:name=".messaging.UserListController"></activity>
+        <activity android:name=".messaging.UserListController" />
+        <activity android:name=".share.ShareController"></activity>
     </application>
 
 </manifest>
