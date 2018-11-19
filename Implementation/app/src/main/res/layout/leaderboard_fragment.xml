@@ -13,12 +13,6 @@
             android:contentDescription="@string/logo"
             app:srcCompat="@drawable/logo" />
 
-        <Button
-            android:id="@+id/toggleFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Toggle Daily Scores" />
-
 
         <ListView
             android:id="@+id/scoresFragment"
