@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
@@ -56,6 +57,7 @@ public class MessagingFragment extends Fragment {
     private Button button;
     private List<FirebaseMessage> firestoreMessageList = new SortedList();
     private EditText messageContents;
+    private Spinner spinner;
     private View view;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
@@ -71,7 +73,12 @@ public class MessagingFragment extends Fragment {
         this.mUser = mAuth.getCurrentUser();
         this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
         this.button = view.findViewById(R.id.button_chatbox_send);
+        this.spinner = view.findViewById(R.id.spinner);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
+
+        // Instantiate spinner, set the array adapter from thisUser wallet then add
+        // onClickListener to remove from thisUser wallet
+        // add to otherUser wallet and send a message showing the transaction details.
         listen(getActivity().getIntent().getStringExtra("username"));
     }
 

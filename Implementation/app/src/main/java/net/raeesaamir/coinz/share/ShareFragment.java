@@ -10,11 +10,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareButton;
 import com.google.android.gms.tasks.Task;
+import com.google.common.collect.Lists;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -37,8 +39,7 @@ public class ShareFragment extends Fragment {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
 
-    private View view;
-    private TextView shareText;
+    private ListView achievementsView;
     private ShareButton shareButton;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
@@ -49,8 +50,7 @@ public class ShareFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.view = view;
-        this.shareText = view.findViewById(R.id.shareText);
+        this.achievementsView = view.findViewById(R.id.achievements);
         this.shareButton = view.findViewById(R.id.shareButton);
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
@@ -72,6 +72,8 @@ public class ShareFragment extends Fragment {
 
         banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
+            List<String> achievements = Lists.newArrayList();
+            String achievement = "";
             for(DocumentSnapshot snapshot: task.getResult()) {
 
                 System.out.println("[ShareFragment]: querying");
@@ -92,28 +94,32 @@ public class ShareFragment extends Fragment {
                 }
                 List<String> coins = (List<String>) coinsObj;
 
-                String achievement = "";
-
                 this.bank = new Bank(snapshot.getString("userUid"), coins);
                 double goldCollected = bank.totalGold();
                 achievement = achievement + "I collected " + goldCollected + " gold from playing Coinz today.";
                 achievement = achievement + "\n I also managed to collect several other coins: ";
 
+                achievements.add("GOLD - " + bank.totalGold());
+
                 for(String coin: wallet.getCoins()) {
                     achievement = achievement + "\n" + coin;
+                    achievements.add(coin);
                 }
 
                 System.out.println("[ShareFragment]: " + achievement);
 
-                shareText.setText(achievement);
-                ShareLinkContent content = new ShareLinkContent.Builder()
-                        .setContentUrl(Uri.parse("https://www.raeesaamir.net"))
-                        .setQuote(achievement)
-                        .build();
-
-                shareButton.setShareContent(content);
-
+                //shareText.setText(achievement);
             }
+
+            ShareLinkContent content = new ShareLinkContent.Builder()
+                    .setContentUrl(Uri.parse("https://www.raeesaamir.net"))
+                    .setQuote(achievement)
+                    .build();
+
+            shareButton.setShareContent(content);
+
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, achievements);
+            achievementsView.setAdapter(arrayAdapter);
 
         });
     }

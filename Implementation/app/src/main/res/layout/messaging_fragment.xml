@@ -53,6 +53,14 @@
             android:maxLines="6"
             android:textColor="@color/colorPrimaryDark" />
 
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="64dp"
+            android:layout_height="48dp"
+            android:background="@drawable/messaging_24dp" />
+
+
+
         <Button
             android:id="@+id/button_chatbox_send"
             android:layout_width="64dp"

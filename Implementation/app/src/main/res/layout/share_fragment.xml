@@ -14,18 +14,24 @@
         app:srcCompat="@drawable/logo" />
 
     <TextView
-        android:id="@+id/shareText"
+        android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:textColor="@android:color/background_light"
-        android:textSize="24sp" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Share your achievements!"
+        android:textDirection="ltr" />
 
     <com.facebook.share.widget.ShareButton
         android:id="@+id/shareButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Share" />
+
+    <ListView
+        android:id="@+id/achievements"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 
 </LinearLayout>
