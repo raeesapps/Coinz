@@ -21,11 +21,7 @@
         android:textColor="@android:color/background_light"
         android:textSize="24sp" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <Button
+    <com.facebook.share.widget.ShareButton
         android:id="@+id/shareButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -2,6 +2,7 @@ package net.raeesaamir.coinz.share;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,9 +10,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareButton;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,7 +39,7 @@ public class ShareFragment extends Fragment {
 
     private View view;
     private TextView shareText;
-    private Button shareButton;
+    private ShareButton shareButton;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
 
@@ -61,10 +63,6 @@ public class ShareFragment extends Fragment {
         wallet = Wallet.fromSharedPreferences(sharedPreferences, gson, mUser.getUid(), dateFormatted);
 
         fetchAchievements();
-
-        shareButton.setOnClickListener((View viewParam) -> {
-
-        });
     }
 
     private void fetchAchievements() {
@@ -108,6 +106,13 @@ public class ShareFragment extends Fragment {
                 System.out.println("[ShareFragment]: " + achievement);
 
                 shareText.setText(achievement);
+                ShareLinkContent content = new ShareLinkContent.Builder()
+                        .setContentUrl(Uri.parse("https://www.raeesaamir.net"))
+                        .setQuote(achievement)
+                        .build();
+
+                shareButton.setShareContent(content);
+
             }
 
         });
