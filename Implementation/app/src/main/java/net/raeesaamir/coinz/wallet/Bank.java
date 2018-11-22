@@ -41,7 +41,7 @@ public class Bank extends FirestoreContainer {
 
     public void deposit(SharedPreferences sharedPreferences, Gson gson, FeatureCollection.ExchangeRates exchangeRates, String coin, Wallet wallet) {
         wallet.removeCoin(coin);
-        wallet.saved(gson, sharedPreferences);
+        wallet.getFuture();
 
         String[] coinAttributes = coin.split(" ");
 

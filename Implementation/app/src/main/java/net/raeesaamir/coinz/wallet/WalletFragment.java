@@ -37,7 +37,6 @@ public class WalletFragment extends Fragment {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
     private View view;
-    private Wallet wallet;
     private Bank bank;
     private Gson gson;
     private FirebaseAuth mAuth;
@@ -76,19 +75,25 @@ public class WalletFragment extends Fragment {
     private void populateWallet() {
         long date = new Date().getTime();
         String dateFormatted = DATE_FORMATTER.format(date);
-        this.wallet = Wallet.fromSharedPreferences(sharedPreferences, gson, mUser.getUid(), dateFormatted);
+        Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
 
-        ListView walletView = view.findViewById(R.id.wallet_items);
+            Wallet wallet = Wallet.WalletSingleton.getWallet();
 
-        ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
-        walletView.setAdapter(integerArrayAdapter);
+            for(String coin: wallet.getCoins()) {
+                System.out.println("[WalletFragment]: "+ coin);
+            }
+            ListView walletView = view.findViewById(R.id.wallet_items);
 
-        walletView.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
-            String coin = wallet.getCoins().get(i);
+            ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
+            walletView.setAdapter(integerArrayAdapter);
 
-            bank.deposit(sharedPreferences, gson, featureCollection.getRates(), coin, wallet);
-            refreshBank();
-            integerArrayAdapter.remove(coin);
+            walletView.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
+                String coin = wallet.getCoins().get(i);
+
+                bank.deposit(sharedPreferences, gson, featureCollection.getRates(), coin, wallet);
+                refreshBank();
+                integerArrayAdapter.remove(coin);
+            });
         });
     }
 

@@ -96,9 +96,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
 
-    private Wallet wallet;
-
     private SharedPreferences preferences;
+
+    private String dateFormatted;
 
     @Nullable
     @Override
@@ -118,7 +118,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         mUser = mAuth.getCurrentUser();
 
         long date = new Date().getTime();
-        String dateFormatted = DATE_FORMATTER.format(date);
+        dateFormatted = DATE_FORMATTER.format(date);
 
         preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         try {
@@ -126,8 +126,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         } catch(Exception e) {
             e.printStackTrace();
         }
-
-        wallet = Wallet.fromSharedPreferences(preferences, gson, mUser.getUid(), dateFormatted);
     }
 
     private void configureMapView(@Nullable Bundle savedInstanceState) {
@@ -316,32 +314,33 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         if(location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
         } else {
-            Log.d(tag, "[onLocationChanged] location is not null");
-            originalLocation = location;
-            setCameraPosition(location);
+            Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
+                Log.d(tag, "[onLocationChanged] location is not null");
+                originalLocation = location;
+                setCameraPosition(location);
 
-            LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
-            boolean isPlayerAtMarker = locationChangedEvent.atMarker;
-            System.out.println("PLAYER AT MARKER: " + isPlayerAtMarker);
-            if(isPlayerAtMarker) {
-                Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
-                map.removeMarker(marker);
+                LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
+                boolean isPlayerAtMarker = locationChangedEvent.atMarker;
+                System.out.println("PLAYER AT MARKER: " + isPlayerAtMarker);
+                if(isPlayerAtMarker) {
+                    Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
+                    map.removeMarker(marker);
 
-                Feature[] features = featureCollection.getFeatures();
-                Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
+                    Feature[] features = featureCollection.getFeatures();
+                    Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
 
+                    Wallet.WalletSingleton.getWallet().addCoin(properties.getCurrency() + " " + properties.getValue());
+                    Wallet.WalletSingleton.getWallet().getFuture();
 
-                wallet.addCoin(properties.getCurrency() + " " + properties.getValue());
-                wallet.saved(gson, preferences);
+                    features[locationChangedEvent.indexOfFeature] = null;
 
-                features[locationChangedEvent.indexOfFeature] = null;
-
-                String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
-                SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-                Gson gson = new Gson();
-                String jSONDocument = gson.toJson(featureCollection);
-                preferences.edit().putString(dateFormatted, jSONDocument).commit();
-            }
+                    String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
+                    SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                    Gson gson = new Gson();
+                    String jSONDocument = gson.toJson(featureCollection);
+                    preferences.edit().putString(dateFormatted, jSONDocument).commit();
+                }
+            });
         }
 
     }

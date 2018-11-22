@@ -47,6 +47,7 @@ public class MenuFragment extends Fragment {
         this.view = view;
         this.mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
+
         populateListView();
         populateUserInformation();
     }
