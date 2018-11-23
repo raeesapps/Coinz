@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -31,14 +33,18 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.FirestoreUser;
+import net.raeesaamir.coinz.wallet.Wallet;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class MessagingFragment extends Fragment {
 
     private static final String DB_NAME = "coinz-12df3";
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
     public static class SortedList extends ArrayList<FirebaseMessage> {
         @Override
@@ -73,8 +79,8 @@ public class MessagingFragment extends Fragment {
         this.mUser = mAuth.getCurrentUser();
         this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
         this.button = view.findViewById(R.id.button_chatbox_send);
-        this.spinner = view.findViewById(R.id.spinner);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
+        this.spinner = view.findViewById(R.id.spinner);
 
         // Instantiate spinner, set the array adapter from thisUser wallet then add
         // onClickListener to remove from thisUser wallet
@@ -139,6 +145,27 @@ public class MessagingFragment extends Fragment {
                         otherUser = new FirestoreUser(email, uid, displayName);
                     }
                 }
+
+                long date = new Date().getTime();
+                String dateFormatted = DATE_FORMATTER.format(date);
+                Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
+                    Wallet wallet = Wallet.WalletSingleton.getWallet();
+                    ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
+                    spinner.setAdapter(stringArrayAdapter);
+
+                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
+                });
+
 
                 setOnSend();
                 populateMessages();

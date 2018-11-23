@@ -17,6 +17,7 @@ public abstract class FirestoreContainer extends FirestoreDocument implements Co
 
     @Override
     public void removeCoin(String coin) {
-        ContainerUtils.addCoin(coins, coin);
+        ContainerUtils.removeCoin(coins, coin);
+        this.getFuture();
     }
 }

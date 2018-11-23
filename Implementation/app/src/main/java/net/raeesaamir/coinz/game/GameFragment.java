@@ -311,10 +311,13 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     @Override
     public void onLocationChanged(Location location) {
 
+        System.out.println("onLocationChanged");
+
         if(location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
         } else {
             Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
+                System.out.println("[onLocationChanged] callback called!");
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originalLocation = location;
                 setCameraPosition(location);
@@ -328,17 +331,20 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                     Feature[] features = featureCollection.getFeatures();
                     Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
-
-                    Wallet.WalletSingleton.getWallet().addCoin(properties.getCurrency() + " " + properties.getValue());
-                    Wallet.WalletSingleton.getWallet().getFuture();
+                    String currency = properties.getCurrency();
+                    String value = properties.getValue();
 
                     features[locationChangedEvent.indexOfFeature] = null;
-
                     String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
                     SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
                     Gson gson = new Gson();
                     String jSONDocument = gson.toJson(featureCollection);
                     preferences.edit().putString(dateFormatted, jSONDocument).commit();
+
+
+                    Wallet.WalletSingleton.getWallet().addCoin(currency + " " + value);
+                    System.out.println("[GameFragment]: " + currency + " " + value);
+                    Wallet.WalletSingleton.getWallet().getFuture();
                 }
             });
         }

@@ -90,7 +90,7 @@ public class WalletFragment extends Fragment {
             walletView.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
                 String coin = wallet.getCoins().get(i);
 
-                bank.deposit(sharedPreferences, gson, featureCollection.getRates(), coin, wallet);
+                bank.deposit(featureCollection.getRates(), coin, wallet);
                 refreshBank();
                 integerArrayAdapter.remove(coin);
             });

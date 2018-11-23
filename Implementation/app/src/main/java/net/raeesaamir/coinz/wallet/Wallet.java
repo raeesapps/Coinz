@@ -38,17 +38,21 @@ public class Wallet extends FirestoreContainer {
 
     public static void loadWallet(String uid, String date, WalletListener listener) {
 
+        System.out.println("[Wallet] loadWallet");
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference wallets = db.collection("Wallets");
         DocumentReference reference = wallets.document();
 
         if(WalletSingleton.wallet != null) {
+            System.out.println("[Wallet] not null!");
             listener.onComplete();
             return;
         }
 
         wallets.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
+            Wallet wallet = new Wallet(uid, reference.getId());
             if(task.isSuccessful()) {
                 for(DocumentSnapshot snapshot: task.getResult()) {
 
@@ -66,19 +70,15 @@ public class Wallet extends FirestoreContainer {
                     Object coinsObj = snapshot.get("coins");
                     if(coinsObj instanceof List) {
                         List<String> coins = (List<String>) coinsObj;
-                        Wallet wallet = new Wallet(uid, date, coins, walletUid);
-                        WalletSingleton.setWallet(wallet);
-                        listener.onComplete();
+                        wallet = new Wallet(uid, date, coins, walletUid);
                         break;
                     }
 
                 }
-            } else {
-                Wallet wallet = new Wallet(uid, reference.getId());
+
                 WalletSingleton.setWallet(wallet);
                 listener.onComplete();
             }
-
         });
     }
 
