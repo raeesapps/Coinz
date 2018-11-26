@@ -1,5 +1,7 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,11 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
@@ -61,9 +60,9 @@ public class MessagingFragment extends Fragment {
     private long previousMsgNanoTime = 0;
     private DatabaseReference mReference;
     private Button button;
+    private Button tradeButton;
     private List<FirebaseMessage> firestoreMessageList = new SortedList();
     private EditText messageContents;
-    private Spinner spinner;
     private View view;
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
@@ -79,8 +78,8 @@ public class MessagingFragment extends Fragment {
         this.mUser = mAuth.getCurrentUser();
         this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
         this.button = view.findViewById(R.id.button_chatbox_send);
+        this.tradeButton = view.findViewById(R.id.button_chatbox_trade);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
-        this.spinner = view.findViewById(R.id.spinner);
 
         // Instantiate spinner, set the array adapter from thisUser wallet then add
         // onClickListener to remove from thisUser wallet
@@ -146,26 +145,6 @@ public class MessagingFragment extends Fragment {
                     }
                 }
 
-                long date = new Date().getTime();
-                String dateFormatted = DATE_FORMATTER.format(date);
-                Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
-                    Wallet wallet = Wallet.WalletSingleton.getWallet();
-                    ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
-                    spinner.setAdapter(stringArrayAdapter);
-
-                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> adapterView) {
-
-                        }
-                    });
-                });
-
 
                 setOnSend();
                 populateMessages();
@@ -173,6 +152,7 @@ public class MessagingFragment extends Fragment {
 
         });
     }
+
 
     private void populateMessages() {
         RecyclerView recyclerView = view.findViewById(R.id.message_list);
@@ -201,6 +181,53 @@ public class MessagingFragment extends Fragment {
                         new MessageListAdapter(firestoreMessageList, otherUser, thisUser.getUid());
                 recyclerView.setAdapter(simpleMessageListAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+                long date = new Date().getTime();
+                String dateFormatted = DATE_FORMATTER.format(date);
+                Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
+                    Wallet wallet = Wallet.WalletSingleton.getWallet();
+
+                    tradeButton.setOnClickListener((View view) -> {
+                        List<String> coinsList = wallet.getCoins();
+
+                        String[] coins = coinsList.toArray(new String[coinsList.size()]);
+                        boolean[] selectedItems = new boolean[coins.length];
+
+                        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                                .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> {
+                                selectedItems[i] = true;
+                        }).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> {
+                                    Wallet.loadWallet(otherUser.getUid(), dateFormatted, () -> {
+
+                                        for(int i = 0; i < selectedItems.length; i++) {
+                                            if(selectedItems[i]) {
+                                                String coin = coinsList.get(i);
+                                                coins[i] = null;
+                                                wallet.removeCoin(coin);
+
+                                                Wallet otherWallet = Wallet.WalletSingleton.getOtherWallet();
+                                                otherWallet.addCoin(coin);
+                                                otherWallet.getFuture();
+
+                                                FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
+                                                String key = mReference.push().getKey();
+                                                mReference.child(key).setValue(message);
+
+                                                firestoreMessageList.add(message);
+                                                simpleMessageListAdapter.notifyDataSetChanged();
+                                            }
+                                        }
+
+                                    }, true);
+
+                                }).setNegativeButton("Decline", (DialogInterface dialogInterface, int i) -> {
+
+                                }).create();
+
+                        alertDialog.show();
+
+                    });
+                });
             }
 
             @Override

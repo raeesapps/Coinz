@@ -26,17 +26,30 @@ public class Wallet extends FirestoreContainer {
 
     public static class WalletSingleton {
         private static Wallet wallet = null;
+        private static Wallet otherWallet = null;
 
         public static Wallet getWallet(){
             return wallet;
         }
 
+        public static Wallet getOtherWallet() {
+            return otherWallet;
+        }
+
         public static void setWallet(Wallet wallet) {
             WalletSingleton.wallet = wallet;
+        }
+
+        public static void setOtherWallet(Wallet otherWallet) {
+            WalletSingleton.otherWallet = otherWallet;
         }
     }
 
     public static void loadWallet(String uid, String date, WalletListener listener) {
+        loadWallet(uid, date, listener, false);
+    }
+
+    public static void loadWallet(String uid, String date, WalletListener listener, boolean otherPlayer) {
 
         System.out.println("[Wallet] loadWallet");
 
@@ -44,10 +57,18 @@ public class Wallet extends FirestoreContainer {
         CollectionReference wallets = db.collection("Wallets");
         DocumentReference reference = wallets.document();
 
-        if(WalletSingleton.wallet != null) {
-            System.out.println("[Wallet] not null!");
-            listener.onComplete();
-            return;
+        if(otherPlayer) {
+            if(WalletSingleton.otherWallet != null) {
+                System.out.println("[Wallet] not null!");
+                listener.onComplete();
+                return;
+            }
+        } else {
+            if(WalletSingleton.wallet != null) {
+                System.out.println("[Wallet] not null!");
+                listener.onComplete();
+                return;
+            }
         }
 
         wallets.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
@@ -73,60 +94,18 @@ public class Wallet extends FirestoreContainer {
                         wallet = new Wallet(uid, date, coins, walletUid);
                         break;
                     }
-
                 }
 
-                WalletSingleton.setWallet(wallet);
+                if(otherPlayer) {
+                    WalletSingleton.setOtherWallet(wallet);
+                } else {
+                    WalletSingleton.setWallet(wallet);
+
+                }
                 listener.onComplete();
             }
         });
     }
-
-    /*
-    public interface WalletListener {
-        void onComplete(Wallet wallet);
-    }
-
-    public static Wallet fromDatabase(String uid, String date) {
-        return fromDatabase(uid, date, (Wallet wallet) -> {});
-    }
-
-    public static Wallet fromDatabase2(String uid, String date, WalletListener listener) {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference wallets = db.collection("Wallets");
-        DocumentReference reference = wallets.document();
-
-        System.out.println("[Wallet]: date: " + date);
-        System.out.println("[Wallet]: uid: " + uid);
-
-
-
-        Task<QuerySnapshot> snapshotTask = wallets.whereEqualTo("date", date).whereEqualTo("userUid", uid).get();
-
-        Wallet wallet;
-
-        if(snapshotTask.isSuccessful()) {
-            List<DocumentSnapshot> results = snapshotTask.getResult().getDocuments();
-            DocumentSnapshot snapshot = results.get(0);
-
-            String walletUid = snapshot.getString("walletUid");
-
-            Object coinsObj = snapshot.get("coins");
-            if(!(coinsObj instanceof List)) {
-                return null;
-            }
-
-            List<String> coins = (List<String>) coinsObj;
-            wallet = new Wallet(uid, date, coins, walletUid);
-            listener.onComplete(wallet);
-        } else {
-            wallet = new Wallet(uid, reference.getId());
-            listener.onComplete(wallet);
-        }
-
-        return wallet;
-    }*/
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 

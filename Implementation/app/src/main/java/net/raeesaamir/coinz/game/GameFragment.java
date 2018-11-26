@@ -64,7 +64,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
-    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Preferences";
+    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
 
     public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 

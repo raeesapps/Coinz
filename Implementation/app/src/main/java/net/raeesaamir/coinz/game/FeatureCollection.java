@@ -13,15 +13,19 @@ public class FeatureCollection {
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
 
     public static FeatureCollection fromWebsite(SharedPreferences preferences, Gson gson, String date) throws ExecutionException, InterruptedException{
+
         String url = FEATURE_COLLECTION_URL + date + "/coinzmap.geojson";
         FeatureCollection featureCollection;
 
         if(preferences.contains(date)) {
             String json = preferences.getString(date, "");
+            System.out.println("[FeatureCollection json not null] " + json);
             featureCollection = gson.fromJson(json, FeatureCollection.class);
+
         } else {
             featureCollection = new GameFragment.GeoJsonDownloadTask().execute(url).get();
             String json = gson.toJson(featureCollection);
+            System.out.println("[FeatureCollection json not exists] " + json);
             preferences.edit().putString(date, json).commit();
         }
 

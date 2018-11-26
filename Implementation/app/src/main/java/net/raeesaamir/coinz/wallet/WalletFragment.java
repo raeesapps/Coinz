@@ -33,7 +33,7 @@ import java.util.List;
 
 public class WalletFragment extends Fragment {
 
-    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Preferences";
+    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
     private View view;
