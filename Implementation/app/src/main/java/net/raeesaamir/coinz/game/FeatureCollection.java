@@ -6,12 +6,29 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Represents the features of a map such as the markers containing the coins, the date, the exchange rates and so forth.
+ *
+ * @author raeesaamir
+ */
 import java.util.concurrent.ExecutionException;
 
-public class FeatureCollection {
+public final class FeatureCollection {
 
+    /**
+     * The url where the maps are stored.
+     */
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
 
+    /**
+     * Uses GSON to download today's map from the informatics server.
+     * @param preferences The shared preferences object that will be used to store the map.
+     * @param gson The Gson instance that will be used to encode and decode the map.
+     * @param date The date of the map.
+     * @return A feature collection object representing today's map.
+     * @throws ExecutionException If the download fails
+     * @throws InterruptedException If something disrupts the download from happening smoothly.
+     */
     public static FeatureCollection fromWebsite(SharedPreferences preferences, Gson gson, String date) throws ExecutionException, InterruptedException{
 
         String url = FEATURE_COLLECTION_URL + date + "/coinzmap.geojson";

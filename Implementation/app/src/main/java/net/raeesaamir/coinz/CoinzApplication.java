@@ -4,11 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
-import com.facebook.FacebookSdk;
 import com.mapbox.mapboxsdk.Mapbox;
 
 import java.security.MessageDigest;
