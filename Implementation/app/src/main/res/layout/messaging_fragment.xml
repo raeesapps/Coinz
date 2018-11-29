@@ -49,9 +49,10 @@
             android:layout_marginRight="16dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:hint="Enter message"
+            android:hint="@string/messaging_fragment_input_hint_text"
             android:maxLines="6"
-            android:textColor="@color/colorPrimaryDark" />
+            android:textColor="@color/colorPrimaryDark"
+            android:inputType="" />
 
         <Button
             android:id="@+id/button_chatbox_trade"
@@ -61,8 +62,9 @@
             android:background="@color/colorPrimaryDark"
             android:clickable="true"
             android:gravity="center"
-            android:text="Trade"
-            android:textSize="14dp" />
+            android:text="@string/messaging_fragment_trade_button_text"
+            android:textSize="14sp"
+            android:focusable="true" />
 
 
 
@@ -74,8 +76,9 @@
             android:background="@color/colorPrimary"
             android:clickable="true"
             android:gravity="center"
-            android:text="SEND"
-            android:textSize="14dp" />
+            android:text="@string/messaging_fragment_send_button_text"
+            android:textSize="14sp"
+            android:focusable="true" />
 
     </LinearLayout>
 

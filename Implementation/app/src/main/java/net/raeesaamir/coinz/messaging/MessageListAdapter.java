@@ -2,7 +2,6 @@ package net.raeesaamir.coinz.messaging;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +16,10 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     private enum MessageType {
         MESSAGE_SENT,
-        MESSAGE_RECEIVED;
+        MESSAGE_RECEIVED
     }
 
-    public static class ReceivedMessageHolder extends RecyclerView.ViewHolder {
+    static class ReceivedMessageHolder extends RecyclerView.ViewHolder {
 
         private final TextView messageText;
         private final TextView timeText;
@@ -40,7 +39,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public class SentMessageHolder extends RecyclerView.ViewHolder {
+    class SentMessageHolder extends RecyclerView.ViewHolder {
 
         private final TextView messageText;
         private final TextView timeText;
@@ -57,15 +56,15 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private static final MessageType getType(int ordinal) {
+    private static MessageType getType(int ordinal) {
         return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
     }
 
-    private List<FirebaseMessage> messageList;
-    private String userUid;
-    private FirestoreUser fromUser;
+    private final List<FirebaseMessage> messageList;
+    private final String userUid;
+    private final FirestoreUser fromUser;
 
-    public MessageListAdapter(List<FirebaseMessage> messageList, FirestoreUser fromUser, String userUid) {
+    MessageListAdapter(List<FirebaseMessage> messageList, FirestoreUser fromUser, String userUid) {
         this.messageList = messageList;
         this.fromUser = fromUser;
         this.userUid = userUid;

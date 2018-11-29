@@ -23,6 +23,7 @@ import net.raeesaamir.coinz.wallet.Bank;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class LeaderboardFragment extends Fragment {
 
@@ -50,7 +51,7 @@ public class LeaderboardFragment extends Fragment {
 
         banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
-            for(DocumentSnapshot snapshot: task.getResult()) {
+            for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
 
                 if(!snapshot.contains("userUid") || !snapshot.contains("coins")) {
                     continue;
@@ -60,7 +61,7 @@ public class LeaderboardFragment extends Fragment {
                 if(!(coinsObj instanceof List)) {
                     return;
                 }
-                List<String> coins = (List<String>) coinsObj;
+                @SuppressWarnings("unchecked") List<String> coins = (List<String>) coinsObj;
                 Bank bank = new Bank(snapshot.getString("userUid"), coins);
 
                 uidTotalMappings.put(snapshot.getString("userUid"), bank.totalGold());
@@ -71,7 +72,7 @@ public class LeaderboardFragment extends Fragment {
 
             users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> userTask) -> {
 
-                for(DocumentSnapshot snapshot: userTask.getResult()) {
+                for(DocumentSnapshot snapshot: Objects.requireNonNull(userTask.getResult())) {
 
                     String uid = snapshot.getString("uid");
                     String username = snapshot.getString("displayName");
@@ -81,7 +82,7 @@ public class LeaderboardFragment extends Fragment {
                         scores.add(entry);
                     }
                 }
-                ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, scores);
+                ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()), android.R.layout.simple_list_item_1, scores);
                 scoresView.setAdapter(integerArrayAdapter);
 
             });

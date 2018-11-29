@@ -7,10 +7,10 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.about.AboutFragment;
-import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 import net.raeesaamir.coinz.messaging.MessagingFragment;
+
+import java.util.Objects;
 
 public class WalletController extends AppCompatActivity {
 
@@ -38,7 +38,7 @@ public class WalletController extends AppCompatActivity {
                     break;
             }
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, Objects.requireNonNull(selectedFragment)).commit();
 
             return true;
         });

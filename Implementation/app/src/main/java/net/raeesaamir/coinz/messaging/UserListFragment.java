@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,10 +25,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import net.raeesaamir.coinz.R;
 
 import java.util.List;
+import java.util.Objects;
 
 public class UserListFragment extends Fragment {
     private View view;
-    private FirebaseAuth mAuth;
+    private Context context;
     private FirebaseUser mUser;
 
     @Nullable
@@ -40,7 +42,7 @@ public class UserListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
-        this.mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
         populateUserList();
     }
@@ -55,7 +57,7 @@ public class UserListFragment extends Fragment {
             if (task.isSuccessful()) {
 
                 List<String> usernames = Lists.newArrayList();
-                for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                for (DocumentSnapshot documentSnapshot : Objects.requireNonNull(task.getResult())) {
 
                     if (!documentSnapshot.contains("uid") || !documentSnapshot.contains("email") || !documentSnapshot.contains("displayName")) {
                         continue;
@@ -63,7 +65,7 @@ public class UserListFragment extends Fragment {
 
                     String uid = (String) documentSnapshot.get("uid");
 
-                    if (uid.equals(mUser.getUid())) {
+                    if (Objects.requireNonNull(uid).equals(mUser.getUid())) {
                         continue;
                     }
 
@@ -72,11 +74,11 @@ public class UserListFragment extends Fragment {
                 }
 
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, usernames);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, usernames);
                 usernamesList.setAdapter(arrayAdapter);
                 usernamesList.setOnItemClickListener((AdapterView<?> adapterView, View view, int position, long l) -> {
                     String username = usernames.get(position);
-                    Intent intent = new Intent(getContext(), MessagingController.class);
+                    Intent intent = new Intent(context, MessagingController.class);
                     intent.putExtra("username", username);
                     startActivity(intent);
                 });
@@ -84,5 +86,9 @@ public class UserListFragment extends Fragment {
         });
     }
 
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
 }

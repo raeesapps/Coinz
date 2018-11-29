@@ -6,11 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
+
+import java.util.Objects;
 
 public class MessagingController extends AppCompatActivity {
 
@@ -42,7 +43,7 @@ public class MessagingController extends AppCompatActivity {
 
             Log.d("[MessagingController", "FRAGMENT STATE CONTAINER " + Boolean.toString(getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null));
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, Objects.requireNonNull(selectedFragment)).commit();
 
             return true;
         });

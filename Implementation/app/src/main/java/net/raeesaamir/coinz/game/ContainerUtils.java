@@ -8,7 +8,7 @@ import java.util.List;
  *
  * @author raeesaamir
  */
-public class ContainerUtils {
+class ContainerUtils {
 
     /**
      * Adds a coin to a list of coins.

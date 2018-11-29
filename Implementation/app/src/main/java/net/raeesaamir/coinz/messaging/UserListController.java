@@ -10,6 +10,8 @@ import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 
+import java.util.Objects;
+
 public class UserListController extends AppCompatActivity {
 
     @Override
@@ -36,7 +38,7 @@ public class UserListController extends AppCompatActivity {
                     break;
             }
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, Objects.requireNonNull(selectedFragment)).commit();
 
             return true;
         });

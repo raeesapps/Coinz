@@ -16,7 +16,6 @@ public class SplashScreenController extends AppCompatActivity {
 
     private static final int SPLASH_SCREEN_DURATION = 2000;
 
-    private FirebaseAuth mAuth;
     private FirebaseUser mUser;
 
     @Override
@@ -24,7 +23,7 @@ public class SplashScreenController extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_screen_view);
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
         final Handler handler = new Handler();

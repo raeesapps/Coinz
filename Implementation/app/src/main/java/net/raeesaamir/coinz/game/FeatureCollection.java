@@ -6,11 +6,6 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Represents the features of a map such as the markers containing the coins, the date, the exchange rates and so forth.
- *
- * @author raeesaamir
- */
 import java.util.concurrent.ExecutionException;
 
 public final class FeatureCollection {
@@ -52,16 +47,16 @@ public final class FeatureCollection {
     public static class ExchangeRates {
 
         @SerializedName("SHIL")
-        private double shil;
+        private final double shil;
 
         @SerializedName("DOLR")
-        private double dolr;
+        private final double dolr;
 
         @SerializedName("QUID")
-        private double quid;
+        private final double quid;
 
         @SerializedName("PENY")
-        private double peny;
+        private final double peny;
 
         public ExchangeRates(double shil, double dolr, double quid, double peny) {
             this.shil = shil;
@@ -97,7 +92,7 @@ public final class FeatureCollection {
     private final String type;
 
     @SerializedName("date-generated")
-    private String dateGenerated;
+    private final String dateGenerated;
 
     @SerializedName("time-generated")
     private final String timeGenerated;

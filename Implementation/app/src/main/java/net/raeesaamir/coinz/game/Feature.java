@@ -153,17 +153,17 @@ public final class Feature {
     /**
      * The type of JSON object
      */
-    private String type;
+    private final String type;
 
     /**
      * The properties of the coin. e.g. the of the currency and it's monetary worth
      */
-    private Properties properties;
+    private final Properties properties;
 
     /**
      * The location of the coin
      */
-    private Geometry geometry;
+    private final Geometry geometry;
 
     /**
      * Creates a new feature instance

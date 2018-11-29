@@ -30,6 +30,7 @@ import net.raeesaamir.coinz.game.FeatureCollection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class WalletFragment extends Fragment {
 
@@ -37,11 +38,9 @@ public class WalletFragment extends Fragment {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
     private View view;
+    private Context context;
     private Bank bank;
-    private Gson gson;
-    private FirebaseAuth mAuth;
     private FirebaseUser mUser;
-    private SharedPreferences sharedPreferences;
     private FeatureCollection featureCollection;
 
     private TextView bankView;
@@ -56,10 +55,10 @@ public class WalletFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
-        this.mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
-        this.gson = new Gson();
-        this.sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        SharedPreferences sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         long date = new Date().getTime();
         String dateFormatted = DATE_FORMATTER.format(date);
 
@@ -75,16 +74,14 @@ public class WalletFragment extends Fragment {
     private void populateWallet() {
         long date = new Date().getTime();
         String dateFormatted = DATE_FORMATTER.format(date);
-        Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
-
-            Wallet wallet = Wallet.WalletSingleton.getWallet();
+        Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
 
             for(String coin: wallet.getCoins()) {
                 System.out.println("[WalletFragment]: "+ coin);
             }
             ListView walletView = view.findViewById(R.id.wallet_items);
 
-            ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, wallet.getCoins());
+            ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, wallet.getCoins());
             walletView.setAdapter(integerArrayAdapter);
 
             walletView.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
@@ -113,7 +110,7 @@ public class WalletFragment extends Fragment {
                 return;
             }
             this.bank = new Bank(mUser.getUid());
-            for(DocumentSnapshot snapshot: task.getResult()) {
+            for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
 
                 if(!snapshot.contains("userUid") || !snapshot.contains("coins")) {
                     continue;
@@ -121,7 +118,7 @@ public class WalletFragment extends Fragment {
 
                 System.out.println("BANK"+snapshot.get("userUid"));
 
-                if(!snapshot.get("userUid").equals(mUser.getUid())) {
+                if(!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
                     continue;
                 }
                 Object coinsObj = snapshot.get("coins");
@@ -129,6 +126,7 @@ public class WalletFragment extends Fragment {
                     return;
                 }
 
+                //noinspection unchecked
                 List<String> coins = (List<String>) coinsObj;
                 this.bank = new Bank(mUser.getUid(), coins);
                 break;
@@ -144,5 +142,11 @@ public class WalletFragment extends Fragment {
         Preconditions.checkNotNull(this.bankView);
         Preconditions.checkNotNull(this.bank);
         bankView.setText("TOTAL GOLD: " + bank.totalGold());
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }

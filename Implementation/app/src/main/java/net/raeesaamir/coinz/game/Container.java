@@ -1,21 +1,21 @@
 package net.raeesaamir.coinz.game;
 
-/**
- * Represents a container that can store coins.
- *
- * @author raeesaamir
- */
-public interface Container {
+import com.google.common.collect.Lists;
 
-    /**
-     * Add a coin to the container
-     * @param coin - The coin to add
-     */
-    void addCoin(String coin);
+import net.raeesaamir.coinz.FirestoreDocument;
 
-    /**
-     * Remove a coin from the container
-     * @param coin - The coin to remove
-     */
-    void removeCoin(String coin);
+import java.util.List;
+
+public abstract class Container extends FirestoreDocument {
+
+    protected List<String> coins = Lists.newArrayList();
+
+    public void addCoin(String coin) {
+        ContainerUtils.addCoin(coins, coin);
+    }
+
+    public void removeCoin(String coin) {
+        ContainerUtils.removeCoin(coins, coin);
+        this.getFuture();
+    }
 }

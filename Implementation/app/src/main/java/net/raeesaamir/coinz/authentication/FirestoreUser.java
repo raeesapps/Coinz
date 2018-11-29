@@ -2,11 +2,8 @@ package net.raeesaamir.coinz.authentication;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 import net.raeesaamir.coinz.FirestoreDocument;
-
-import java.util.Map;
 
 public class FirestoreUser extends FirestoreDocument {
 
@@ -20,6 +17,7 @@ public class FirestoreUser extends FirestoreDocument {
         this.displayName = displayName;
     }
 
+    @SuppressWarnings("unused")
     public FirestoreUser() {
 
     }

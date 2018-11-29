@@ -48,15 +48,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
     private static class LocationChangedEvent {
-        private Feature feature;
-        private int indexOfFeature;
-        private boolean atMarker;
+        private final Feature feature;
+        private final int indexOfFeature;
+        private final boolean atMarker;
 
-        public LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
+        LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
             this.feature = feature;
             this.indexOfFeature = indexOfFeature;
             this.atMarker = atMarker;
@@ -71,32 +72,25 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         @Override
         public FeatureCollection readStream(String jSONDocument) {
 
-            FeatureCollection featureCollection = new Gson().fromJson(jSONDocument, FeatureCollection.class);
-            return featureCollection;
+            return new Gson().fromJson(jSONDocument, FeatureCollection.class);
         }
     }
 
-    private String tag = "GameFragment";
+    private final String tag = "GameFragment";
+    private Context context;
     private View view;
 
-    private Gson gson;
-
-    private FirebaseAuth mAuth;
     private FirebaseUser mUser;
 
     private MapView mapView;
     private MapboxMap map;
 
-    private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private LocationLayerPlugin locationLayerPlugin;
     private Location originalLocation;
 
     private FeatureCollection featureCollection;
 
-    private Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
-
-    private SharedPreferences preferences;
+    private final Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
 
     private String dateFormatted;
 
@@ -112,15 +106,15 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         this.view = view;
         configureMapView(savedInstanceState);
 
-        gson = new Gson();
+        Gson gson = new Gson();
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
         long date = new Date().getTime();
         dateFormatted = DATE_FORMATTER.format(date);
 
-        preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         try {
             featureCollection = FeatureCollection.fromWebsite(preferences, gson, dateFormatted);
         } catch(Exception e) {
@@ -222,7 +216,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 }
 
-                IconFactory iconFactory = IconFactory.getInstance(getActivity());
+                IconFactory iconFactory = IconFactory.getInstance(Objects.requireNonNull(getActivity()));
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
                 Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
 
@@ -236,7 +230,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 Feature feature = markerFeatureMap.get(marker);
                 Feature.Properties properties = feature.getProperties();
-                String value = properties.getValue() + " " + properties.getCurrency().toString().toLowerCase();
+                String value = properties.getValue() + " " + properties.getCurrency().toLowerCase();
 
                 Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
                 return true;
@@ -248,14 +242,14 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private void enableLocation() {
-        if(PermissionsManager.areLocationPermissionsGranted(getContext())) {
+        if(PermissionsManager.areLocationPermissionsGranted(context)) {
             Log.d(tag, "Permissions are granted");
             initializeLocationEngine();
             initializeLocationLayer();
 
         } else {
             Log.d(tag, "Permissions are not granted");
-            permissionsManager = new PermissionsManager(this);
+            PermissionsManager permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(getActivity());
         }
     }
@@ -266,7 +260,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private void initializeLocationEngine() {
-        locationEngine = new LocationEngineProvider(getContext()).obtainBestLocationEngineAvailable();
+        locationEngine = new LocationEngineProvider(context).obtainBestLocationEngineAvailable();
         locationEngine.addLocationEngineListener(this);
         locationEngine.setInterval(5000);
         locationEngine.setFastestInterval(1000);
@@ -288,7 +282,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         if(mapView == null) {
             Log.d(tag, "map view is null");
         } else {
-            locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
+            LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
             locationLayerPlugin.setLocationLayerEnabled(true);
             locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
             locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
@@ -316,7 +310,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         if(location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
         } else {
-            Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
+            Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
                 System.out.println("[onLocationChanged] callback called!");
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originalLocation = location;
@@ -326,25 +320,32 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 boolean isPlayerAtMarker = locationChangedEvent.atMarker;
                 System.out.println("PLAYER AT MARKER: " + isPlayerAtMarker);
                 if(isPlayerAtMarker) {
-                    Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
-                    map.removeMarker(marker);
+                    List<String> coins = wallet.getCoins();
 
-                    Feature[] features = featureCollection.getFeatures();
-                    Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
-                    String currency = properties.getCurrency();
-                    String value = properties.getValue();
+                    if(coins.size() == 25) {
+                        Toast.makeText(getActivity(), "You have too many coins in your wallet! Please come back here when you have deposited some coins into your bank or when you have traded them to someone else.", Toast.LENGTH_LONG).show();
+                    } else {
+                        Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
+                        map.removeMarker(marker);
 
-                    features[locationChangedEvent.indexOfFeature] = null;
-                    String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
-                    SharedPreferences preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-                    Gson gson = new Gson();
-                    String jSONDocument = gson.toJson(featureCollection);
-                    preferences.edit().putString(dateFormatted, jSONDocument).commit();
+                        Feature[] features = featureCollection.getFeatures();
+                        Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
+                        String currency = properties.getCurrency();
+                        String value = properties.getValue();
+
+                        features[locationChangedEvent.indexOfFeature] = null;
+                        String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
+                        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jSONDocument = gson.toJson(featureCollection);
+                        preferences.edit().putString(dateFormatted, jSONDocument).commit();
 
 
-                    Wallet.WalletSingleton.getWallet().addCoin(currency + " " + value);
-                    System.out.println("[GameFragment]: " + currency + " " + value);
-                    Wallet.WalletSingleton.getWallet().getFuture();
+                        wallet.addCoin(currency + " " + value);
+                        System.out.println("[GameFragment]: " + currency + " " + value);
+                        wallet.getFuture();
+                    }
+
                 }
             });
         }
@@ -386,8 +387,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
         if(granted) {
             enableLocation();
-        } else {
-
         }
     }
 
@@ -401,5 +400,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onDestroyView() {
         super.onDestroyView();
         mapView.onDestroy();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }

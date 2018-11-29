@@ -1,5 +1,5 @@
-<resources>
-    <string name="app_name">Coinz</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:ignore="PrivateResource">Coinz</string>
     <string name="logo">logo</string>
     <string name="title_activity_login_controller">Sign in</string>
     <string name="title_activity_registration_controller">Register</string>
@@ -25,5 +25,55 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!--Strings related to share-->
+    <string name="share_fragment_share_button_text">Share</string>
+    <string name="share_fragment_share_title_text">Share Your Achievements!</string>
+
+    <!--Strings related to wallet-->
+    <string name="wallet_fragment_bank_loading_text">Bank Loading...</string>
+
+    <!--Strings related to messaging-->
+    <string name="messaging_fragment_send_button_text">Send</string>
+    <string name="messaging_fragment_trade_button_text">Trade</string>
+    <string name="messaging_fragment_input_hint_text">Enter message</string>
+
+    <string name="message_sent_body_text">Hello</string>
+    <string name="message_sent_message_time_text">11:40</string>
+
+    <!--Strings related to menu-->
+    <string name="menu_fragment_welcome_text_default">Loading...</string>
+    <string name="menu_fragment_sign_out_button_text">Sign Out</string>
+
+    <!--Strings related to bottom navigation-->
+    <string name="messaging_nav_home">Home</string>
+    <string name="messaging_nav_game">Game</string>
+    <string name="messaging_nav_users">Users</string>
+
+    <string name="leaderboard_nav_home">Home</string>
+    <string name="leaderboard_nav_leaderboard">Leaderboard</string>
+    <string name="leaderboard_nav_game">Game</string>
+
+    <string name="about_nav_home">Home</string>
+    <string name="about_nav_about">About</string>
+    <string name="about_nav_game">Game</string>
+
+    <string name="game_nav_home">Home</string>
+    <string name="game_nav_game">Game</string>
+    <string name="game_nav_leaderboard">Leaderboard</string>
+
+    <string name="share_nav_home">Home</string>
+    <string name="share_nav_share">Share</string>
+    <string name="share_nav_game">Game</string>
+
+    <string name="user_list_nav_home">Home</string>
+    <string name="user_list_nav_user_list">User List</string>
+    <string name="user_list_nav_game">Game</string>
+
+    <string name="wallet_nav_home">Home</string>
+    <string name="wallet_nav_wallet">Wallet</string>
+    <string name="wallet_nav_game">Game</string>
+
+    <!--Strings related to mapbox-->
     <string name="mapbox_access_token">pk.eyJ1IjoiczE2MTc5MTAiLCJhIjoiY2pubG1zdWRsMTh0MTNwdGQ1Znp6NXRoNCJ9.Gl6nGxiyoJI6rbUo6L6orQ</string>
 </resources>

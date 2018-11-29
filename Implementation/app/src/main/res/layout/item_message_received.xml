@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,7 +14,8 @@
         android:background="@drawable/common_full_open_on_phone"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:contentDescription="TODO" />
 
     <TextView
         android:id="@+id/text_message_name"
@@ -50,6 +50,7 @@
         android:textSize="10sp"
         app:layout_constraintLeft_toRightOf="@+id/text_message_body"
         android:layout_marginLeft="4dp"
-        app:layout_constraintBottom_toBottomOf="@+id/text_message_body" />
+        app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
+        tools:ignore="SmallSp" />
 
 </android.support.constraint.ConstraintLayout>

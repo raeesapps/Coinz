@@ -24,19 +24,19 @@ public class AuthenticationController extends AppCompatActivity {
     /**
      * Google's Firebase authentication API
      */
-    protected FirebaseAuth firebaseAuth;
+    FirebaseAuth firebaseAuth;
 
     // UI references.
-    protected EditText mEmailView;
-    protected EditText mPasswordView;
+    EditText mEmailView;
+    EditText mPasswordView;
     private View mProgressView;
     private View mAuthenticationFormView;
 
-    public int getContentView() {
+    int getContentView() {
         return -1;
     }
 
-    public void onAuthenticationProcess(String email, String password) {
+    void onAuthenticationProcess(String email, String password) {
 
     }
 
@@ -59,9 +59,7 @@ public class AuthenticationController extends AppCompatActivity {
         );
 
         Button mEmailSignInButton = findViewById(R.id.authenticate_button);
-        mEmailSignInButton.setOnClickListener((View view) -> {
-                    attemptAuthentication();
-        });
+        mEmailSignInButton.setOnClickListener((View view) -> attemptAuthentication());
 
         mAuthenticationFormView = findViewById(R.id.authentication_form);
         mProgressView = findViewById(R.id.authentication_progress);
@@ -75,7 +73,7 @@ public class AuthenticationController extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    protected void attemptAuthentication() {
+    void attemptAuthentication() {
 
         // Reset errors.
         mEmailView.setError(null);
@@ -118,24 +116,24 @@ public class AuthenticationController extends AppCompatActivity {
         }
     }
 
-    protected void throwPasswordError(int resourceErrorMsg) {
-        mPasswordView.setError(getString(resourceErrorMsg));
+    void throwPasswordError() {
+        mPasswordView.setError(getString(R.string.error_incorrect_password));
         mPasswordView.requestFocus();
         showProgress(false);
     }
 
-    protected void throwEmailError(int resourceErrorMsg) {
-        mEmailView.setError(getString(resourceErrorMsg));
+    void throwEmailError() {
+        mEmailView.setError(getString(R.string.error_email_exists));
         mEmailView.requestFocus();
         showProgress(false);
     }
 
-    protected boolean isEmailValid(String email) {
+    boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
-    protected boolean isPasswordValid(String password) {
+    boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
     }
@@ -144,7 +142,7 @@ public class AuthenticationController extends AppCompatActivity {
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    protected void showProgress(final boolean show) {
+    void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.

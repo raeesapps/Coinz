@@ -1,6 +1,7 @@
 package net.raeesaamir.coinz.messaging;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,13 +40,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class MessagingFragment extends Fragment {
 
     private static final String DB_NAME = "coinz-12df3";
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
-    public static class SortedList extends ArrayList<FirebaseMessage> {
+    static class SortedList extends ArrayList<FirebaseMessage> {
         @Override
         public boolean add(FirebaseMessage firebaseMessage) {
             boolean successful = super.add(firebaseMessage);
@@ -61,10 +63,10 @@ public class MessagingFragment extends Fragment {
     private DatabaseReference mReference;
     private Button button;
     private Button tradeButton;
-    private List<FirebaseMessage> firestoreMessageList = new SortedList();
+    private final List<FirebaseMessage> firestoreMessageList = new SortedList();
     private EditText messageContents;
     private View view;
-    private FirebaseAuth mAuth;
+    private Context context;
     private FirebaseUser mUser;
     private FirestoreUser otherUser;
     private FirestoreUser thisUser;
@@ -74,9 +76,9 @@ public class MessagingFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
-        this.mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
-        this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
+        this.thisUser = new FirestoreUser(Objects.requireNonNull(mUser).getEmail(), mUser.getUid(), mUser.getDisplayName());
         this.button = view.findViewById(R.id.button_chatbox_send);
         this.tradeButton = view.findViewById(R.id.button_chatbox_trade);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
@@ -84,7 +86,7 @@ public class MessagingFragment extends Fragment {
         // Instantiate spinner, set the array adapter from thisUser wallet then add
         // onClickListener to remove from thisUser wallet
         // add to otherUser wallet and send a message showing the transaction details.
-        listen(getActivity().getIntent().getStringExtra("username"));
+        listen(Objects.requireNonNull(getActivity()).getIntent().getStringExtra("username"));
     }
 
     private void setOnSend() {
@@ -94,13 +96,13 @@ public class MessagingFragment extends Fragment {
             msgNanoTime = System.nanoTime();
 
             if(msgNanoTime - previousMsgNanoTime < 3000000000L) {
-                Toast.makeText(getContext(), "Please wait", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Please wait", Toast.LENGTH_SHORT).show();
             } else {
                 Preconditions.checkNotNull(mReference);
 
                 FirebaseMessage message = new FirebaseMessage(messageString, thisUser.getUid(), otherUser.getUid());
                 String key = mReference.push().getKey();
-                mReference.child(key).setValue(message);
+                mReference.child(Objects.requireNonNull(key)).setValue(message);
 
                 firestoreMessageList.add(message);
                 simpleMessageListAdapter.notifyDataSetChanged();
@@ -130,14 +132,14 @@ public class MessagingFragment extends Fragment {
                     this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
                 }
 
-                for(DocumentSnapshot snapshot: task.getResult()) {
+                for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
 
                     if(!snapshot.contains("uid") || !snapshot.contains("displayName") ||
                             !snapshot.contains("email")) {
                         continue;
                     }
 
-                    if(snapshot.get("displayName").equals(username)) {
+                    if(Objects.requireNonNull(snapshot.get("displayName")).equals(username)) {
                         String uid = snapshot.getString("uid");
                         String displayName = snapshot.getString("displayName");
                         String email = snapshot.getString("email");
@@ -169,7 +171,7 @@ public class MessagingFragment extends Fragment {
                 for(DataSnapshot item: dataSnapshot.getChildren()) {
                     FirebaseMessage firestoreMessage = item.getValue(FirebaseMessage.class);
 
-                    if((firestoreMessage.getMessageFromUser().equals(thisUser.getUid()) &&
+                    if((Objects.requireNonNull(firestoreMessage).getMessageFromUser().equals(thisUser.getUid()) &&
                             firestoreMessage.getMessageToUser().equals(otherUser.getUid()) ||
                             (firestoreMessage.getMessageFromUser().equals(otherUser.getUid()) &&
                                     firestoreMessage.getMessageToUser().equals(thisUser.getUid())))) {
@@ -180,54 +182,46 @@ public class MessagingFragment extends Fragment {
                 simpleMessageListAdapter =
                         new MessageListAdapter(firestoreMessageList, otherUser, thisUser.getUid());
                 recyclerView.setAdapter(simpleMessageListAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
                 long date = new Date().getTime();
                 String dateFormatted = DATE_FORMATTER.format(date);
-                Wallet.loadWallet(mUser.getUid(), dateFormatted, () -> {
-                    Wallet wallet = Wallet.WalletSingleton.getWallet();
+                Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> tradeButton.setOnClickListener((View view) -> {
+                    List<String> coinsList = wallet.getCoins();
 
-                    tradeButton.setOnClickListener((View view) -> {
-                        List<String> coinsList = wallet.getCoins();
+                    String[] coins = coinsList.toArray(new String[coinsList.size()]);
+                    boolean[] selectedItems = new boolean[coins.length];
 
-                        String[] coins = coinsList.toArray(new String[coinsList.size()]);
-                        boolean[] selectedItems = new boolean[coins.length];
+                    AlertDialog alertDialog = new AlertDialog.Builder(context)
+                            .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, (Wallet otherWallet) -> {
 
-                        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-                                .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> {
-                                selectedItems[i] = true;
-                        }).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> {
-                                    Wallet.loadWallet(otherUser.getUid(), dateFormatted, () -> {
+                                for(int i = 0; i < selectedItems.length; i++) {
+                                    if(selectedItems[i]) {
+                                        String coin = coinsList.get(i);
+                                        coins[i] = null;
+                                        wallet.removeCoin(coin);
 
-                                        for(int i = 0; i < selectedItems.length; i++) {
-                                            if(selectedItems[i]) {
-                                                String coin = coinsList.get(i);
-                                                coins[i] = null;
-                                                wallet.removeCoin(coin);
+                                        otherWallet.addCoin(coin);
+                                        otherWallet.getFuture();
 
-                                                Wallet otherWallet = Wallet.WalletSingleton.getOtherWallet();
-                                                otherWallet.addCoin(coin);
-                                                otherWallet.getFuture();
+                                        FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
+                                        String key = mReference.push().getKey();
+                                        mReference.child(Objects.requireNonNull(key)).setValue(message);
 
-                                                FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
-                                                String key = mReference.push().getKey();
-                                                mReference.child(key).setValue(message);
+                                        firestoreMessageList.add(message);
+                                        simpleMessageListAdapter.notifyDataSetChanged();
+                                    }
+                                }
 
-                                                firestoreMessageList.add(message);
-                                                simpleMessageListAdapter.notifyDataSetChanged();
-                                            }
-                                        }
+                                Wallet.WalletSingleton.setOtherWallet(null);
 
-                                    }, true);
+                            }, true)).setNegativeButton("Decline", (DialogInterface dialogInterface, int i) -> {
 
-                                }).setNegativeButton("Decline", (DialogInterface dialogInterface, int i) -> {
+                            }).create();
 
-                                }).create();
+                    alertDialog.show();
 
-                        alertDialog.show();
-
-                    });
-                });
+                }));
             }
 
             @Override
@@ -238,5 +232,11 @@ public class MessagingFragment extends Fragment {
         });
 
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }

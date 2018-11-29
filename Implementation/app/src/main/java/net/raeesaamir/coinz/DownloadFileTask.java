@@ -7,11 +7,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
-import javax.net.ssl.HttpsURLConnection;
-
 public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
 
-    public abstract T readStream(String inputStream);
+    protected abstract T readStream(String inputStream);
 
 
     @Override
@@ -25,20 +23,17 @@ public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
             if(connection instanceof HttpURLConnection) {
                 HttpURLConnection httpConnection = (HttpURLConnection) connection;
                 httpConnection.setRequestMethod("GET");
-            } else if(connection instanceof HttpsURLConnection) {
-                HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
-                httpsConnection.setRequestMethod("GET");
             }
 
             InputStream inputStream = connection.getInputStream();
-            String document = "";
+            StringBuilder document = new StringBuilder();
 
             int ptr;
             while((ptr = inputStream.read()) != -1) {
-                document = document + (char) ptr;
+                document.append((char) ptr);
             }
 
-            return readStream(document);
+            return readStream(document.toString());
         } catch(Exception e) {
             e.printStackTrace();
         }

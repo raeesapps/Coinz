@@ -11,6 +11,8 @@ import net.raeesaamir.coinz.game.GameFragment;
 import net.raeesaamir.coinz.leaderboard.LeaderboardFragment;
 import net.raeesaamir.coinz.menu.MenuFragment;
 
+import java.util.Objects;
+
 public class ShareController extends AppCompatActivity {
 
     @Override
@@ -37,7 +39,7 @@ public class ShareController extends AppCompatActivity {
                     break;
             }
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, Objects.requireNonNull(selectedFragment)).commit();
 
             return true;
         });

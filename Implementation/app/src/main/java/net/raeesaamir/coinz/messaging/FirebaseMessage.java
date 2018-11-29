@@ -1,15 +1,11 @@
 package net.raeesaamir.coinz.messaging;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
-
-import net.raeesaamir.coinz.FirestoreDocument;
-import net.raeesaamir.coinz.authentication.FirestoreUser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class FirebaseMessage {
+class FirebaseMessage {
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd/MM/yy HH:mm");
 

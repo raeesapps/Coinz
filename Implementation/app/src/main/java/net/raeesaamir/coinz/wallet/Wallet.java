@@ -2,7 +2,6 @@ package net.raeesaamir.coinz.wallet;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
@@ -12,31 +11,23 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import net.raeesaamir.coinz.game.FirestoreContainer;
+import net.raeesaamir.coinz.game.Container;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class Wallet extends FirestoreContainer {
+public class Wallet extends Container {
 
     public interface WalletListener {
-        void onComplete();
+        void onComplete(Wallet wallet);
     }
 
     public static class WalletSingleton {
         private static Wallet wallet = null;
         private static Wallet otherWallet = null;
 
-        public static Wallet getWallet(){
-            return wallet;
-        }
-
-        public static Wallet getOtherWallet() {
-            return otherWallet;
-        }
-
-        public static void setWallet(Wallet wallet) {
+        static void setWallet(Wallet wallet) {
             WalletSingleton.wallet = wallet;
         }
 
@@ -49,6 +40,7 @@ public class Wallet extends FirestoreContainer {
         loadWallet(uid, date, listener, false);
     }
 
+    @SuppressWarnings("unchecked")
     public static void loadWallet(String uid, String date, WalletListener listener, boolean otherPlayer) {
 
         System.out.println("[Wallet] loadWallet");
@@ -60,13 +52,13 @@ public class Wallet extends FirestoreContainer {
         if(otherPlayer) {
             if(WalletSingleton.otherWallet != null) {
                 System.out.println("[Wallet] not null!");
-                listener.onComplete();
+                listener.onComplete(WalletSingleton.otherWallet);
                 return;
             }
         } else {
             if(WalletSingleton.wallet != null) {
                 System.out.println("[Wallet] not null!");
-                listener.onComplete();
+                listener.onComplete(WalletSingleton.wallet);
                 return;
             }
         }
@@ -75,14 +67,14 @@ public class Wallet extends FirestoreContainer {
 
             Wallet wallet = new Wallet(uid, reference.getId());
             if(task.isSuccessful()) {
-                for(DocumentSnapshot snapshot: task.getResult()) {
+                for(DocumentSnapshot snapshot: java.util.Objects.requireNonNull(task.getResult())) {
 
                     if(!snapshot.contains("userUid") || !snapshot.contains("date")
                             ||!snapshot.contains("walletUid") ||!snapshot.contains("coins")) {
                         continue;
                     }
 
-                    if(!snapshot.get("userUid").equals(uid) || !snapshot.get("date").equals(date)) {
+                    if(!java.util.Objects.requireNonNull(snapshot.get("userUid")).equals(uid) || !java.util.Objects.requireNonNull(snapshot.get("date")).equals(date)) {
                         continue;
                     }
 
@@ -102,18 +94,18 @@ public class Wallet extends FirestoreContainer {
                     WalletSingleton.setWallet(wallet);
 
                 }
-                listener.onComplete();
+                listener.onComplete(wallet);
             }
         });
     }
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
 
-    private String date;
-    private String userUid;
-    private String walletUid;
+    private final String date;
+    private final String userUid;
+    private final String walletUid;
 
-    public Wallet(String userUid, String walletUid) {
+    private Wallet(String userUid, String walletUid) {
         long date = new Date().getTime();
 
         this.date = DATE_FORMATTER.format(date);
@@ -121,7 +113,7 @@ public class Wallet extends FirestoreContainer {
         this.walletUid = walletUid;
     }
 
-    public Wallet(String userUid, String date, List<String> coins, String walletUid) {
+    private Wallet(String userUid, String date, List<String> coins, String walletUid) {
         this.userUid = userUid;
         this.date = date;
         this.coins = coins;

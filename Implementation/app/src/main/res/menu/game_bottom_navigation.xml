@@ -4,19 +4,19 @@
     <item
         android:id="@+id/game_nav_home"
         android:icon="@drawable/home_24dp"
-        android:title="Home"
+        android:title="@string/game_nav_home"
         />
 
 
     <item
         android:id="@+id/game_nav_game"
         android:icon="@drawable/game_24dp"
-        android:title="Game"
+        android:title="@string/game_nav_game"
         />
 
     <item
         android:id="@+id/game_nav_leaderboard"
         android:icon="@drawable/leaderboard_24dp"
-        android:title="Leaderboard"
+        android:title="@string/game_nav_leaderboard"
         />
 </menu>

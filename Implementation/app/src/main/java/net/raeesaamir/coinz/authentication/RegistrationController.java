@@ -18,6 +18,8 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.menu.MenuController;
 
+import java.util.Objects;
+
 /**
  * A login screen that offers login via email/password.
  */
@@ -42,17 +44,12 @@ public class RegistrationController extends AuthenticationController {
         );
 
         mPasswordView = findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener((TextView textView, int id, KeyEvent keyEvent) -> {
-                    if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                        return mConfirmPasswordView.requestFocus();
-                    }
-                    return false;
-                }
+        mPasswordView.setOnEditorActionListener((TextView textView, int id, KeyEvent keyEvent) -> (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) && mConfirmPasswordView.requestFocus()
         );
     }
 
     @Override
-    protected void attemptAuthentication() {
+    void attemptAuthentication() {
         // Reset errors.
         mNameView.setError(null);
         mEmailView.setError(null);
@@ -115,7 +112,7 @@ public class RegistrationController extends AuthenticationController {
             if(task.isSuccessful()) {
 
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name).build());
+                Objects.requireNonNull(user).updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name).build());
 
                 FirestoreUser userDocument = new FirestoreUser(email, user.getUid(), name);
                 userDocument.getFuture();
@@ -125,9 +122,9 @@ public class RegistrationController extends AuthenticationController {
             } else {
 
                 try {
-                    throw task.getException();
+                    throw Objects.requireNonNull(task.getException());
                 } catch(FirebaseAuthUserCollisionException collisionException) {
-                    throwEmailError(R.string.error_email_exists);
+                    throwEmailError();
                 } catch(Exception e) { e.printStackTrace(); }
             }
 

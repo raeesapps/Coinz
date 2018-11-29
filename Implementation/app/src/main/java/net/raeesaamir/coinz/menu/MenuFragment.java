@@ -24,6 +24,7 @@ import net.raeesaamir.coinz.authentication.LoginController;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class MenuFragment extends Fragment {
 
@@ -73,13 +74,13 @@ public class MenuFragment extends Fragment {
         ListView menu = view.findViewById(R.id.listView);
 
         List<String> items = Lists.newArrayList();
-        MENU_ITEMS.stream().forEachOrdered(x -> items.add(x.nameOfItem()));
+        MENU_ITEMS.forEach(x -> items.add(x.nameOfItem()));
 
-        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_checked, items);
+        ArrayAdapter adapter = new ArrayAdapter(Objects.requireNonNull(getContext()), android.R.layout.simple_list_item_checked, items);
         menu.setAdapter(adapter);
 
         List<Class<?>> controllers = Lists.newArrayList();
-        MENU_ITEMS.stream().forEachOrdered(x -> controllers.add(x.segueTo()));
+        MENU_ITEMS.forEach(x -> controllers.add(x.segueTo()));
 
         menu.setOnItemClickListener((AdapterView<?> adapterView, View view, int position, long l) -> {
             Class<?> controller = controllers.get(position);

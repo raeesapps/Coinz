@@ -15,7 +15,7 @@
             android:id="@+id/welcomeMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="@string/menu_fragment_welcome_text_default"
             android:textSize="24sp"
             android:visibility="visible" />
 
@@ -23,7 +23,7 @@
             android:id="@+id/signOut"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign Out"
+            android:text="@string/menu_fragment_sign_out_button_text"
             android:visibility="visible" />
 
 

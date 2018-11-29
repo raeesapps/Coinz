@@ -1,19 +1,16 @@
 package net.raeesaamir.coinz.wallet;
 
-import android.content.SharedPreferences;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 
 import net.raeesaamir.coinz.game.FeatureCollection;
-import net.raeesaamir.coinz.game.FirestoreContainer;
+import net.raeesaamir.coinz.game.Container;
 
 import java.util.List;
 
-public class Bank extends FirestoreContainer {
+public class Bank extends Container {
 
-    private String userUid;
+    private final String userUid;
 
     public Bank(String userUid) {
         this.userUid = userUid;
@@ -47,15 +44,20 @@ public class Bank extends FirestoreContainer {
         String coinType = coinAttributes[0];
         double coinValue = Double.parseDouble(coinAttributes[1]);
 
-        double exchangeRate = -1;
-        if(coinType.equals("SHIL")) {
-            exchangeRate = exchangeRates.getShil();
-        } else if(coinType.equals("DOLR")) {
-            exchangeRate = exchangeRates.getDolr();
-        } else if(coinType.equals("PENY")) {
-            exchangeRate = exchangeRates.getPeny();
-        } else {
-            exchangeRate = exchangeRates.getQuid();
+        double exchangeRate;
+        switch (coinType) {
+            case "SHIL":
+                exchangeRate = exchangeRates.getShil();
+                break;
+            case "DOLR":
+                exchangeRate = exchangeRates.getDolr();
+                break;
+            case "PENY":
+                exchangeRate = exchangeRates.getPeny();
+                break;
+            default:
+                exchangeRate = exchangeRates.getQuid();
+                break;
         }
 
         Preconditions.checkArgument(exchangeRate != -1);
@@ -78,8 +80,4 @@ public class Bank extends FirestoreContainer {
         return totalGold;
     }
 
-    @Override
-    public void removeCoin(String coin) {
-        throw new UnsupportedOperationException("NOT IMPLEMENTED FOR BANKS");
-    }
 }

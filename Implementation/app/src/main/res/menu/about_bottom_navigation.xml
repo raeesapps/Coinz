@@ -4,19 +4,19 @@
     <item
         android:id="@+id/about_nav_home"
         android:icon="@drawable/home_24dp"
-        android:title="Home"
+        android:title="@string/about_nav_home"
         />
 
     <item
         android:id="@+id/about_nav_about"
         android:icon="@drawable/about_24dp"
-        android:title="About"
+        android:title="@string/about_nav_about"
         />
 
 
     <item
         android:id="@+id/about_nav_game"
         android:icon="@drawable/game_24dp"
-        android:title="Game"
+        android:title="@string/about_nav_game"
         />
 </menu>

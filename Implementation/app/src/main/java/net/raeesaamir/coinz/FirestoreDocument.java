@@ -6,15 +6,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public abstract class FirestoreDocument {
 
-    public abstract ImmutableMap<String, Object> getDocument();
-    public abstract String getDocumentName();
-    public abstract String getCollectionName();
+    protected abstract ImmutableMap<String, Object> getDocument();
+    protected abstract String getDocumentName();
+    protected abstract String getCollectionName();
 
-    public DocumentReference getFuture() {
+    public void getFuture() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference reference =
                 firestore.collection(getCollectionName()).document(getDocumentName());
         reference.set(getDocument());
-        return reference;
     }
 }

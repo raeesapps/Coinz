@@ -3,7 +3,6 @@ package net.raeesaamir.coinz.menu;
 import net.raeesaamir.coinz.about.AboutController;
 import net.raeesaamir.coinz.game.GameController;
 import net.raeesaamir.coinz.leaderboard.LeaderboardController;
-import net.raeesaamir.coinz.messaging.MessagingController;
 import net.raeesaamir.coinz.messaging.UserListController;
 import net.raeesaamir.coinz.share.ShareController;
 import net.raeesaamir.coinz.wallet.WalletController;
@@ -17,7 +16,7 @@ public enum MenuItem {
     ABOUT(AboutController.class),
     SHARE(ShareController.class);
 
-    private Class<?> segueTo;
+    private final Class<?> segueTo;
 
     MenuItem(Class<?> segueTo) {
         this.segueTo = segueTo;

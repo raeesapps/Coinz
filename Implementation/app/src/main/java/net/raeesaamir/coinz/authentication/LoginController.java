@@ -2,7 +2,6 @@ package net.raeesaamir.coinz.authentication;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -19,7 +18,7 @@ public class LoginController extends AuthenticationController {
     public void onAuthenticationProcess(String email, String password) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
             if(!task.isSuccessful()) {
-                throwPasswordError(R.string.error_incorrect_password);
+                throwPasswordError();
             } else {
                 Intent menu = new Intent(this, MenuController.class);
                 startActivity(menu);
@@ -32,7 +31,7 @@ public class LoginController extends AuthenticationController {
         return R.layout.login_view;
     }
 
-    public void goToRegistration(View view) {
+    public void goToRegistration() {
         Intent registration = new Intent(this, RegistrationController.class);
         startActivity(registration);
     }
