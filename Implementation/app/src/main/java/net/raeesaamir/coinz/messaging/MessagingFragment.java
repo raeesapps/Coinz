@@ -47,24 +47,12 @@ public class MessagingFragment extends Fragment {
 
     private static final String DB_NAME = "coinz-12df3";
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
-
-    static class SortedList extends ArrayList<FirebaseMessage> {
-        @Override
-        public boolean add(FirebaseMessage firebaseMessage) {
-            boolean successful = super.add(firebaseMessage);
-
-            this.sort(Comparator.comparingLong(FirebaseMessage::getMessageTime));
-
-            return successful;
-        }
-    }
-
+    private final List<FirebaseMessage> firestoreMessageList = new SortedList();
     private long msgNanoTime;
     private long previousMsgNanoTime = 0;
     private DatabaseReference mReference;
     private Button button;
     private Button tradeButton;
-    private final List<FirebaseMessage> firestoreMessageList = new SortedList();
     private EditText messageContents;
     private View view;
     private Context context;
@@ -96,7 +84,7 @@ public class MessagingFragment extends Fragment {
             messageContents.setText("");
             msgNanoTime = System.nanoTime();
 
-            if(msgNanoTime - previousMsgNanoTime < 3000000000L) {
+            if (msgNanoTime - previousMsgNanoTime < 3000000000L) {
                 Toast.makeText(context, "Please wait", Toast.LENGTH_SHORT).show();
             } else {
                 Preconditions.checkNotNull(mReference);
@@ -127,20 +115,20 @@ public class MessagingFragment extends Fragment {
 
         users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
-            if(task.isSuccessful()) {
+            if (task.isSuccessful()) {
 
-                if(thisUser == null) {
+                if (thisUser == null) {
                     this.thisUser = new FirestoreUser(mUser.getEmail(), mUser.getUid(), mUser.getDisplayName());
                 }
 
-                for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
+                for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
 
-                    if(!snapshot.contains("uid") || !snapshot.contains("displayName") ||
+                    if (!snapshot.contains("uid") || !snapshot.contains("displayName") ||
                             !snapshot.contains("email")) {
                         continue;
                     }
 
-                    if(Objects.requireNonNull(snapshot.get("displayName")).equals(username)) {
+                    if (Objects.requireNonNull(snapshot.get("displayName")).equals(username)) {
                         String uid = snapshot.getString("uid");
                         String displayName = snapshot.getString("displayName");
                         String email = snapshot.getString("email");
@@ -156,7 +144,6 @@ public class MessagingFragment extends Fragment {
         });
     }
 
-
     private void populateMessages() {
         RecyclerView recyclerView = view.findViewById(R.id.message_list);
 
@@ -169,10 +156,10 @@ public class MessagingFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 System.out.println("[MessagingFragment]: onDataChange");
                 firestoreMessageList.clear();
-                for(DataSnapshot item: dataSnapshot.getChildren()) {
+                for (DataSnapshot item : dataSnapshot.getChildren()) {
                     FirebaseMessage firestoreMessage = item.getValue(FirebaseMessage.class);
 
-                    if((Objects.requireNonNull(firestoreMessage).getMessageFromUser().equals(thisUser.getUid()) &&
+                    if ((Objects.requireNonNull(firestoreMessage).getMessageFromUser().equals(thisUser.getUid()) &&
                             firestoreMessage.getMessageToUser().equals(otherUser.getUid()) ||
                             (firestoreMessage.getMessageFromUser().equals(otherUser.getUid()) &&
                                     firestoreMessage.getMessageToUser().equals(thisUser.getUid())))) {
@@ -196,8 +183,8 @@ public class MessagingFragment extends Fragment {
                     AlertDialog alertDialog = new AlertDialog.Builder(context)
                             .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, (Wallet otherWallet) -> {
 
-                                for(int i = 0; i < selectedItems.length; i++) {
-                                    if(selectedItems[i]) {
+                                for (int i = 0; i < selectedItems.length; i++) {
+                                    if (selectedItems[i]) {
                                         String coin = coinsList.get(i);
                                         coins[i] = null;
                                         wallet.removeCoin(coin);
@@ -227,7 +214,7 @@ public class MessagingFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("MessagingFragment","ERROR: " + databaseError.getMessage());
+                Log.e("MessagingFragment", "ERROR: " + databaseError.getMessage());
             }
 
         });
@@ -239,5 +226,16 @@ public class MessagingFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+    }
+
+    static class SortedList extends ArrayList<FirebaseMessage> {
+        @Override
+        public boolean add(FirebaseMessage firebaseMessage) {
+            boolean successful = super.add(firebaseMessage);
+
+            this.sort(Comparator.comparingLong(FirebaseMessage::getMessageTime));
+
+            return successful;
+        }
     }
 }

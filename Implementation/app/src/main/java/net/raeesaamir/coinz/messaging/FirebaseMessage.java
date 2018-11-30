@@ -29,8 +29,13 @@ class FirebaseMessage {
         this.messageTime = new Date().getTime();
     }
 
-    public FirebaseMessage(){
+    public FirebaseMessage() {
 
+    }
+
+    public static String getMessageTimeAsString(FirebaseMessage msg) {
+        Date date = new Date(msg.messageTime);
+        return DATE_FORMATTER.format(date);
     }
 
     public String getMessageText() {
@@ -65,18 +70,13 @@ class FirebaseMessage {
         this.messageTime = messageTime;
     }
 
-    public static String getMessageTimeAsString(FirebaseMessage msg) {
-        Date date = new Date(msg.messageTime);
-        return DATE_FORMATTER.format(date);
-    }
-
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 
-        if(!(obj instanceof FirebaseMessage)) {
+        if (!(obj instanceof FirebaseMessage)) {
             return false;
         }
 

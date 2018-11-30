@@ -20,7 +20,7 @@ public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
             connection.setReadTimeout(10000);
             connection.setConnectTimeout(15000);
             connection.setDoInput(true);
-            if(connection instanceof HttpURLConnection) {
+            if (connection instanceof HttpURLConnection) {
                 HttpURLConnection httpConnection = (HttpURLConnection) connection;
                 httpConnection.setRequestMethod("GET");
             }
@@ -29,12 +29,12 @@ public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
             StringBuilder document = new StringBuilder();
 
             int ptr;
-            while((ptr = inputStream.read()) != -1) {
+            while ((ptr = inputStream.read()) != -1) {
                 document.append((char) ptr);
             }
 
             return readStream(document.toString());
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

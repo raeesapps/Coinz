@@ -3,8 +3,8 @@ package net.raeesaamir.coinz.wallet;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
-import net.raeesaamir.coinz.game.FeatureCollection;
 import net.raeesaamir.coinz.game.Container;
+import net.raeesaamir.coinz.game.FeatureCollection;
 
 import java.util.List;
 
@@ -63,14 +63,14 @@ public class Bank extends Container {
         Preconditions.checkArgument(exchangeRate != -1);
 
         double goldAmount = coinValue * exchangeRate;
-        addCoin("GOLD "+goldAmount);
+        addCoin("GOLD " + goldAmount);
         getFuture();
     }
 
     public double totalGold() {
         double totalGold = 0;
 
-        for(String coin: coins) {
+        for (String coin : coins) {
             String[] coinAttributes = coin.split(" ");
 
             Preconditions.checkArgument(coinAttributes[0].equals("GOLD"));

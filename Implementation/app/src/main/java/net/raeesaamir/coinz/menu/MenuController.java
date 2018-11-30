@@ -1,12 +1,13 @@
 package net.raeesaamir.coinz.menu;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import net.raeesaamir.coinz.R;
 
 /**
  * MVC controller for the Menu.
+ *
  * @author raeesaamir
  */
 public class MenuController extends AppCompatActivity {

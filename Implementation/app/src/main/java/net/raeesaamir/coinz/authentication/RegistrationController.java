@@ -72,7 +72,7 @@ public class RegistrationController extends AuthenticationController {
             cancel = true;
         }
 
-        if(TextUtils.isEmpty(confirmPassword)) {
+        if (TextUtils.isEmpty(confirmPassword)) {
             mConfirmPasswordView.setError(getString(R.string.error_confirm_password));
             focusView = mConfirmPasswordView;
             cancel = true;
@@ -89,7 +89,7 @@ public class RegistrationController extends AuthenticationController {
             cancel = true;
         }
 
-        if(!password.equals(confirmPassword)) {
+        if (!password.equals(confirmPassword)) {
             mPasswordView.setError(getString(R.string.error_mismatch_password));
             focusView = mPasswordView;
             cancel = true;
@@ -109,7 +109,7 @@ public class RegistrationController extends AuthenticationController {
 
     private void onAuthenticationProcess(String name, String email, String password) {
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
-            if(task.isSuccessful()) {
+            if (task.isSuccessful()) {
 
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 Objects.requireNonNull(user).updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name).build());
@@ -123,9 +123,11 @@ public class RegistrationController extends AuthenticationController {
 
                 try {
                     throw Objects.requireNonNull(task.getException());
-                } catch(FirebaseAuthUserCollisionException collisionException) {
+                } catch (FirebaseAuthUserCollisionException collisionException) {
                     throwEmailError();
-                } catch(Exception e) { e.printStackTrace(); }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
         });

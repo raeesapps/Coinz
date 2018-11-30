@@ -14,6 +14,75 @@ import java.util.List;
 
 public class MessageListAdapter extends RecyclerView.Adapter {
 
+    private final List<FirebaseMessage> messageList;
+    private final String userUid;
+    private final FirestoreUser fromUser;
+
+    MessageListAdapter(List<FirebaseMessage> messageList, FirestoreUser fromUser, String userUid) {
+        this.messageList = messageList;
+        this.fromUser = fromUser;
+        this.userUid = userUid;
+    }
+
+    private static MessageType getType(int ordinal) {
+        return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        FirebaseMessage message = messageList.get(position);
+        String fromUser = message.getMessageFromUser();
+        MessageType type;
+
+        if (fromUser.equals(this.userUid)) {
+            type = MessageType.MESSAGE_SENT;
+        } else {
+            type = MessageType.MESSAGE_RECEIVED;
+        }
+
+        return type.ordinal();
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
+        FirebaseMessage message = messageList.get(position);
+        MessageType type = MessageListAdapter.getType(viewHolder.getItemViewType());
+
+        switch (type) {
+            case MESSAGE_SENT:
+                SentMessageHolder sentMessageHolder = (SentMessageHolder) viewHolder;
+                sentMessageHolder.bind(message);
+                break;
+            case MESSAGE_RECEIVED:
+                ReceivedMessageHolder receivedMessageHolder = (ReceivedMessageHolder) viewHolder;
+                receivedMessageHolder.bind(fromUser, message);
+                break;
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return messageList.size();
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        View view;
+        MessageType messageType = MessageListAdapter.getType(viewType);
+
+        if (messageType.equals(MessageType.MESSAGE_RECEIVED)) {
+            view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.item_message_received, viewGroup, false);
+            return new ReceivedMessageHolder(view);
+        } else {
+            view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.item_message_sent, viewGroup, false);
+            return new SentMessageHolder(view);
+        }
+
+    }
+
     private enum MessageType {
         MESSAGE_SENT,
         MESSAGE_RECEIVED
@@ -54,74 +123,5 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             messageText.setText(message.getMessageText());
             timeText.setText(FirebaseMessage.getMessageTimeAsString(message));
         }
-    }
-
-    private static MessageType getType(int ordinal) {
-        return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
-    }
-
-    private final List<FirebaseMessage> messageList;
-    private final String userUid;
-    private final FirestoreUser fromUser;
-
-    MessageListAdapter(List<FirebaseMessage> messageList, FirestoreUser fromUser, String userUid) {
-        this.messageList = messageList;
-        this.fromUser = fromUser;
-        this.userUid = userUid;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        FirebaseMessage message = messageList.get(position);
-        String fromUser = message.getMessageFromUser();
-        MessageType type;
-
-        if (fromUser.equals(this.userUid)) {
-            type = MessageType.MESSAGE_SENT;
-        } else {
-            type = MessageType.MESSAGE_RECEIVED;
-        }
-
-        return type.ordinal();
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        FirebaseMessage message = messageList.get(position);
-        MessageType type = MessageListAdapter.getType(viewHolder.getItemViewType());
-
-        switch(type) {
-            case MESSAGE_SENT:
-                SentMessageHolder sentMessageHolder = (SentMessageHolder) viewHolder;
-                sentMessageHolder.bind(message);
-                break;
-            case MESSAGE_RECEIVED:
-                ReceivedMessageHolder receivedMessageHolder = (ReceivedMessageHolder) viewHolder;
-                receivedMessageHolder.bind(fromUser, message);
-                break;
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        return messageList.size();
-    }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View view;
-        MessageType messageType = MessageListAdapter.getType(viewType);
-
-        if(messageType.equals(MessageType.MESSAGE_RECEIVED)) {
-            view = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.item_message_received, viewGroup, false);
-            return new ReceivedMessageHolder(view);
-        } else {
-            view = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.item_message_sent, viewGroup, false);
-            return new SentMessageHolder(view);
-        }
-
     }
 }

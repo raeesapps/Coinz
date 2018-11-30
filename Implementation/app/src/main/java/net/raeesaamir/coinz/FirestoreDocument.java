@@ -7,7 +7,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public abstract class FirestoreDocument {
 
     protected abstract ImmutableMap<String, Object> getDocument();
+
     protected abstract String getDocumentName();
+
     protected abstract String getCollectionName();
 
     public void getFuture() {

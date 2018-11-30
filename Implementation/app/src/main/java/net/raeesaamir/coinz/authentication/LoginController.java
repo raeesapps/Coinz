@@ -18,7 +18,7 @@ public class LoginController extends AuthenticationController {
     @Override
     public void onAuthenticationProcess(String email, String password) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
-            if(!task.isSuccessful()) {
+            if (!task.isSuccessful()) {
                 throwPasswordError();
             } else {
                 Intent menu = new Intent(this, MenuController.class);

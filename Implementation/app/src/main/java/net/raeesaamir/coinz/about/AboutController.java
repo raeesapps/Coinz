@@ -1,9 +1,9 @@
 package net.raeesaamir.coinz.about;
 
+import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
@@ -26,7 +26,7 @@ public class AboutController extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {
             Fragment selectedFragment = null;
 
-            switch(item.getItemId()) {
+            switch (item.getItemId()) {
                 case R.id.about_nav_about:
                     selectedFragment = new AboutFragment();
                     break;

@@ -54,14 +54,14 @@ public class LeaderboardFragment extends Fragment {
 
         banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
-            for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
+            for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
 
-                if(!snapshot.contains("userUid") || !snapshot.contains("coins")) {
+                if (!snapshot.contains("userUid") || !snapshot.contains("coins")) {
                     continue;
                 }
 
                 Object coinsObj = snapshot.get("coins");
-                if(!(coinsObj instanceof List)) {
+                if (!(coinsObj instanceof List)) {
                     return;
                 }
                 @SuppressWarnings("unchecked") List<String> coins = (List<String>) coinsObj;
@@ -75,12 +75,12 @@ public class LeaderboardFragment extends Fragment {
 
             users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> userTask) -> {
 
-                for(DocumentSnapshot snapshot: Objects.requireNonNull(userTask.getResult())) {
+                for (DocumentSnapshot snapshot : Objects.requireNonNull(userTask.getResult())) {
 
                     String uid = snapshot.getString("uid");
                     String username = snapshot.getString("displayName");
 
-                    if(uidTotalMappings.containsKey(uid)) {
+                    if (uidTotalMappings.containsKey(uid)) {
                         String entry = username + " - " + uidTotalMappings.get(uid);
                         scores.add(entry);
                     }

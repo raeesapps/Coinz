@@ -1,9 +1,9 @@
 package net.raeesaamir.coinz.share;
 
+import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
@@ -27,7 +27,7 @@ public class ShareController extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {
             Fragment selectedFragment = null;
 
-            switch(item.getItemId()) {
+            switch (item.getItemId()) {
                 case R.id.share_nav_game:
                     selectedFragment = new GameFragment();
                     break;

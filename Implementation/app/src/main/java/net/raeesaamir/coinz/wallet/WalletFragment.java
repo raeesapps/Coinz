@@ -65,7 +65,7 @@ public class WalletFragment extends Fragment {
 
         try {
             featureCollection = FeatureCollection.fromWebsite(sharedPreferences, gson, dateFormatted);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         populateWallet();
@@ -77,8 +77,8 @@ public class WalletFragment extends Fragment {
         String dateFormatted = DATE_FORMATTER.format(date);
         Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
 
-            for(String coin: wallet.getCoins()) {
-                System.out.println("[WalletFragment]: "+ coin);
+            for (String coin : wallet.getCoins()) {
+                System.out.println("[WalletFragment]: " + coin);
             }
             ListView walletView = view.findViewById(R.id.wallet_items);
 
@@ -102,28 +102,28 @@ public class WalletFragment extends Fragment {
         CollectionReference banks = db.collection("Banks");
 
         System.out.println("[BANK] FROM DATABASE");
-        System.out.println("[BANK]: UID="+mUser.getUid());
+        System.out.println("[BANK]: UID=" + mUser.getUid());
 
 
         banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
-            if(!task.isSuccessful()) {
+            if (!task.isSuccessful()) {
                 System.out.println("[BANK]: NOT SUCCESSFUL");
                 return;
             }
             this.bank = new Bank(mUser.getUid());
-            for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
+            for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
 
-                if(!snapshot.contains("userUid") || !snapshot.contains("coins")) {
+                if (!snapshot.contains("userUid") || !snapshot.contains("coins")) {
                     continue;
                 }
 
-                System.out.println("BANK"+snapshot.get("userUid"));
+                System.out.println("BANK" + snapshot.get("userUid"));
 
-                if(!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
+                if (!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
                     continue;
                 }
                 Object coinsObj = snapshot.get("coins");
-                if(!(coinsObj instanceof List)) {
+                if (!(coinsObj instanceof List)) {
                     return;
                 }
 

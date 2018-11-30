@@ -69,22 +69,22 @@ public class ShareFragment extends Fragment {
 
                 List<String> achievements = Lists.newArrayList();
                 StringBuilder achievement = new StringBuilder();
-                for(DocumentSnapshot snapshot: Objects.requireNonNull(task.getResult())) {
+                for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
 
                     System.out.println("[ShareFragment]: querying");
 
-                    if(!snapshot.contains("userUid") || !snapshot.contains("coins")) {
+                    if (!snapshot.contains("userUid") || !snapshot.contains("coins")) {
                         continue;
                     }
 
-                    if(!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
+                    if (!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
                         continue;
                     }
 
                     System.out.println("[ShareFragment] found");
 
                     Object coinsObj = snapshot.get("coins");
-                    if(!(coinsObj instanceof List)) {
+                    if (!(coinsObj instanceof List)) {
                         return;
                     }
                     //noinspection unchecked
@@ -97,7 +97,7 @@ public class ShareFragment extends Fragment {
 
                     achievements.add("GOLD - " + bank.totalGold());
 
-                    for(String coin: wallet.getCoins()) {
+                    for (String coin : wallet.getCoins()) {
                         achievement.append("\n").append(coin);
                         achievements.add(coin);
                     }
@@ -118,7 +118,6 @@ public class ShareFragment extends Fragment {
             });
         });
     }
-
 
 
     @Nullable

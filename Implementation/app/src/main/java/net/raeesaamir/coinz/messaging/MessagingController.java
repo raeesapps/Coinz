@@ -1,9 +1,9 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -27,7 +27,7 @@ public class MessagingController extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {
             Fragment selectedFragment = null;
 
-            switch(item.getItemId()) {
+            switch (item.getItemId()) {
                 case R.id.messaging_nav_users:
                     selectedFragment = new UserListFragment();
                     break;
@@ -39,7 +39,7 @@ public class MessagingController extends AppCompatActivity {
                     break;
             }
 
-            Log.d("[MessagingController]", "FRAGMENT STATE "+ Boolean.toString(selectedFragment==null));
+            Log.d("[MessagingController]", "FRAGMENT STATE " + Boolean.toString(selectedFragment == null));
 
             Log.d("[MessagingController", "FRAGMENT STATE CONTAINER " + Boolean.toString(getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null));
 

@@ -53,7 +53,7 @@ public class UserListFragment extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference users = db.collection("Users");
 
-        users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task)-> {
+        users.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
             if (task.isSuccessful()) {
 
                 List<String> usernames = Lists.newArrayList();

@@ -19,88 +19,7 @@ import java.util.List;
 
 public class Wallet extends Container {
 
-    public interface WalletListener {
-        void onComplete(Wallet wallet);
-    }
-
-    public static class WalletSingleton {
-        private static Wallet wallet = null;
-        private static Wallet otherWallet = null;
-
-        static void setWallet(Wallet wallet) {
-            WalletSingleton.wallet = wallet;
-        }
-
-        public static void setOtherWallet(Wallet otherWallet) {
-            WalletSingleton.otherWallet = otherWallet;
-        }
-    }
-
-    public static void loadWallet(String uid, String date, WalletListener listener) {
-        loadWallet(uid, date, listener, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void loadWallet(String uid, String date, WalletListener listener, boolean otherPlayer) {
-
-        System.out.println("[Wallet] loadWallet");
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference wallets = db.collection("Wallets");
-        DocumentReference reference = wallets.document();
-
-        if(otherPlayer) {
-            if(WalletSingleton.otherWallet != null) {
-                System.out.println("[Wallet] not null!");
-                listener.onComplete(WalletSingleton.otherWallet);
-                return;
-            }
-        } else {
-            if(WalletSingleton.wallet != null) {
-                System.out.println("[Wallet] not null!");
-                listener.onComplete(WalletSingleton.wallet);
-                return;
-            }
-        }
-
-        wallets.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
-
-            Wallet wallet = new Wallet(uid, reference.getId());
-            if(task.isSuccessful()) {
-                for(DocumentSnapshot snapshot: java.util.Objects.requireNonNull(task.getResult())) {
-
-                    if(!snapshot.contains("userUid") || !snapshot.contains("date")
-                            ||!snapshot.contains("walletUid") ||!snapshot.contains("coins")) {
-                        continue;
-                    }
-
-                    if(!java.util.Objects.requireNonNull(snapshot.get("userUid")).equals(uid) || !java.util.Objects.requireNonNull(snapshot.get("date")).equals(date)) {
-                        continue;
-                    }
-
-                    String walletUid = snapshot.getString("walletUid");
-
-                    Object coinsObj = snapshot.get("coins");
-                    if(coinsObj instanceof List) {
-                        List<String> coins = (List<String>) coinsObj;
-                        wallet = new Wallet(uid, date, coins, walletUid);
-                        break;
-                    }
-                }
-
-                if(otherPlayer) {
-                    WalletSingleton.setOtherWallet(wallet);
-                } else {
-                    WalletSingleton.setWallet(wallet);
-
-                }
-                listener.onComplete(wallet);
-            }
-        });
-    }
-
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
-
     private final String date;
     private final String userUid;
     private final String walletUid;
@@ -120,13 +39,76 @@ public class Wallet extends Container {
         this.walletUid = walletUid;
     }
 
+    public static void loadWallet(String uid, String date, WalletListener listener) {
+        loadWallet(uid, date, listener, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void loadWallet(String uid, String date, WalletListener listener, boolean otherPlayer) {
+
+        System.out.println("[Wallet] loadWallet");
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference wallets = db.collection("Wallets");
+        DocumentReference reference = wallets.document();
+
+        if (otherPlayer) {
+            if (WalletSingleton.otherWallet != null) {
+                System.out.println("[Wallet] not null!");
+                listener.onComplete(WalletSingleton.otherWallet);
+                return;
+            }
+        } else {
+            if (WalletSingleton.wallet != null) {
+                System.out.println("[Wallet] not null!");
+                listener.onComplete(WalletSingleton.wallet);
+                return;
+            }
+        }
+
+        wallets.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
+
+            Wallet wallet = new Wallet(uid, reference.getId());
+            if (task.isSuccessful()) {
+                for (DocumentSnapshot snapshot : java.util.Objects.requireNonNull(task.getResult())) {
+
+                    if (!snapshot.contains("userUid") || !snapshot.contains("date")
+                            || !snapshot.contains("walletUid") || !snapshot.contains("coins")) {
+                        continue;
+                    }
+
+                    if (!java.util.Objects.requireNonNull(snapshot.get("userUid")).equals(uid) || !java.util.Objects.requireNonNull(snapshot.get("date")).equals(date)) {
+                        continue;
+                    }
+
+                    String walletUid = snapshot.getString("walletUid");
+
+                    Object coinsObj = snapshot.get("coins");
+                    if (coinsObj instanceof List) {
+                        List<String> coins = (List<String>) coinsObj;
+                        wallet = new Wallet(uid, date, coins, walletUid);
+                        break;
+                    }
+                }
+
+                if (otherPlayer) {
+                    WalletSingleton.setOtherWallet(wallet);
+                } else {
+                    WalletSingleton.setWallet(wallet);
+
+                }
+                listener.onComplete(wallet);
+            }
+        });
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 
-        if(!(obj instanceof Wallet)) {
+        if (!(obj instanceof Wallet)) {
             return false;
         }
 
@@ -138,6 +120,7 @@ public class Wallet extends Container {
     public int hashCode() {
         return Objects.hashCode(date, userUid);
     }
+
     public List<String> getCoins() {
         return coins;
     }
@@ -155,5 +138,22 @@ public class Wallet extends Container {
     @Override
     public String getCollectionName() {
         return "Wallets";
+    }
+
+    public interface WalletListener {
+        void onComplete(Wallet wallet);
+    }
+
+    public static class WalletSingleton {
+        private static Wallet wallet = null;
+        private static Wallet otherWallet = null;
+
+        static void setWallet(Wallet wallet) {
+            WalletSingleton.wallet = wallet;
+        }
+
+        public static void setOtherWallet(Wallet otherWallet) {
+            WalletSingleton.otherWallet = otherWallet;
+        }
     }
 }

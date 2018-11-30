@@ -1,9 +1,9 @@
 package net.raeesaamir.coinz.splash;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,7 +32,7 @@ public class SplashScreenController extends AppCompatActivity {
             @Override
             public void run() {
                 Class<?> controller;
-                if(mUser != null) {
+                if (mUser != null) {
                     controller = MenuController.class;
                 } else {
                     controller = LoginController.class;

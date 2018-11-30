@@ -53,47 +53,19 @@ import java.util.Objects;
 
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
-    private static class LocationChangedEvent {
-        private final Feature feature;
-        private final int indexOfFeature;
-        private final boolean atMarker;
-
-        LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
-            this.feature = feature;
-            this.indexOfFeature = indexOfFeature;
-            this.atMarker = atMarker;
-        }
-    }
-
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
     private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
-
-    public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
-
-        @Override
-        public FeatureCollection readStream(String jSONDocument) {
-
-            return new Gson().fromJson(jSONDocument, FeatureCollection.class);
-        }
-    }
-
     private final String tag = "GameFragment";
+    private final Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
     private Context context;
     private View view;
-
     private FirebaseUser mUser;
-
     private MapView mapView;
     private MapboxMap map;
-
     private LocationEngine locationEngine;
     private Location originalLocation;
-
     private FeatureCollection featureCollection;
-
-    private final Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
-
     private String dateFormatted;
 
     @Nullable
@@ -119,7 +91,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         try {
             featureCollection = FeatureCollection.fromWebsite(preferences, gson, dateFormatted);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -135,11 +107,12 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         super.onStart();
         mapView.onStart();
 
-        if(locationEngine != null){
+        if (locationEngine != null) {
 
             try {
                 locationEngine.requestLocationUpdates();
-            } catch(SecurityException ignored) {}
+            } catch (SecurityException ignored) {
+            }
             locationEngine.addLocationEngineListener(this);
         }
     }
@@ -149,7 +122,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         super.onStop();
         mapView.onStop();
 
-        if(locationEngine != null){
+        if (locationEngine != null) {
             locationEngine.removeLocationEngineListener(this);
             locationEngine.removeLocationUpdates();
         }
@@ -176,7 +149,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
 
-        if(mapboxMap == null) {
+        if (mapboxMap == null) {
             Log.d(tag, "[onMapReady] mapBox is null");
         } else {
 
@@ -187,9 +160,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
             Map<Marker, Feature> markerFeatureMap = Maps.newHashMap();
 
-            for(Feature feature: featureCollection.getFeatures()) {
+            for (Feature feature : featureCollection.getFeatures()) {
 
-                if(feature == null) {
+                if (feature == null) {
                     continue;
                 }
 
@@ -200,7 +173,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 Feature.Properties properties = feature.getProperties();
                 String markerColor = properties.getMarkerColor();
                 int resource = -1;
-                switch(markerColor) {
+                switch (markerColor) {
                     case "#ff0000":
                         resource = R.drawable.purple_marker;
                         break;
@@ -222,7 +195,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
                 Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
 
-                Marker marker = map.addMarker(new MarkerOptions().setPosition(new LatLng(latitude,longitude)).setIcon(icon));
+                Marker marker = map.addMarker(new MarkerOptions().setPosition(new LatLng(latitude, longitude)).setIcon(icon));
                 markerFeatureMap.put(marker, feature);
                 featureMarkerMap.put(feature, marker);
             }
@@ -244,7 +217,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private void enableLocation() {
-        if(PermissionsManager.areLocationPermissionsGranted(context)) {
+        if (PermissionsManager.areLocationPermissionsGranted(context)) {
             Log.d(tag, "Permissions are granted");
             initializeLocationEngine();
             initializeLocationLayer();
@@ -272,7 +245,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         locationEngine.requestLocationUpdates();
 
         Location lastLocation = locationEngine.getLastLocation();
-        if(lastLocation != null) {
+        if (lastLocation != null) {
             originalLocation = lastLocation;
             setCameraPosition(originalLocation);
         } else {
@@ -281,7 +254,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     private void initializeLocationLayer() {
-        if(mapView == null) {
+        if (mapView == null) {
             Log.d(tag, "map view is null");
         } else {
             LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
@@ -309,7 +282,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
         System.out.println("onLocationChanged");
 
-        if(location == null) {
+        if (location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
         } else {
             Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
@@ -321,10 +294,10 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
                 boolean isPlayerAtMarker = locationChangedEvent.atMarker;
                 System.out.println("PLAYER AT MARKER: " + isPlayerAtMarker);
-                if(isPlayerAtMarker) {
+                if (isPlayerAtMarker) {
                     List<String> coins = wallet.getCoins();
 
-                    if(coins.size() == 25) {
+                    if (coins.size() == 25) {
                         Toast.makeText(getActivity(), "You have too many coins in your wallet! Please come back here when you have deposited some coins into your bank or when you have traded them to someone else.", Toast.LENGTH_LONG).show();
                     } else {
                         Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
@@ -356,10 +329,10 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private LocationChangedEvent onPlayerChangesLocation(Location playerLocation) {
         Feature[] features = featureCollection.getFeatures();
-        for(int i = 0; i < features.length; i++) {
+        for (int i = 0; i < features.length; i++) {
             Feature feature = features[i];
 
-            if(feature == null) {
+            if (feature == null) {
                 continue;
             }
 
@@ -368,15 +341,15 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             double latitude = geometry.getCoordinates()[1];
 
             System.out.println("LATITUDE: " + latitude);
-            System.out.println("LONGITUDE: "+longitude);
+            System.out.println("LONGITUDE: " + longitude);
 
             double latitudeDelta = Math.abs(playerLocation.getLatitude() - latitude);
             double longitudeDelta = Math.abs(playerLocation.getLongitude() - longitude);
 
-            System.out.println("LATITUDE DELTA: "+latitudeDelta);
-            System.out.println("LONGITUDE DELTA "+longitudeDelta);
+            System.out.println("LATITUDE DELTA: " + latitudeDelta);
+            System.out.println("LONGITUDE DELTA " + longitudeDelta);
 
-            if(latitudeDelta < 0.0004 && longitudeDelta < 0.0004)
+            if (latitudeDelta < 0.0004 && longitudeDelta < 0.0004)
                 return new LocationChangedEvent(feature, i, true);
         }
 
@@ -387,7 +360,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onPermissionResult(boolean granted) {
         Log.d(tag, "[onPermissionResult] granted == " + granted);
 
-        if(granted) {
+        if (granted) {
             enableLocation();
         }
     }
@@ -408,5 +381,26 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+    }
+
+    private static class LocationChangedEvent {
+        private final Feature feature;
+        private final int indexOfFeature;
+        private final boolean atMarker;
+
+        LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
+            this.feature = feature;
+            this.indexOfFeature = indexOfFeature;
+            this.atMarker = atMarker;
+        }
+    }
+
+    public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
+
+        @Override
+        public FeatureCollection readStream(String jSONDocument) {
+
+            return new Gson().fromJson(jSONDocument, FeatureCollection.class);
+        }
     }
 }

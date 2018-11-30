@@ -12,6 +12,46 @@ import com.google.gson.annotations.SerializedName;
 public final class Feature {
 
     /**
+     * The type of JSON object
+     */
+    @SuppressWarnings("unused")
+    private String type;
+    /**
+     * The properties of the coin. e.g. the of the currency and it's monetary worth
+     */
+    @SuppressWarnings("unused")
+    private Properties properties;
+    /**
+     * The location of the coin
+     */
+    @SuppressWarnings("unused")
+    private Geometry geometry;
+
+    /**
+     * Gets the location of the coin
+     *
+     * @return A geometry object storing the location of the coin
+     */
+    public Geometry getGeometry() {
+        return geometry;
+    }
+
+    /**
+     * Gets the properties of the coin.
+     *
+     * @return A properties object storing the attributes of the coin such as value and monetary worth.
+     */
+    public Properties getProperties() {
+        return properties;
+    }
+
+    @SuppressWarnings("unused")
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("type", type).add("geometry", geometry).add("properties", properties).toString();
+    }
+
+    /**
      * Represents the properties of the coin such as how much it's worth.
      *
      * @author raeesaamir
@@ -52,6 +92,7 @@ public final class Feature {
 
         /**
          * Gets the monetary value
+         *
          * @return The monetary value represented as a string
          */
         public String getValue() {
@@ -60,6 +101,7 @@ public final class Feature {
 
         /**
          * Gets the currency of the monetary value
+         *
          * @return A string representing the currency
          */
         public String getCurrency() {
@@ -68,6 +110,7 @@ public final class Feature {
 
         /**
          * Gets the color of the marker
+         *
          * @return A string representing the color of the marker.
          */
         public String getMarkerColor() {
@@ -104,6 +147,7 @@ public final class Feature {
 
         /**
          * Gets the latitude and longitude.
+         *
          * @return A double array containing the latitude and longitude.
          */
         public double[] getCoordinates() {
@@ -114,45 +158,5 @@ public final class Feature {
         public String toString() {
             return MoreObjects.toStringHelper(this).add("type", type).add("coordinates", coordinates).toString();
         }
-    }
-
-    /**
-     * The type of JSON object
-     */
-    @SuppressWarnings("unused")
-    private String type;
-
-    /**
-     * The properties of the coin. e.g. the of the currency and it's monetary worth
-     */
-    @SuppressWarnings("unused")
-    private Properties properties;
-
-    /**
-     * The location of the coin
-     */
-    @SuppressWarnings("unused")
-    private Geometry geometry;
-
-    /**
-     * Gets the location of the coin
-     * @return A geometry object storing the location of the coin
-     */
-    public Geometry getGeometry() {
-        return geometry;
-    }
-
-    /**
-     * Gets the properties of the coin.
-     * @return A properties object storing the attributes of the coin such as value and monetary worth.
-     */
-    public Properties getProperties() {
-        return properties;
-    }
-
-    @SuppressWarnings("unused")
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("type", type).add("geometry", geometry).add("properties", properties).toString();
     }
 }
