@@ -21,53 +21,34 @@ public final class Feature {
         /**
          * The UUID of the coin
          */
-        private final String id;
+        @SuppressWarnings("unused")
+        private String id;
 
         /**
          * The monetary value of the coin
          */
-        private final String value;
+        @SuppressWarnings("unused")
+        private String value;
 
         /**
          * The currency of the monetary value
          */
-        private final String currency;
+        @SuppressWarnings("unused")
+        private String currency;
 
         /**
          * The symbol of the marker
          */
+        @SuppressWarnings("unused")
         @SerializedName("marker-symbol")
-        private final String markerSymbol;
+        private String markerSymbol;
 
         /**
          * The color of the marker
          */
+        @SuppressWarnings("unused")
         @SerializedName("marker-color")
-        private final String markerColor;
-
-        /**
-         * A constructor to create a feature instance
-         * @param id - the UUID of the coin
-         * @param value - the monetary value of the coin
-         * @param currency - the currency the value of the coin is expressed in
-         * @param markerSymbol - the symbol of the coin's marker
-         * @param markerColor - the color of the coin's marker
-         */
-        public Properties(String id, String value, String currency, String markerSymbol, String markerColor) {
-            this.id = id;
-            this.value = value;
-            this.currency = currency;
-            this.markerSymbol = markerSymbol;
-            this.markerColor = markerColor;
-        }
-
-        /**
-         * Gets the UUID
-         * @return the UUID
-         */
-        public String getId() {
-            return id;
-        }
+        private String markerColor;
 
         /**
          * Gets the monetary value
@@ -93,6 +74,7 @@ public final class Feature {
             return markerColor;
         }
 
+        @SuppressWarnings("unused")
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).add("id", id).add("value", value)
@@ -110,31 +92,15 @@ public final class Feature {
         /**
          * The type of JSON object.
          */
-        private final String type;
+        @SuppressWarnings("unused")
+        private String type;
 
         /**
          * The coordinates stored as an array where idx=0 is the latitude and
          * idx=1 is the longitude
          */
-        private final double[] coordinates;
-
-        /**
-         * Creates a new geometry instance
-         * @param type - the type of JSON object
-         * @param coordinates - the coordinates stored as a double array
-         */
-        public Geometry(String type, double[] coordinates) {
-            this.type = type;
-            this.coordinates = coordinates;
-        }
-
-        /**
-         * Gets the type of JSON object
-         * @return The JSON object represented as a string.
-         */
-        public String getType() {
-            return type;
-        }
+        @SuppressWarnings("unused")
+        private double[] coordinates;
 
         /**
          * Gets the latitude and longitude.
@@ -153,37 +119,20 @@ public final class Feature {
     /**
      * The type of JSON object
      */
-    private final String type;
+    @SuppressWarnings("unused")
+    private String type;
 
     /**
      * The properties of the coin. e.g. the of the currency and it's monetary worth
      */
-    private final Properties properties;
+    @SuppressWarnings("unused")
+    private Properties properties;
 
     /**
      * The location of the coin
      */
-    private final Geometry geometry;
-
-    /**
-     * Creates a new feature instance
-     * @param type - the type of JSON object
-     * @param properties - the properties of the coin
-     * @param geometry - the location of the coin
-     */
-    public Feature(String type, Properties properties, Geometry geometry) {
-        this.type = type;
-        this.properties = properties;
-        this.geometry = geometry;
-    }
-
-    /**
-     * Gets the type of JSON object
-     * @return A string representing the type
-     */
-    public String getType() {
-        return type;
-    }
+    @SuppressWarnings("unused")
+    private Geometry geometry;
 
     /**
      * Gets the location of the coin
@@ -201,6 +150,7 @@ public final class Feature {
         return properties;
     }
 
+    @SuppressWarnings("unused")
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("type", type).add("geometry", geometry).add("properties", properties).toString();

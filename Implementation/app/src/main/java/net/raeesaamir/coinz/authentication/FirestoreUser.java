@@ -7,9 +7,9 @@ import net.raeesaamir.coinz.FirestoreDocument;
 
 public class FirestoreUser extends FirestoreDocument {
 
-    private String email;
-    private String uid;
-    private String displayName;
+    private final String email;
+    private final String uid;
+    private final String displayName;
 
     public FirestoreUser(String email, String uid, String displayName) {
         this.email = email;
@@ -17,33 +17,12 @@ public class FirestoreUser extends FirestoreDocument {
         this.displayName = displayName;
     }
 
-    @SuppressWarnings("unused")
-    public FirestoreUser() {
-
-    }
-
     public String getDisplayName() {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
     public String getUid() {
         return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     @Override

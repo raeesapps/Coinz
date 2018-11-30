@@ -46,24 +46,21 @@ public final class FeatureCollection {
 
     public static class ExchangeRates {
 
+        @SuppressWarnings("unused")
         @SerializedName("SHIL")
-        private final double shil;
+        private double shil;
 
+        @SuppressWarnings("unused")
         @SerializedName("DOLR")
-        private final double dolr;
+        private double dolr;
 
+        @SuppressWarnings("unused")
         @SerializedName("QUID")
-        private final double quid;
+        private double quid;
 
+        @SuppressWarnings("unused")
         @SerializedName("PENY")
-        private final double peny;
-
-        public ExchangeRates(double shil, double dolr, double quid, double peny) {
-            this.shil = shil;
-            this.dolr = dolr;
-            this.quid = quid;
-            this.peny = peny;
-        }
+        private double peny;
 
         @Override
         public String toString() {
@@ -111,22 +108,6 @@ public final class FeatureCollection {
         this.approximateTimeRemaining = approximateTimeRemaining;
         this.rates = rates;
         this.features = features;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getDateGenerated() {
-        return dateGenerated;
-    }
-
-    public String getTimeGenerated() {
-        return timeGenerated;
-    }
-
-    public String getApproximateTimeRemaining() {
-        return approximateTimeRemaining;
     }
 
     public ExchangeRates getRates() {

@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.leaderboard;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class LeaderboardFragment extends Fragment {
+
+    private Context context;
 
     private View view;
 
@@ -82,10 +85,16 @@ public class LeaderboardFragment extends Fragment {
                         scores.add(entry);
                     }
                 }
-                ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()), android.R.layout.simple_list_item_1, scores);
+                ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, scores);
                 scoresView.setAdapter(integerArrayAdapter);
 
             });
         });
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }

@@ -2,6 +2,7 @@ package net.raeesaamir.coinz.authentication;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -31,7 +32,7 @@ public class LoginController extends AuthenticationController {
         return R.layout.login_view;
     }
 
-    public void goToRegistration() {
+    public void goToRegistration(@SuppressWarnings("unused") View view) {
         Intent registration = new Intent(this, RegistrationController.class);
         startActivity(registration);
     }

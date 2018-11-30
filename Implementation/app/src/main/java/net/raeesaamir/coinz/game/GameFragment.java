@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.game;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -64,6 +65,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
     private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
 

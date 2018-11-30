@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@SuppressWarnings("unused")
 class FirebaseMessage {
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd/MM/yy HH:mm");

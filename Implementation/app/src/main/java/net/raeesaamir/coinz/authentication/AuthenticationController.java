@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import net.raeesaamir.coinz.R;
 
 
-public class AuthenticationController extends AppCompatActivity {
+public abstract class AuthenticationController extends AppCompatActivity {
 
     /**
      * Google's Firebase authentication API
@@ -87,7 +87,7 @@ public class AuthenticationController extends AppCompatActivity {
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(password) && isPasswordInvalid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -98,7 +98,7 @@ public class AuthenticationController extends AppCompatActivity {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (isEmailInvalid(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -128,14 +128,14 @@ public class AuthenticationController extends AppCompatActivity {
         showProgress(false);
     }
 
-    boolean isEmailValid(String email) {
+    boolean isEmailInvalid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return !email.contains("@");
     }
 
-    boolean isPasswordValid(String password) {
+    boolean isPasswordInvalid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() <= 4;
     }
 
     /**
@@ -146,31 +146,24 @@ public class AuthenticationController extends AppCompatActivity {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mAuthenticationFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+        mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mAuthenticationFormView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 }

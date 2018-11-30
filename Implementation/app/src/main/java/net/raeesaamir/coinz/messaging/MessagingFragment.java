@@ -40,12 +40,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class MessagingFragment extends Fragment {
 
     private static final String DB_NAME = "coinz-12df3";
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
 
     static class SortedList extends ArrayList<FirebaseMessage> {
         @Override

@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.menu;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,12 +25,13 @@ import net.raeesaamir.coinz.authentication.LoginController;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class MenuFragment extends Fragment {
 
     private static final List<MenuItem> MENU_ITEMS = Arrays.asList(MenuItem.values());
     private static final String WELCOME_STRING = "Welcome \n";
+
+    private Context context;
 
     private View view;
 
@@ -57,7 +59,7 @@ public class MenuFragment extends Fragment {
         Preconditions.checkNotNull(mUser);
 
         TextView welcomeMessage = view.findViewById(R.id.welcomeMessage);
-        welcomeMessage.setText(WELCOME_STRING + mUser.getDisplayName() + "!");
+        welcomeMessage.setText(String.format("%s%s!", WELCOME_STRING, mUser.getDisplayName()));
 
         Button signOutButton = view.findViewById(R.id.signOut);
         signOutButton.setOnClickListener((View view) -> {
@@ -76,7 +78,7 @@ public class MenuFragment extends Fragment {
         List<String> items = Lists.newArrayList();
         MENU_ITEMS.forEach(x -> items.add(x.nameOfItem()));
 
-        ArrayAdapter adapter = new ArrayAdapter(Objects.requireNonNull(getContext()), android.R.layout.simple_list_item_checked, items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_checked, items);
         menu.setAdapter(adapter);
 
         List<Class<?>> controllers = Lists.newArrayList();
@@ -87,5 +89,11 @@ public class MenuFragment extends Fragment {
             Intent activity = new Intent(getContext(), controller);
             startActivity(activity);
         });
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }

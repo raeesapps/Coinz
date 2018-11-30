@@ -30,12 +30,13 @@ import net.raeesaamir.coinz.game.FeatureCollection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class WalletFragment extends Fragment {
 
     private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
 
     private View view;
     private Context context;
@@ -141,7 +142,7 @@ public class WalletFragment extends Fragment {
     private void refreshBank() {
         Preconditions.checkNotNull(this.bankView);
         Preconditions.checkNotNull(this.bank);
-        bankView.setText("TOTAL GOLD: " + bank.totalGold());
+        bankView.setText(String.format("TOTAL GOLD: %s", bank.totalGold()));
     }
 
     @Override
