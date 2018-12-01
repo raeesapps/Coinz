@@ -26,16 +26,41 @@ import net.raeesaamir.coinz.authentication.LoginController;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This fragment handles the rendering of the menu items.
+ *
+ * @author raeesaamir
+ */
 public class MenuFragment extends Fragment {
 
+    /**
+     * The menu items from the enum held as a list.
+     */
     private static final List<MenuItem> MENU_ITEMS = Arrays.asList(MenuItem.values());
+
+    /**
+     * The prefix of the welcome message.
+     */
     private static final String WELCOME_STRING = "Welcome \n";
 
+    /**
+     * The context of the fragment.
+     */
     private Context context;
 
+    /**
+     * The view returned from onViewCreate.
+     */
     private View view;
 
+    /**
+     * The Firebase authentication API.
+     */
     private FirebaseAuth mAuth;
+
+    /**
+     * The authenticated user.
+     */
     private FirebaseUser mUser;
 
     @Nullable
@@ -55,6 +80,9 @@ public class MenuFragment extends Fragment {
         populateUserInformation();
     }
 
+    /**
+     * Puts the user's display name into the welcome message and puts the welcome message into the TextView.
+     */
     private void populateUserInformation() {
         Preconditions.checkNotNull(mUser);
 
@@ -76,17 +104,17 @@ public class MenuFragment extends Fragment {
         ListView menu = view.findViewById(R.id.listView);
 
         List<String> items = Lists.newArrayList();
-        MENU_ITEMS.forEach(x -> items.add(x.nameOfItem()));
+        MENU_ITEMS.forEach(item -> items.add(item.nameOfItem()));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_checked, items);
         menu.setAdapter(adapter);
 
         List<Class<?>> controllers = Lists.newArrayList();
-        MENU_ITEMS.forEach(x -> controllers.add(x.segueTo()));
+        MENU_ITEMS.forEach(item -> controllers.add(item.segueTo()));
 
         menu.setOnItemClickListener((AdapterView<?> adapterView, View view, int position, long l) -> {
             Class<?> controller = controllers.get(position);
-            Intent activity = new Intent(getContext(), controller);
+            Intent activity = new Intent(context, controller);
             startActivity(activity);
         });
     }

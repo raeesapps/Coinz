@@ -12,6 +12,11 @@ import net.raeesaamir.coinz.menu.MenuFragment;
 
 import java.util.Objects;
 
+/**
+ * The controller class for the leaderboard section. This handles navigation to other fragments you can reach from the leaderboard section.
+ *
+ * @author raeesaamir
+ */
 public class LeaderboardController extends AppCompatActivity {
 
     @Override
@@ -21,6 +26,9 @@ public class LeaderboardController extends AppCompatActivity {
         configureBottomNavigationBar();
     }
 
+    /**
+     * This method the bottom navigation bar which fragment to go to upon clicking the item.
+     */
     private void configureBottomNavigationBar() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {

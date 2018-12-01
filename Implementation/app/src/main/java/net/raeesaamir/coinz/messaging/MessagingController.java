@@ -13,6 +13,11 @@ import net.raeesaamir.coinz.menu.MenuFragment;
 
 import java.util.Objects;
 
+/**
+ * The controller class for the messaging section. This handles navigation to other fragments you can reach from the messaging section.
+ *
+ * @author raeesaamir
+ */
 public class MessagingController extends AppCompatActivity {
 
     @Override
@@ -22,6 +27,9 @@ public class MessagingController extends AppCompatActivity {
         configureBottomNavigationBar();
     }
 
+    /**
+     * This method the bottom navigation bar which fragment to go to upon clicking the item.
+     */
     private void configureBottomNavigationBar() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {

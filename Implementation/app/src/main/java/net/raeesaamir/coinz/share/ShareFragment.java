@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.share;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,19 +31,50 @@ import net.raeesaamir.coinz.wallet.Wallet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * This fragment shows you the achievements you've obtained. It gives you the option to share them to Facebook.
+ *
+ * @author raeesaamir
+ */
 public class ShareFragment extends Fragment {
 
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
+    /**
+     * The date format used in the map's GeoJSON file and the player's wallet.
+     */
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
 
+    /**
+     * The context of the fragment.
+     */
     private Context context;
 
+    /**
+     * The list view that will hold your achievements.
+     */
     private ListView achievementsView;
+
+    /**
+     * The Share to Facebook button.
+     */
     private ShareButton shareButton;
+
+    /**
+     * The authenticated user.
+     */
     private FirebaseUser mUser;
 
+    /**
+     * The user's bank.
+     */
     private Bank bank;
+
+    /**
+     * Today's date formatted.
+     */
     private String dateFormatted;
 
     @Override
@@ -59,6 +91,9 @@ public class ShareFragment extends Fragment {
         fetchAchievements();
     }
 
+    /**
+     * Fetches all the user's achievements from the bank and the user's wallet. Sets up the sharing functionality.
+     */
     private void fetchAchievements() {
 
         Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {

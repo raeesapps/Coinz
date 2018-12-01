@@ -8,14 +8,33 @@ import net.raeesaamir.coinz.game.FeatureCollection;
 
 import java.util.List;
 
+/**
+ * Represent's the player's bank of gold. Stored in cloud-firestore.
+ *
+ * @author raeesaamir
+ */
 public class Bank extends Container {
 
+    /**
+     * The UUID of the player.
+     */
     private final String userUid;
 
+    /**
+     * Constructs an empty bank.
+     *
+     * @param userUid - The player's UUID.
+     */
     public Bank(String userUid) {
         this.userUid = userUid;
     }
 
+    /**
+     * Constructs a bank based on a list of gold.
+     *
+     * @param userUid - The player's UUID
+     * @param coins   - The list of gold.
+     */
     public Bank(String userUid, List<String> coins) {
         this.userUid = userUid;
         this.coins = coins;
@@ -36,6 +55,13 @@ public class Bank extends Container {
         return "Banks";
     }
 
+    /**
+     * Deposits a coin from the player's a wallet into the bank based on today's exchange rates.
+     *
+     * @param exchangeRates - The exchange rates.
+     * @param coin          - The coin to deposit.
+     * @param wallet        - The wallet the coin is from.
+     */
     public void deposit(FeatureCollection.ExchangeRates exchangeRates, String coin, Wallet wallet) {
         wallet.removeCoin(coin);
 
@@ -67,6 +93,11 @@ public class Bank extends Container {
         getFuture();
     }
 
+    /**
+     * Calculates the total amount of gold in the player's bank.
+     *
+     * @return - The total amount of gold.
+     */
     public double totalGold() {
         double totalGold = 0;
 

@@ -12,6 +12,11 @@ import net.raeesaamir.coinz.messaging.MessagingFragment;
 
 import java.util.Objects;
 
+/**
+ * The controller class for the wallet section. This handles navigation to other fragments you can reach from the wallet section.
+ *
+ * @author raeesaamir
+ */
 public class WalletController extends AppCompatActivity {
 
     @Override
@@ -21,6 +26,9 @@ public class WalletController extends AppCompatActivity {
         configureBottomNavigationBar();
     }
 
+    /**
+     * This method the bottom navigation bar which fragment to go to upon clicking the item.
+     */
     private void configureBottomNavigationBar() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener((MenuItem item) -> {

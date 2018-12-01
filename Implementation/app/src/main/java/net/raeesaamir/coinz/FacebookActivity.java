@@ -3,6 +3,11 @@ package net.raeesaamir.coinz;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+/**
+ * An empty activity that is required for the Facebook sharing API.
+ *
+ * @author raeesaamir
+ */
 public class FacebookActivity extends AppCompatActivity {
 
     @Override

@@ -27,9 +27,26 @@ import net.raeesaamir.coinz.R;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Renders the list of registered players you can message.
+ *
+ * @author raeesaamir
+ */
 public class UserListFragment extends Fragment {
+
+    /**
+     * The view returned from onCreateView.
+     */
     private View view;
+
+    /**
+     * The context of the fragment.
+     */
     private Context context;
+
+    /**
+     * The authenticated user.
+     */
     private FirebaseUser mUser;
 
     @Nullable
@@ -47,6 +64,9 @@ public class UserListFragment extends Fragment {
         populateUserList();
     }
 
+    /**
+     * Gets all the registered users from the database and puts them into the list view.
+     */
     private void populateUserList() {
         ListView usernamesList = view.findViewById(R.id.usersListView);
 

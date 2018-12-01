@@ -116,13 +116,6 @@ public final class Feature {
         public String getMarkerColor() {
             return markerColor;
         }
-
-        @SuppressWarnings("unused")
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).add("id", id).add("value", value)
-                    .add("currency", currency).add("markerSymbol", markerSymbol).add("markerColor", markerColor).toString();
-        }
     }
 
     /**

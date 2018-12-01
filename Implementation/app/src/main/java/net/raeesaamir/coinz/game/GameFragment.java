@@ -48,24 +48,81 @@ import net.raeesaamir.coinz.wallet.Wallet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * This fragment handles the rendering, updating and coin collection of the game.
+ *
+ * @author raeesaamir
+ */
 public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
+    /**
+     * The date format used in the map's GeoJSON file and the player's wallet.
+     */
     @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd");
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
+
+    /**
+     * The unique identifier of the shared preferences object
+     */
     private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
+
+    /**
+     * The tag that appears in the debug statements
+     */
     private final String tag = "GameFragment";
+
+    /**
+     * A one-to-one mapping from feature objects to marker objects. Features contain information about markers whereas the marker objects are the actual markers on the Mapbox map.
+     */
     private final Map<Feature, Marker> featureMarkerMap = Maps.newHashMap();
+
+    /**
+     * The context of the android app.
+     */
     private Context context;
+
+    /**
+     * The view object that is passed to onViewCreated.
+     */
     private View view;
+
+    /**
+     * The object representing the authenticated user.
+     */
     private FirebaseUser mUser;
+
+    /**
+     * The view holding the MapboxMap.
+     */
     private MapView mapView;
+
+    /**
+     * The class representing the Mapbox map.
+     */
     private MapboxMap map;
+
+    /**
+     * The location engine which handles player movement and location changes.
+     */
     private LocationEngine locationEngine;
+
+    /**
+     * The player's location cached.
+     */
     private Location originalLocation;
+
+    /**
+     * The features of today's map such as the exchange rate and the location of the markers.
+     */
     private FeatureCollection featureCollection;
+
+    /**
+     * Today's date formatted using the date formatter.
+     */
     private String dateFormatted;
 
     @Nullable
@@ -96,6 +153,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         }
     }
 
+    /**
+     * Instantiates the map view and loads the map object in an asynchronous manner.
+     *
+     * @param savedInstanceState - The saved instance.
+     */
     private void configureMapView(@Nullable Bundle savedInstanceState) {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -216,6 +278,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     }
 
+    /**
+     * Initializes the location engine and location layer if the permissions are granted otherwise it requests permission from the player.
+     */
     private void enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             Log.d(tag, "Permissions are granted");
@@ -229,11 +294,19 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         }
     }
 
+    /**
+     * Aligns the camera to the player's location.
+     *
+     * @param location - The location to align to.
+     */
     private void setCameraPosition(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
+    /**
+     * Initializes the location engine by setting the listener to this class and caches the player's location.
+     */
     private void initializeLocationEngine() {
         locationEngine = new LocationEngineProvider(context).obtainBestLocationEngineAvailable();
         locationEngine.addLocationEngineListener(this);
@@ -327,6 +400,12 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     }
 
+    /**
+     * Called when the player moves somewhere else on the map. If there is no marker at the player's location.
+     *
+     * @param playerLocation - The player's location.
+     * @return If there's a marker at the player's location then a LocationChangedEvent containing the Feature and the Feature's index will be returned; otherwise, an empty LocationChangedEvent will be returned.
+     */
     private LocationChangedEvent onPlayerChangesLocation(Location playerLocation) {
         Feature[] features = featureCollection.getFeatures();
         for (int i = 0; i < features.length; i++) {
@@ -383,11 +462,35 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         this.context = context;
     }
 
+    /**
+     * This event is called when the player moves somewhere else.
+     *
+     * @author raeesaamir
+     */
     private static class LocationChangedEvent {
+
+        /**
+         * The information of the marker the player has walked to. If there is no marker at the player's location this will be null.
+         */
         private final Feature feature;
+
+        /**
+         * Index of the feature in the FeatureCollection's Feature array.
+         */
         private final int indexOfFeature;
+
+        /**
+         * If the player is at a marker on the map, this will be true.
+         */
         private final boolean atMarker;
 
+        /**
+         * Constructs a new LocationChangedEvent instance.
+         *
+         * @param feature        - The feature at the player's location
+         * @param indexOfFeature - Index of value.
+         * @param atMarker       - A boolean value of the player being at a marker on the map.
+         */
         LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
             this.feature = feature;
             this.indexOfFeature = indexOfFeature;
@@ -395,6 +498,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         }
     }
 
+    /**
+     * Decodes the feature collection data into an object for easy access of the information.
+     *
+     * @author raeesaamir
+     */
     public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 
         @Override

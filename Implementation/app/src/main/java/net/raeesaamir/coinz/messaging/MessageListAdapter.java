@@ -12,18 +12,47 @@ import net.raeesaamir.coinz.authentication.FirestoreUser;
 
 import java.util.List;
 
+/**
+ * The adapter that tells the message recycler view how to add a message when a new message is received.
+ *
+ * @author raeesaamir
+ */
 public class MessageListAdapter extends RecyclerView.Adapter {
 
+    /**
+     * The list of messages in the recycler view.
+     */
     private final List<FirebaseMessage> messageList;
+
+    /**
+     * The UUID of the logged in user.
+     */
     private final String userUid;
+
+    /**
+     * The user who has sent messages to the logged in user..
+     */
     private final FirestoreUser fromUser;
 
+    /**
+     * Constructs a new message list adapter.
+     *
+     * @param messageList - The list of messages in the view.
+     * @param fromUser    - The user sending the messages to the logged in user.
+     * @param userUid     - The UUID of the user sending the messages.
+     */
     MessageListAdapter(List<FirebaseMessage> messageList, FirestoreUser fromUser, String userUid) {
         this.messageList = messageList;
         this.fromUser = fromUser;
         this.userUid = userUid;
     }
 
+    /**
+     * Gets the type of message received.
+     *
+     * @param ordinal - The order the message type is defined in the enum.
+     * @return 0 if the message is a sent message otherwise 1 if the message is a received message.
+     */
     private static MessageType getType(int ordinal) {
         return ordinal == 0 ? MessageType.MESSAGE_SENT : MessageType.MESSAGE_RECEIVED;
     }
@@ -83,17 +112,49 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     }
 
+    /**
+     * Represents the type of message in the view.
+     */
     private enum MessageType {
+
+        /**
+         * A sent message.
+         */
         MESSAGE_SENT,
+
+        /**
+         * A received message.
+         */
         MESSAGE_RECEIVED
     }
 
+    /**
+     * Represents the template for a received message.
+     *
+     * @author raeesaamir
+     */
     static class ReceivedMessageHolder extends RecyclerView.ViewHolder {
 
+        /**
+         * The content of the message.
+         */
         private final TextView messageText;
+
+        /**
+         * The time the message was sent.
+         */
         private final TextView timeText;
+
+        /**
+         * The display name of the user.
+         */
         private final TextView nameText;
 
+        /**
+         * Constructs a new received message view holder.
+         *
+         * @param itemView - The view object.
+         */
         ReceivedMessageHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.text_message_body);
@@ -101,6 +162,12 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             nameText = itemView.findViewById(R.id.text_message_name);
         }
 
+        /**
+         * Binds a message object into the received message view holder.
+         *
+         * @param fromUser - The person the message is from.
+         * @param message  - The message itself.
+         */
         void bind(FirestoreUser fromUser, FirebaseMessage message) {
             messageText.setText(message.getMessageText());
             timeText.setText(FirebaseMessage.getMessageTimeAsString(message));
@@ -108,17 +175,37 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * Represents the template for a sent message.
+     */
     class SentMessageHolder extends RecyclerView.ViewHolder {
 
+        /**
+         * The content of the message.
+         */
         private final TextView messageText;
+
+        /**
+         * The time the message was sent.
+         */
         private final TextView timeText;
 
+        /**
+         * Constructs a new sent message view holder.
+         *
+         * @param itemView - The view object.
+         */
         SentMessageHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.text_message_body);
             timeText = itemView.findViewById(R.id.text_message_time);
         }
 
+        /**
+         * Binds the message object into the sent message view holder.
+         *
+         * @param message - The message object.
+         */
         void bind(FirebaseMessage message) {
             messageText.setText(message.getMessageText());
             timeText.setText(FirebaseMessage.getMessageTimeAsString(message));

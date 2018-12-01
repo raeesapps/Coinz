@@ -26,10 +26,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * This fragment handles the rendering of the leaderboard.
+ *
+ * @author raeesaamir
+ */
 public class LeaderboardFragment extends Fragment {
 
+    /**
+     * The context of the fragment.
+     */
     private Context context;
 
+    /**
+     * The view returned from onViewCreated.
+     */
     private View view;
 
     @Override
@@ -45,6 +56,9 @@ public class LeaderboardFragment extends Fragment {
         return inflater.inflate(R.layout.leaderboard_fragment, container, false);
     }
 
+    /**
+     * Populates each player's gold into the leaderboard view. If the player has not deposited anything into their bank then their total gold will be 0.
+     */
     private void populateScores() {
         ListView scoresView = view.findViewById(R.id.scoresFragment);
 

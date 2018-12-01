@@ -18,7 +18,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import net.raeesaamir.coinz.R;
 
-
+/**
+ * An authentication controller that can be used to implement a login or registration form.
+ */
 public abstract class AuthenticationController extends AppCompatActivity {
 
     /**
@@ -26,16 +28,41 @@ public abstract class AuthenticationController extends AppCompatActivity {
      */
     FirebaseAuth firebaseAuth;
 
-    // UI references.
+    /**
+     * The email input field.
+     */
     EditText mEmailView;
+
+    /**
+     * The password input field.
+     */
     EditText mPasswordView;
+
+    /**
+     * The progress spinner.
+     */
     private View mProgressView;
+
+    /**
+     * The authentication form.
+     */
     private View mAuthenticationFormView;
 
+    /**
+     * Gets the content view number.
+     *
+     * @return -1
+     */
     int getContentView() {
         return -1;
     }
 
+    /**
+     * If only two fields, email and password, are required then override this method.
+     *
+     * @param email    - The email address
+     * @param password - The password
+     */
     void onAuthenticationProcess(String email, String password) {
 
     }
@@ -116,23 +143,41 @@ public abstract class AuthenticationController extends AppCompatActivity {
         }
     }
 
+    /**
+     * Throws an error if an incorrect password is entered.
+     */
     void throwPasswordError() {
         mPasswordView.setError(getString(R.string.error_incorrect_password));
         mPasswordView.requestFocus();
         showProgress(false);
     }
 
+    /**
+     * Throws an error if an invalid email is entered.
+     */
     void throwEmailError() {
         mEmailView.setError(getString(R.string.error_email_exists));
         mEmailView.requestFocus();
         showProgress(false);
     }
 
+    /**
+     * Checks if an email address is invalid.
+     *
+     * @param email - The email address to examine
+     * @return either true or false depending on the input
+     */
     boolean isEmailInvalid(String email) {
         //TODO: Replace this with your own logic
         return !email.contains("@");
     }
 
+    /**
+     * Checks if a password is invalid.
+     *
+     * @param password - The password to examine
+     * @return - either true or false depending on the input.
+     */
     boolean isPasswordInvalid(String password) {
         //TODO: Replace this with your own logic
         return password.length() <= 4;
@@ -143,9 +188,6 @@ public abstract class AuthenticationController extends AppCompatActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
         int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
         mAuthenticationFormView.setVisibility(show ? View.GONE : View.VISIBLE);

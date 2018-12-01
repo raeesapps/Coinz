@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.wallet;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,17 +34,52 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * The fragment which handles the rendering of all the coins in the wallet.
+ *
+ * @author raeesaamir
+ */
 public class WalletFragment extends Fragment {
 
-    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
+    /**
+     * The date format used in the map's GeoJSON file and the player's wallet.
+     */
+    @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
 
+    /**
+     * The unique identifier of the shared preferences object
+     */
+    private static final String SHARED_PREFERENCES_KEY = "FeatureCollection_Shared_Prefs";
+
+    /**
+     * The view object returned from onViewCreated.
+     */
     private View view;
+
+    /**
+     * The context of the fragment.
+     */
     private Context context;
+
+    /**
+     * The player's bank.
+     */
     private Bank bank;
+
+    /**
+     * The authenticated user.
+     */
     private FirebaseUser mUser;
+
+    /**
+     * The features of today's map. This object contains today's exchange rates.
+     */
     private FeatureCollection featureCollection;
 
+    /**
+     * The text view which contains the bank.
+     */
     private TextView bankView;
 
     @Nullable
@@ -72,6 +108,9 @@ public class WalletFragment extends Fragment {
         populateBank();
     }
 
+    /**
+     * Populates the list view with the coins from the player's wallet.
+     */
     private void populateWallet() {
         long date = new Date().getTime();
         String dateFormatted = DATE_FORMATTER.format(date);
@@ -95,6 +134,9 @@ public class WalletFragment extends Fragment {
         });
     }
 
+    /**
+     * Populates the text view with the total amount of gold in the player's bank.
+     */
     private void populateBank() {
         this.bankView = view.findViewById(R.id.bank);
 
@@ -139,6 +181,9 @@ public class WalletFragment extends Fragment {
         });
     }
 
+    /**
+     * Refreshes the bank.
+     */
     private void refreshBank() {
         Preconditions.checkNotNull(this.bankView);
         Preconditions.checkNotNull(this.bank);

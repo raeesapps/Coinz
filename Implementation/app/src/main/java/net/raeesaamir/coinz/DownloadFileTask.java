@@ -7,10 +7,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * An asynchronous file downloader that has a read callback.
+ *
+ * @param <T> - The type of object to decode the stream into.
+ * @author raeesaamir
+ */
 public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
 
+    /**
+     * Decodes the stream into an object of type T.
+     *
+     * @param inputStream - The stream to decode.
+     * @return An object of type T decoded from the stream.
+     */
     protected abstract T readStream(String inputStream);
-
 
     @Override
     protected T doInBackground(String... strings) {

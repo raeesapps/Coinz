@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,22 +44,87 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * The fragment that handles the rendering of messages between the logged in user and some other user.
+ *
+ * @author raeesaamir
+ */
 public class MessagingFragment extends Fragment {
 
+    /**
+     * The name of the real-time database.
+     */
     private static final String DB_NAME = "coinz-12df3";
+
+    /**
+     * The date format used in the map's GeoJSON file and the player's wallet.
+     */
+    @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
+
+    /**
+     * A list of messages sorted by time.
+     */
     private final List<FirebaseMessage> firestoreMessageList = new SortedList();
+
+    /**
+     * The time a message was attempted to be sent, in nanoseconds.
+     */
     private long msgNanoTime;
+
+    /**
+     * The time the previous message was sent, in nanoeseconds.
+     */
     private long previousMsgNanoTime = 0;
+
+    /**
+     * A reference to the real-time database.
+     */
     private DatabaseReference mReference;
+
+    /**
+     * The send message button.
+     */
     private Button button;
+
+    /**
+     * The button to open the trading screen.
+     */
     private Button tradeButton;
+
+    /**
+     * The text container where you enter messages.
+     */
     private EditText messageContents;
+
+    /**
+     * The view returned from onViewCreated.
+     */
     private View view;
+
+    /**
+     * The context of the fragment.
+     */
     private Context context;
+
+    /**
+     * The authenticated user.
+     */
     private FirebaseUser mUser;
+
+    /**
+     * The firestore user document of the other user the user is talking to.
+     */
     private FirestoreUser otherUser;
+
+    /**
+     * The firestore user document of the authenticated user.
+     */
     private FirestoreUser thisUser;
+
+    /**
+     * The message list adapter which puts messages into the message list.
+     */
     private MessageListAdapter simpleMessageListAdapter;
 
     @Override
@@ -78,6 +144,9 @@ public class MessagingFragment extends Fragment {
         listen(Objects.requireNonNull(getActivity()).getIntent().getStringExtra("username"));
     }
 
+    /**
+     * The logic for sending a message to another user.
+     */
     private void setOnSend() {
         button.setOnClickListener((View view) -> {
             String messageString = messageContents.getText().toString();
@@ -109,6 +178,11 @@ public class MessagingFragment extends Fragment {
         return inflater.inflate(R.layout.messaging_fragment, container, false);
     }
 
+    /**
+     * Listens for incoming messages from the other user.
+     *
+     * @param username - The display name of the other user.
+     */
     private void listen(String username) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference users = db.collection("Users");
@@ -144,6 +218,9 @@ public class MessagingFragment extends Fragment {
         });
     }
 
+    /**
+     * Adds messages received from the other user to our fragment. This method also handles the trading logic. Trading is transfering coins from this user to the other user.
+     */
     private void populateMessages() {
         RecyclerView recyclerView = view.findViewById(R.id.message_list);
 
@@ -228,6 +305,11 @@ public class MessagingFragment extends Fragment {
         this.context = context;
     }
 
+    /**
+     * A sorted array list by date.
+     *
+     * @author raeesaamir
+     */
     static class SortedList extends ArrayList<FirebaseMessage> {
         @Override
         public boolean add(FirebaseMessage firebaseMessage) {

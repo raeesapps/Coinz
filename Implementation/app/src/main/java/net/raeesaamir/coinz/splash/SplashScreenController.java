@@ -12,10 +12,21 @@ import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.LoginController;
 import net.raeesaamir.coinz.menu.MenuController;
 
+/**
+ * The splash screen is loaded here and the user is segued to either the menu view or the login view depending on if the user is logged in.
+ *
+ * @author raeesaamir
+ */
 public class SplashScreenController extends AppCompatActivity {
 
+    /**
+     * The duration for which the splash screen will appear.
+     */
     private static final int SPLASH_SCREEN_DURATION = 2000;
 
+    /**
+     * The authenticated user.
+     */
     private FirebaseUser mUser;
 
     @Override

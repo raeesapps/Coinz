@@ -4,6 +4,11 @@ import android.app.Application;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
+/**
+ * The application class for the Android project.
+ *
+ * @author raeesaamir
+ */
 @SuppressWarnings("WeakerAccess")
 public class CoinzApplication extends Application {
 

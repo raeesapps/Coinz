@@ -21,11 +21,20 @@ import net.raeesaamir.coinz.menu.MenuController;
 import java.util.Objects;
 
 /**
- * A login screen that offers login via email/password.
+ * A registration screen that lets the user create an account to player the game with.
+ *
+ * @author raeesaamir
  */
 public class RegistrationController extends AuthenticationController {
 
+    /**
+     * The display name field.
+     */
     private TextView mNameView;
+
+    /**
+     * The confirm password field.
+     */
     private TextView mConfirmPasswordView;
 
     @Override
@@ -107,6 +116,13 @@ public class RegistrationController extends AuthenticationController {
         }
     }
 
+    /**
+     * Called when the user clicks the create account button.
+     *
+     * @param name     - The user's display name.
+     * @param email    - The user's email address.
+     * @param password - The user's password.
+     */
     private void onAuthenticationProcess(String name, String email, String password) {
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
             if (task.isSuccessful()) {

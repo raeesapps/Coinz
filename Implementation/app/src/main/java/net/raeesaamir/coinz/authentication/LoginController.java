@@ -12,6 +12,8 @@ import net.raeesaamir.coinz.menu.MenuController;
 
 /**
  * A login screen that offers login via email/password.
+ *
+ * @author raeesaamir
  */
 public class LoginController extends AuthenticationController {
 
@@ -32,6 +34,11 @@ public class LoginController extends AuthenticationController {
         return R.layout.login_view;
     }
 
+    /**
+     * Segues the user to the registration form if they don't have an account.
+     *
+     * @param view The view object. Unused but required for the method signature.
+     */
     public void goToRegistration(@SuppressWarnings("unused") View view) {
         Intent registration = new Intent(this, RegistrationController.class);
         startActivity(registration);
