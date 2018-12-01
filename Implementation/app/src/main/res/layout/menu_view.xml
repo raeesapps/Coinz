@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".menu.MenuController">
 
+    <!-- The fragment container, this will be replaced with a fragment when the user selects an item from the bottom navbar -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"

@@ -1,3 +1,4 @@
+<!-- Contains strings related to the application -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" tools:ignore="PrivateResource">Coinz</string>
     <string name="logo">logo</string>

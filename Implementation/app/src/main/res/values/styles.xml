@@ -1,3 +1,4 @@
+<!-- Defines the theme of the application-->
 <resources>
 
     <!-- Base application theme. -->
@@ -10,7 +11,8 @@
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
     </style>
 
-    <style name = "AppTheme.Launcher">
+    <!-- The theme of the splash screen -->
+    <style name="AppTheme.Launcher">
         <item name="colorPrimary">@color/gradientStart</item>
         <item name="colorPrimaryDark">@color/gradientStart</item>
         <item name="android:windowBackground">@drawable/launch_screen</item>

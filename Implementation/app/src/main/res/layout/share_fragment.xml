@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!-- The share achievements section -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- The Coinz logo -->
     <ImageView
         android:id="@+id/imageViewFragment"
         android:layout_width="match_parent"
@@ -12,6 +13,7 @@
         android:contentDescription="@string/logo"
         app:srcCompat="@drawable/logo" />
 
+    <!-- The title of the section -->
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
@@ -20,17 +22,18 @@
         android:text="@string/share_fragment_share_title_text"
         android:textDirection="ltr" />
 
+    <!-- The Facebook share button -->
     <com.facebook.share.widget.ShareButton
         android:id="@+id/shareButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/share_fragment_share_button_text" />
 
+    <!-- The List of achievements -->
     <ListView
         android:id="@+id/achievements"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-
 
 </LinearLayout>

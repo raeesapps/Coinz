@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- Defines the icons and the titles of the items in the user list view bottom navbar -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/messaging_nav_home"
         android:icon="@drawable/home_24dp"
-        android:title="@string/user_list_nav_home"
-        />
+        android:title="@string/user_list_nav_home" />
 
     <item
         android:id="@+id/messaging_nav_users"
         android:icon="@drawable/messaging_24dp"
-        android:title="@string/user_list_nav_user_list"
-        />
+        android:title="@string/user_list_nav_user_list" />
 
 
     <item
         android:id="@+id/messaging_nav_game"
         android:icon="@drawable/game_24dp"
-        android:title="@string/user_list_nav_game"
-        />
+        android:title="@string/user_list_nav_game" />
 </menu>

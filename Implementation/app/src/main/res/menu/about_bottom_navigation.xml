@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- Defines the icons and the titles of the items in the about view bottom navbar -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/about_nav_home"
         android:icon="@drawable/home_24dp"
-        android:title="@string/about_nav_home"
-        />
+        android:title="@string/about_nav_home" />
 
     <item
         android:id="@+id/about_nav_about"
         android:icon="@drawable/about_24dp"
-        android:title="@string/about_nav_about"
-        />
+        android:title="@string/about_nav_about" />
 
 
     <item
         android:id="@+id/about_nav_game"
         android:icon="@drawable/game_24dp"
-        android:title="@string/about_nav_game"
-        />
+        android:title="@string/about_nav_game" />
 </menu>

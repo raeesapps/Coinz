@@ -1,40 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
+<?xml version="1.0" encoding="utf-8"?><!-- Represents the menu -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/logo"
-            app:srcCompat="@drawable/logo" />
+    <!-- The Coinz logo -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/logo"
+        app:srcCompat="@drawable/logo" />
 
-        <TextView
-            android:id="@+id/welcomeMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/menu_fragment_welcome_text_default"
-            android:textSize="24sp"
-            android:visibility="visible" />
+    <!-- The welcome message -->
+    <TextView
+        android:id="@+id/welcomeMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_fragment_welcome_text_default"
+        android:textSize="24sp"
+        android:visibility="visible" />
 
-        <Button
-            android:id="@+id/signOut"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/menu_fragment_sign_out_button_text"
-            android:visibility="visible" />
+    <!-- The sign out button -->
+    <Button
+        android:id="@+id/signOut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_fragment_sign_out_button_text"
+        android:visibility="visible" />
 
+    <!-- The sections of the game -->
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="7dp">
 
-
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:dividerHeight="7dp">
-
-        </ListView>
+    </ListView>
 
 </LinearLayout>

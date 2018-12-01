@@ -1,7 +1,8 @@
+<!-- The color of the splash screen -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <gradient
-        android:startColor="@color/gradientStart"
+        android:angle="-270"
         android:endColor="@color/gradientEnd"
-        android:angle="-270" />
+        android:startColor="@color/gradientStart" />
 </shape>

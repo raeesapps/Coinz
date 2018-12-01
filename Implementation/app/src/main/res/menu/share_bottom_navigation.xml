@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- Defines the icons and the titles of the items in the share view bottom navbar -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/share_nav_home"
         android:icon="@drawable/home_24dp"
-        android:title="@string/share_nav_home"
-        />
+        android:title="@string/share_nav_home" />
 
     <item
         android:id="@+id/share_nav_game"
         android:icon="@drawable/game_24dp"
-        android:title="@string/share_nav_game"
-        />
+        android:title="@string/share_nav_game" />
 
 
     <item
         android:id="@+id/share_nav_leaderboard"
         android:icon="@drawable/messaging_24dp"
-        android:title="@string/share_nav_share"
-        />
+        android:title="@string/share_nav_share" />
 </menu>
