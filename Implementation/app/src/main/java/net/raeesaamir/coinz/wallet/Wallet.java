@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -48,17 +49,19 @@ public class Wallet extends Container {
     private final String walletUid;
 
     /**
-     * Constructs an empty wallet for today's date.
-     *
-     * @param userUid   - The user's UUID
-     * @param walletUid - The player's UUID
+     * The purpose of the wallet.
      */
-    private Wallet(String userUid, String walletUid) {
-        long date = new Date().getTime();
+    private final WalletType walletType;
 
-        this.date = DATE_FORMATTER.format(date);
-        this.userUid = userUid;
-        this.walletUid = walletUid;
+    /**
+     * Constructs an empty wallet for today's date based on a defined type..
+     *
+     * @param userUid    - The user's UUID
+     * @param walletUid  - The player's UUID
+     * @param walletType - The type of wallet.
+     */
+    private Wallet(String userUid, String walletUid, WalletType walletType) {
+        this(userUid, DATE_FORMATTER.format(new Date().getTime()), Lists.newArrayList(), walletUid, walletType);
     }
 
     /**
@@ -70,10 +73,34 @@ public class Wallet extends Container {
      * @param walletUid - The wallet's UUID.
      */
     private Wallet(String userUid, String date, List<String> coins, String walletUid) {
+        this(userUid, date, coins, walletUid, WalletType.MAIN_WALLET);
+    }
+
+    /**
+     * Constructs a wallet based on a list of coins and type.
+     *
+     * @param userUid    - The player's UUID.
+     * @param date       - The date of the wallet.
+     * @param coins      - The coins in the wallet.
+     * @param walletUid  - The wallet's UUID.
+     * @param walletType - The type of wallet.
+     */
+    private Wallet(String userUid, String date, List<String> coins, String walletUid, WalletType walletType) {
         this.userUid = userUid;
         this.date = date;
         this.coins = coins;
         this.walletUid = walletUid;
+        this.walletType = walletType;
+    }
+
+    /**
+     * Gets the wallet type from an integer value representing it's declaration order.
+     *
+     * @param ordinal - The type declaration order
+     * @return A wallet type.
+     */
+    private static WalletType fromOrdinal(int ordinal) {
+        return ordinal == 0 ? WalletType.MAIN_WALLET : WalletType.SPARE_CHANGE_WALLET;
     }
 
     /**
@@ -84,7 +111,19 @@ public class Wallet extends Container {
      * @param listener - The on complete listener.
      */
     public static void loadWallet(String uid, String date, WalletListener listener) {
-        loadWallet(uid, date, listener, false);
+        loadWallet(uid, date, WalletType.MAIN_WALLET, listener, false);
+    }
+
+    /**
+     * Loads this player's wallet.
+     *
+     * @param uid        - The UUID of this player.
+     * @param date       - The date of the wallet we want.
+     * @param walletType - The type of wallet to load
+     * @param listener   - The on complete listener.
+     */
+    public static void loadWallet(String uid, String date, WalletType walletType, WalletListener listener) {
+        loadWallet(uid, date, walletType, listener, false);
     }
 
     /**
@@ -92,11 +131,12 @@ public class Wallet extends Container {
      *
      * @param uid         - The UUID of the player.
      * @param date        - The date of the wallet we want.
+     * @param walletType  - The type of wallet to load.
      * @param listener    - The on complete listener.
      * @param otherPlayer - A boolean value which is true if we want to load the other player's wallet.
      */
     @SuppressWarnings("unchecked")
-    public static void loadWallet(String uid, String date, WalletListener listener, boolean otherPlayer) {
+    public static void loadWallet(String uid, String date, WalletType walletType, WalletListener listener, boolean otherPlayer) {
 
         System.out.println("[Wallet] loadWallet");
 
@@ -111,25 +151,40 @@ public class Wallet extends Container {
                 return;
             }
         } else {
-            if (WalletSingleton.wallet != null) {
-                System.out.println("[Wallet] not null!");
-                listener.onComplete(WalletSingleton.wallet);
-                return;
+            if (walletType.equals(WalletType.MAIN_WALLET)) {
+                if (WalletSingleton.wallet != null) {
+                    System.out.println("[Wallet] not null!");
+                    listener.onComplete(WalletSingleton.wallet);
+                    return;
+                }
+            } else {
+                if (WalletSingleton.spareWallet != null) {
+                    System.out.println("[Wallet] not null!");
+                    listener.onComplete(WalletSingleton.spareWallet);
+                    return;
+                }
             }
         }
 
         wallets.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
-            Wallet wallet = new Wallet(uid, reference.getId());
+            Wallet wallet = new Wallet(uid, reference.getId(), walletType);
             if (task.isSuccessful()) {
                 for (DocumentSnapshot snapshot : java.util.Objects.requireNonNull(task.getResult())) {
 
                     if (!snapshot.contains("userUid") || !snapshot.contains("date")
-                            || !snapshot.contains("walletUid") || !snapshot.contains("coins")) {
+                            || !snapshot.contains("walletUid") || !snapshot.contains("coins")
+                            || !snapshot.contains("walletType")) {
                         continue;
                     }
 
                     if (!java.util.Objects.requireNonNull(snapshot.get("userUid")).equals(uid) || !java.util.Objects.requireNonNull(snapshot.get("date")).equals(date)) {
+                        continue;
+                    }
+
+                    WalletType actualWalletType = fromOrdinal(java.util.Objects.requireNonNull(snapshot.getLong("walletType")).intValue());
+
+                    if (!actualWalletType.equals(walletType)) {
                         continue;
                     }
 
@@ -146,8 +201,11 @@ public class Wallet extends Container {
                 if (otherPlayer) {
                     WalletSingleton.setOtherWallet(wallet);
                 } else {
-                    WalletSingleton.setWallet(wallet);
-
+                    if (walletType.equals(WalletType.MAIN_WALLET)) {
+                        WalletSingleton.setWallet(wallet);
+                    } else {
+                        WalletSingleton.setSpareWallet(wallet);
+                    }
                 }
                 listener.onComplete(wallet);
             }
@@ -184,7 +242,7 @@ public class Wallet extends Container {
 
     @Override
     public ImmutableMap<String, Object> getDocument() {
-        return ImmutableMap.<String, Object>builder().put("userUid", userUid).put("coins", coins).put("walletUid", walletUid).put("date", date).build();
+        return ImmutableMap.<String, Object>builder().put("userUid", userUid).put("coins", coins).put("walletUid", walletUid).put("walletType", walletType.ordinal()).put("date", date).build();
     }
 
     @Override
@@ -195,6 +253,34 @@ public class Wallet extends Container {
     @Override
     public String getCollectionName() {
         return "Wallets";
+    }
+
+    /**
+     * Returns the number of coins in the wallet.
+     *
+     * @return The number of coins.
+     */
+    public int numberOfCoins() {
+        return coins.size();
+    }
+
+    /**
+     * Represent's the type of wallet.
+     *
+     * @author raeesaamir
+     */
+    public enum WalletType {
+
+        /**
+         * If a wallet is the main wallet then the coins the player collects will go there.
+         */
+        MAIN_WALLET,
+
+        /**
+         * If the wallet is a spare change wallet then the coins the player cannot collect will go there.
+         * The player can trade coins in his/her spare change wallet to other players.
+         */
+        SPARE_CHANGE_WALLET
     }
 
     /**
@@ -225,18 +311,31 @@ public class Wallet extends Container {
         private static Wallet wallet = null;
 
         /**
+         * This player's spare wallet.
+         */
+        private static Wallet spareWallet = null;
+
+        /**
          * The other player's wallet.
          */
         private static Wallet otherWallet = null;
-
 
         /**
          * Sets this player's wallet.
          *
          * @param wallet - The wallet object.
          */
-        static void setWallet(Wallet wallet) {
+        public static void setWallet(Wallet wallet) {
             WalletSingleton.wallet = wallet;
+        }
+
+        /**
+         * Sets this player's spare change wallet.
+         *
+         * @param spareWallet - The wallet object.
+         */
+        public static void setSpareWallet(Wallet spareWallet) {
+            WalletSingleton.spareWallet = spareWallet;
         }
 
         /**

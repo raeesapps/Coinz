@@ -251,30 +251,35 @@ public class MessagingFragment extends Fragment {
 
                 long date = new Date().getTime();
                 String dateFormatted = DATE_FORMATTER.format(date);
-                Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> tradeButton.setOnClickListener((View view) -> {
+                Wallet.loadWallet(mUser.getUid(), dateFormatted, Wallet.WalletType.SPARE_CHANGE_WALLET, (Wallet wallet) -> tradeButton.setOnClickListener((View view) -> {
                     List<String> coinsList = wallet.getCoins();
 
                     String[] coins = coinsList.toArray(new String[coinsList.size()]);
                     boolean[] selectedItems = new boolean[coins.length];
 
                     AlertDialog alertDialog = new AlertDialog.Builder(context)
-                            .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, (Wallet otherWallet) -> {
+                            .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, Wallet.WalletType.MAIN_WALLET, (Wallet otherWallet) -> {
 
                                 for (int i = 0; i < selectedItems.length; i++) {
                                     if (selectedItems[i]) {
-                                        String coin = coinsList.get(i);
-                                        coins[i] = null;
-                                        wallet.removeCoin(coin);
+                                        if (otherWallet.numberOfCoins() == 9) {
+                                            Toast.makeText(context, "You cannot transfer coins to this player because they already have too many!", Toast.LENGTH_LONG).show();
+                                            break;
+                                        } else {
+                                            String coin = coinsList.get(i);
+                                            coins[i] = null;
+                                            wallet.removeCoin(coin);
 
-                                        otherWallet.addCoin(coin);
-                                        otherWallet.getFuture();
+                                            otherWallet.addCoin(coin);
+                                            otherWallet.getFuture();
 
-                                        FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
-                                        String key = mReference.push().getKey();
-                                        mReference.child(Objects.requireNonNull(key)).setValue(message);
+                                            FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
+                                            String key = mReference.push().getKey();
+                                            mReference.child(Objects.requireNonNull(key)).setValue(message);
 
-                                        firestoreMessageList.add(message);
-                                        simpleMessageListAdapter.notifyDataSetChanged();
+                                            firestoreMessageList.add(message);
+                                            simpleMessageListAdapter.notifyDataSetChanged();
+                                        }
                                     }
                                 }
 

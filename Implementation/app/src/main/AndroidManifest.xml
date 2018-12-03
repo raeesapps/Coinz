@@ -32,27 +32,39 @@
 
         <activity
             android:name=".splash.SplashScreenController"
-            android:theme="@style/AppTheme.Launcher">
+            android:theme="@style/AppTheme.Launcher"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".menu.MenuController" />
+        <activity android:name=".menu.MenuController"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".authentication.LoginController"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_login_controller" />
         <activity
             android:name=".authentication.RegistrationController"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_registration_controller" />
-        <activity android:name=".leaderboard.LeaderboardController" />
-        <activity android:name=".messaging.MessagingController" />
-        <activity android:name=".wallet.WalletController" />
-        <activity android:name=".game.GameController" />
-        <activity android:name=".about.AboutController" />
-        <activity android:name=".messaging.UserListController" />
-        <activity android:name=".share.ShareController" />
+        <activity android:name=".leaderboard.LeaderboardController"
+            android:screenOrientation="portrait" />
+        <activity android:name=".messaging.MessagingController"
+            android:screenOrientation="portrait" />
+        <activity android:name=".wallet.WalletController"
+            android:screenOrientation="portrait" />
+        <activity android:name=".game.GameController"
+            android:screenOrientation="portrait" />
+        <activity android:name=".about.AboutController"
+            android:screenOrientation="portrait" />
+        <activity android:name=".messaging.UserListController"
+            android:screenOrientation="portrait" />
+        <activity android:name=".share.ShareController"
+            android:screenOrientation="portrait" />
         <activity android:name=".FacebookActivity" />
     </application>
 

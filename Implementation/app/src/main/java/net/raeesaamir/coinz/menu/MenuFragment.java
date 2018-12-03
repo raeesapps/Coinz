@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.LoginController;
+import net.raeesaamir.coinz.wallet.Wallet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -91,6 +92,9 @@ public class MenuFragment extends Fragment {
 
         Button signOutButton = view.findViewById(R.id.signOut);
         signOutButton.setOnClickListener((View view) -> {
+            Wallet.WalletSingleton.setWallet(null);
+            Wallet.WalletSingleton.setSpareWallet(null);
+            Wallet.WalletSingleton.setOtherWallet(null);
             mAuth.signOut();
             Intent login = new Intent(getContext(), LoginController.class);
             startActivity(login);

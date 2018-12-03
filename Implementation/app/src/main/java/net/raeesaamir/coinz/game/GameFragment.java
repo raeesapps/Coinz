@@ -370,25 +370,29 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 if (isPlayerAtMarker) {
                     List<String> coins = wallet.getCoins();
 
+                    Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
+                    map.removeMarker(marker);
+
+                    Feature[] features = featureCollection.getFeatures();
+                    Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
+                    String currency = properties.getCurrency();
+                    String value = properties.getValue();
+
+                    features[locationChangedEvent.indexOfFeature] = null;
+                    String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
+                    SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                    Gson gson = new Gson();
+                    String jSONDocument = gson.toJson(featureCollection);
+                    preferences.edit().putString(dateFormatted, jSONDocument).commit();
+
                     if (coins.size() == 25) {
-                        Toast.makeText(getActivity(), "You have too many coins in your wallet! Please come back here when you have deposited some coins into your bank or when you have traded them to someone else.", Toast.LENGTH_LONG).show();
+                        Wallet.loadWallet(mUser.getUid(), dateFormatted, Wallet.WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
+                            spareChangeWallet.addCoin(currency + " " + value);
+                            System.out.println("[GameFragment]: " + currency + " " + value);
+                            spareChangeWallet.getFuture();
+                        });
+                        Toast.makeText(getActivity(), "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
                     } else {
-                        Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
-                        map.removeMarker(marker);
-
-                        Feature[] features = featureCollection.getFeatures();
-                        Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
-                        String currency = properties.getCurrency();
-                        String value = properties.getValue();
-
-                        features[locationChangedEvent.indexOfFeature] = null;
-                        String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
-                        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-                        Gson gson = new Gson();
-                        String jSONDocument = gson.toJson(featureCollection);
-                        preferences.edit().putString(dateFormatted, jSONDocument).commit();
-
-
                         wallet.addCoin(currency + " " + value);
                         System.out.println("[GameFragment]: " + currency + " " + value);
                         wallet.getFuture();
@@ -397,7 +401,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 }
             });
         }
-
     }
 
     /**
