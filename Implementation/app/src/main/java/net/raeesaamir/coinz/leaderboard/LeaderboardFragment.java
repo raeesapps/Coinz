@@ -43,6 +43,22 @@ public class LeaderboardFragment extends Fragment {
      */
     private View view;
 
+    /**
+     * Used to sort the leaderboard according to the number of coins each user has
+     * @param t - The number of coins this user has
+     * @param t1 - The number of coins the other user has.
+     * @return A sorting value.
+     */
+    private static int compare(String t, String t1) {
+        String[] tAttributes = t.split(" - ");
+        String[] t1Attributes = t1.split(" - ");
+
+        double tCoins = Double.parseDouble(tAttributes[1]);
+        double t1Coins = Double.parseDouble(t1Attributes[1]);
+
+        return Double.compare(t1Coins, tCoins);
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -91,14 +107,23 @@ public class LeaderboardFragment extends Fragment {
 
                 for (DocumentSnapshot snapshot : Objects.requireNonNull(userTask.getResult())) {
 
+                    if(!snapshot.contains("uid") || !snapshot.contains("displayName")) {
+                        continue;
+                    }
+
                     String uid = snapshot.getString("uid");
                     String username = snapshot.getString("displayName");
 
                     if (uidTotalMappings.containsKey(uid)) {
                         String entry = username + " - " + uidTotalMappings.get(uid);
                         scores.add(entry);
+                    } else {
+                        scores.add(username + " - " + "0");
                     }
                 }
+
+                scores.sort(LeaderboardFragment::compare);
+
                 ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, scores);
                 scoresView.setAdapter(integerArrayAdapter);
 
