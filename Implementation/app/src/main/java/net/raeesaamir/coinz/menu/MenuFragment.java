@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -85,10 +84,14 @@ public class MenuFragment extends Fragment {
      * Puts the user's display name into the welcome message and puts the welcome message into the TextView.
      */
     private void populateUserInformation() {
-        Preconditions.checkNotNull(mUser);
 
         TextView welcomeMessage = view.findViewById(R.id.welcomeMessage);
-        welcomeMessage.setText(String.format("%s%s!", WELCOME_STRING, mUser.getDisplayName()));
+
+        if(mUser == null) {
+            welcomeMessage.setText(WELCOME_STRING);
+        } else {
+            welcomeMessage.setText(String.format("%s%s!", WELCOME_STRING, mUser.getDisplayName()));
+        }
 
         Button signOutButton = view.findViewById(R.id.signOut);
         signOutButton.setOnClickListener((View view) -> {

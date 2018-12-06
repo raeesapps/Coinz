@@ -3,6 +3,7 @@ package net.raeesaamir.coinz.about;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,8 @@ public class AboutFragment extends Fragment {
     /**
      * The meta information about the app such as why it was built and what it was built for.
      */
-    private static final String ABOUT_TEXT = "Designed and Developed by Raees Aamir @ www.raeesaamir.net.\n\n" +
+    @VisibleForTesting
+    static final String ABOUT_TEXT = "Designed and Developed by Raees Aamir @ www.raeesaamir.net.\n\n" +
             "Coursework specification and GeoJSON data provided by Stephen Gilmore. \n\n" +
             "Coinz is an assessed piece of coursework for the BSc (Hons) Computer Science's Informatics Large Practical(INFR09051) class.";
 

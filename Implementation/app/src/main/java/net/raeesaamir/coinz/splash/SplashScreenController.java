@@ -3,6 +3,7 @@ package net.raeesaamir.coinz.splash;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,7 +23,8 @@ public class SplashScreenController extends AppCompatActivity {
     /**
      * The duration for which the splash screen will appear.
      */
-    private static final int SPLASH_SCREEN_DURATION = 2000;
+    @VisibleForTesting
+    static final int SPLASH_SCREEN_DURATION = 2000;
 
     /**
      * The authenticated user.

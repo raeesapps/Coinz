@@ -1,4 +1,4 @@
-package net.raeesaamir.coinz.splash;
+package net.raeesaamir.coinz.authentication;
 
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import net.raeesaamir.coinz.R;
-import net.raeesaamir.coinz.authentication.LoginController;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,6 +138,121 @@ public class LoginControllerTest {
                                 1),
                         isDisplayed()));
         textView.check(matches(withText("Welcome \ntest!")));
+
+    }
+
+    @Test
+    public void loginControllerInvalidEmailTest() {
+
+        ViewInteraction appCompatEditText = onView(
+                allOf(withId(R.id.email),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0)));
+        appCompatEditText.perform(scrollTo(), replaceText("lo"), closeSoftKeyboard());
+
+        ViewInteraction appCompatEditText2 = onView(
+                allOf(withId(R.id.email), withText("lo"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0)));
+        appCompatEditText2.perform(scrollTo(), replaceText("lol123"));
+
+        ViewInteraction appCompatEditText3 = onView(
+                allOf(withId(R.id.email), withText("lol123"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0),
+                        isDisplayed()));
+        appCompatEditText3.perform(closeSoftKeyboard());
+
+        ViewInteraction appCompatButton = onView(
+                allOf(withId(R.id.authenticate_button), withText("Sign in"),
+                        childAtPosition(
+                                allOf(withId(R.id.email_authentication_form),
+                                        childAtPosition(
+                                                withId(R.id.authentication_form),
+                                                0)),
+                                2)));
+        appCompatButton.perform(scrollTo(), click());
+
+        ViewInteraction editText = onView(
+                allOf(withId(R.id.email), withText("lol123"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0),
+                        isDisplayed()));
+        editText.check(matches(withText("lol123")));
+
+    }
+
+    @Test
+    public void loginControllerInvalidPasswordTest() {
+
+        ViewInteraction appCompatEditText = onView(
+                allOf(withId(R.id.email),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0)));
+        appCompatEditText.perform(scrollTo(), replaceText("lol@"), closeSoftKeyboard());
+
+        ViewInteraction appCompatEditText2 = onView(
+                allOf(withId(R.id.email), withText("lol@"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0)));
+        appCompatEditText2.perform(scrollTo(), replaceText("lol@lol.com"));
+
+        ViewInteraction appCompatEditText3 = onView(
+                allOf(withId(R.id.email), withText("lol@lol.com"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.email_input),
+                                        0),
+                                0),
+                        isDisplayed()));
+        appCompatEditText3.perform(closeSoftKeyboard());
+
+        ViewInteraction appCompatEditText4 = onView(
+                allOf(withId(R.id.password),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("android.support.design.widget.TextInputLayout")),
+                                        0),
+                                0)));
+        appCompatEditText4.perform(scrollTo(), replaceText("ll22"), closeSoftKeyboard());
+
+        ViewInteraction appCompatButton = onView(
+                allOf(withId(R.id.authenticate_button), withText("Sign in"),
+                        childAtPosition(
+                                allOf(withId(R.id.email_authentication_form),
+                                        childAtPosition(
+                                                withId(R.id.authentication_form),
+                                                0)),
+                                2)));
+        appCompatButton.perform(scrollTo(), click());
+
+        ViewInteraction editText = onView(
+                allOf(withId(R.id.password), withText("ll22"),
+                        childAtPosition(
+                                childAtPosition(
+                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        0),
+                                0),
+                        isDisplayed()));
+        editText.check(matches(withText("ll22")));
 
     }
 
