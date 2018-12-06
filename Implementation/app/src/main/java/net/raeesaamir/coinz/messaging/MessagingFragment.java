@@ -2,6 +2,7 @@ package net.raeesaamir.coinz.messaging;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -35,6 +36,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.FirestoreUser;
 import net.raeesaamir.coinz.wallet.Wallet;
+import net.raeesaamir.coinz.wallet.WalletType;
+import net.raeesaamir.coinz.wallet.Wallets;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -127,6 +130,11 @@ public class MessagingFragment extends Fragment {
      */
     private MessageListAdapter simpleMessageListAdapter;
 
+    /**
+     * The loading dialog.
+     */
+    private ProgressDialog dialog;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -137,10 +145,9 @@ public class MessagingFragment extends Fragment {
         this.button = view.findViewById(R.id.button_chatbox_send);
         this.tradeButton = view.findViewById(R.id.button_chatbox_trade);
         this.messageContents = view.findViewById(R.id.edittext_chatbox);
-
-        // Instantiate spinner, set the array adapter from thisUser wallet then add
-        // onClickListener to remove from thisUser wallet
-        // add to otherUser wallet and send a message showing the transaction details.
+        dialog = ProgressDialog.show(context, "",
+                "Loading. Please wait...", true);
+        dialog.show();
         listen(Objects.requireNonNull(getActivity()).getIntent().getStringExtra("username"));
     }
 
@@ -213,6 +220,10 @@ public class MessagingFragment extends Fragment {
 
                 setOnSend();
                 populateMessages();
+
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
             }
 
         });
@@ -251,14 +262,14 @@ public class MessagingFragment extends Fragment {
 
                 long date = new Date().getTime();
                 String dateFormatted = DATE_FORMATTER.format(date);
-                Wallet.loadWallet(mUser.getUid(), dateFormatted, Wallet.WalletType.SPARE_CHANGE_WALLET, (Wallet wallet) -> tradeButton.setOnClickListener((View view) -> {
+                Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.SPARE_CHANGE_WALLET, (Wallet wallet) -> tradeButton.setOnClickListener((View view) -> {
                     List<String> coinsList = wallet.getCoins();
 
                     String[] coins = coinsList.toArray(new String[coinsList.size()]);
                     boolean[] selectedItems = new boolean[coins.length];
 
                     AlertDialog alertDialog = new AlertDialog.Builder(context)
-                            .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, Wallet.WalletType.MAIN_WALLET, (Wallet otherWallet) -> {
+                            .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, WalletType.MAIN_WALLET, (Wallet otherWallet) -> {
 
                                 for (int i = 0; i < selectedItems.length; i++) {
                                     if (selectedItems[i]) {
@@ -283,7 +294,7 @@ public class MessagingFragment extends Fragment {
                                     }
                                 }
 
-                                Wallet.WalletSingleton.setOtherWallet(null);
+                                Wallets.setOtherWallet(null);
 
                             }, true)).setNegativeButton("Decline", (DialogInterface dialogInterface, int i) -> {
 

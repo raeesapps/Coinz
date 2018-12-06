@@ -8,7 +8,7 @@ import android.view.MenuItem;
 
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.menu.MenuFragment;
-import net.raeesaamir.coinz.messaging.MessagingFragment;
+import net.raeesaamir.coinz.messaging.UserListFragment;
 
 import java.util.Objects;
 
@@ -38,8 +38,8 @@ public class WalletController extends AppCompatActivity {
                 case R.id.wallet_nav_home:
                     selectedFragment = new MenuFragment();
                     break;
-                case R.id.wallet_nav_messaging:
-                    selectedFragment = new MessagingFragment();
+                case R.id.wallet_nav_user_list:
+                    selectedFragment = new UserListFragment();
                     break;
                 case R.id.wallet_nav_wallet:
                     selectedFragment = new WalletFragment();

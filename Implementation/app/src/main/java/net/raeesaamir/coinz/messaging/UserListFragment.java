@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,6 +50,11 @@ public class UserListFragment extends Fragment {
      */
     private FirebaseUser mUser;
 
+    /**
+     * The loading dialog.
+     */
+    private ProgressDialog dialog;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,6 +67,9 @@ public class UserListFragment extends Fragment {
         this.view = view;
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         this.mUser = mAuth.getCurrentUser();
+        dialog = ProgressDialog.show(context, "",
+                "Loading. Please wait...", true);
+        dialog.show();
         populateUserList();
     }
 
@@ -103,6 +112,8 @@ public class UserListFragment extends Fragment {
                     startActivity(intent);
                 });
             }
+
+            dialog.dismiss();
         });
     }
 

@@ -1,10 +1,13 @@
 package net.raeesaamir.coinz.game;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 import com.google.common.base.MoreObjects;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+
+import net.raeesaamir.coinz.DownloadFileTask;
 
 import java.util.concurrent.ExecutionException;
 
@@ -19,35 +22,29 @@ public final class FeatureCollection {
      * The url where the maps are stored.
      */
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
-
     /**
      * The type of JSON object.
      */
     private final String type;
-
     /**
      * The date the map was generated
      */
     @SerializedName("date-generated")
     private final String dateGenerated;
-
     /**
      * The time the map was generated
      */
     @SerializedName("time-generated")
     private final String timeGenerated;
-
     /**
      * The time left.
      */
     @SerializedName("approximate-time-remaining")
     private final String approximateTimeRemaining;
-
     /**
      * Today's exchange rates of the types of coins on the map.
      */
     private final ExchangeRates rates;
-
     /**
      * Features of the markers on the map.
      */
@@ -63,7 +60,7 @@ public final class FeatureCollection {
      * @param rates                    - The exchange rates
      * @param features                 - The features of the markers
      */
-    public FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ExchangeRates rates, Feature[] features) {
+    private FeatureCollection(String type, String dateGenerated, String timeGenerated, String approximateTimeRemaining, ExchangeRates rates, Feature[] features) {
         this.type = type;
         this.dateGenerated = dateGenerated;
         this.timeGenerated = timeGenerated;
@@ -82,23 +79,25 @@ public final class FeatureCollection {
      * @throws ExecutionException   If the download fails
      * @throws InterruptedException If something disrupts the download from happening smoothly.
      */
-    public static FeatureCollection fromWebsite(SharedPreferences preferences, Gson gson, String date) throws ExecutionException, InterruptedException {
+    @SuppressLint("ApplySharedPref")
+    public static FeatureCollection fromWebsite(SharedPreferences preferences, Gson gson, String uid, String date) throws ExecutionException, InterruptedException {
 
         String url = FEATURE_COLLECTION_URL + date + "/coinzmap.geojson";
         FeatureCollection featureCollection;
+        String key = uid + "/" + date;
 
-        if (preferences.contains(date)) {
-            String json = preferences.getString(date, "");
+        if (preferences.contains(key)) {
+            String json = preferences.getString(key, "");
             System.out.println("[FeatureCollection json not null] " + json);
             featureCollection = gson.fromJson(json, FeatureCollection.class);
 
         } else {
-            featureCollection = new GameFragment.GeoJsonDownloadTask().execute(url).get();
+
+            featureCollection = new GeoJsonDownloadTask().execute(url).get();
             String json = gson.toJson(featureCollection);
             System.out.println("[FeatureCollection json not exists] " + json);
-            preferences.edit().putString(date, json).commit();
+            preferences.edit().putString(key, json).commit();
         }
-
         return featureCollection;
     }
 
@@ -128,81 +127,16 @@ public final class FeatureCollection {
     }
 
     /**
-     * Represents the exchange rates of each type of coin on the map.
+     * Decodes the feature collection data into an object for easy access of the information.
      *
      * @author raeesaamir
      */
-    public static class ExchangeRates {
-
-        /**
-         * The exchange rate of shil to gold.
-         */
-        @SuppressWarnings("unused")
-        @SerializedName("SHIL")
-        private double shil;
-
-        /**
-         * The exchange rate of dolr to gold.
-         */
-        @SuppressWarnings("unused")
-        @SerializedName("DOLR")
-        private double dolr;
-
-        /**
-         * The exchange rate of quid to gold.
-         */
-        @SuppressWarnings("unused")
-        @SerializedName("QUID")
-        private double quid;
-
-        /**
-         * The exchange rate of peny to gold.
-         */
-        @SuppressWarnings("unused")
-        @SerializedName("PENY")
-        private double peny;
+    protected static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
 
         @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).add("shil", shil)
-                    .add("dolr", dolr).add("quid", quid).add("peny", peny)
-                    .toString();
-        }
+        public FeatureCollection readStream(String json) {
 
-        /**
-         * Returns the dolr exchange rate.
-         *
-         * @return The dolr exchange rate.
-         */
-        public double getDolr() {
-            return dolr;
-        }
-
-        /**
-         * Returns the peny exchange rate.
-         *
-         * @return The peny exchange rate.
-         */
-        public double getPeny() {
-            return peny;
-        }
-
-        /**
-         * Returns the quid exchange rate.
-         *
-         * @return The quid exchange rate.
-         */
-        public double getQuid() {
-            return quid;
-        }
-
-        /**
-         * Returns the shil exchange rate.
-         *
-         * @return The shil exchange rate.
-         */
-        public double getShil() {
-            return shil;
+            return new Gson().fromJson(json, FeatureCollection.class);
         }
     }
 }

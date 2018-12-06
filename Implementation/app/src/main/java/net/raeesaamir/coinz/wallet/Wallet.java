@@ -145,22 +145,22 @@ public class Wallet extends Container {
         DocumentReference reference = wallets.document();
 
         if (otherPlayer) {
-            if (WalletSingleton.otherWallet != null) {
+            if (Wallets.getOtherWallet() != null) {
                 System.out.println("[Wallet] not null!");
-                listener.onComplete(WalletSingleton.otherWallet);
+                listener.onComplete(Wallets.getOtherWallet());
                 return;
             }
         } else {
             if (walletType.equals(WalletType.MAIN_WALLET)) {
-                if (WalletSingleton.wallet != null) {
+                if (Wallets.getWallet() != null) {
                     System.out.println("[Wallet] not null!");
-                    listener.onComplete(WalletSingleton.wallet);
+                    listener.onComplete(Wallets.getWallet());
                     return;
                 }
             } else {
-                if (WalletSingleton.spareWallet != null) {
+                if (Wallets.getSpareWallet() != null) {
                     System.out.println("[Wallet] not null!");
-                    listener.onComplete(WalletSingleton.spareWallet);
+                    listener.onComplete(Wallets.getSpareWallet());
                     return;
                 }
             }
@@ -199,12 +199,12 @@ public class Wallet extends Container {
                 }
 
                 if (otherPlayer) {
-                    WalletSingleton.setOtherWallet(wallet);
+                    Wallets.setOtherWallet(wallet);
                 } else {
                     if (walletType.equals(WalletType.MAIN_WALLET)) {
-                        WalletSingleton.setWallet(wallet);
+                        Wallets.setWallet(wallet);
                     } else {
-                        WalletSingleton.setSpareWallet(wallet);
+                        Wallets.setSpareWallet(wallet);
                     }
                 }
                 listener.onComplete(wallet);
@@ -265,25 +265,6 @@ public class Wallet extends Container {
     }
 
     /**
-     * Represent's the type of wallet.
-     *
-     * @author raeesaamir
-     */
-    public enum WalletType {
-
-        /**
-         * If a wallet is the main wallet then the coins the player collects will go there.
-         */
-        MAIN_WALLET,
-
-        /**
-         * If the wallet is a spare change wallet then the coins the player cannot collect will go there.
-         * The player can trade coins in his/her spare change wallet to other players.
-         */
-        SPARE_CHANGE_WALLET
-    }
-
-    /**
      * Represents the listener that is called when the wallet is loaded.
      *
      * @author raeesaamir
@@ -296,55 +277,5 @@ public class Wallet extends Container {
          * @param wallet - The wallet object.
          */
         void onComplete(Wallet wallet);
-    }
-
-    /**
-     * Stores singleton instances of the player's wallet and the other player's wallet.
-     *
-     * @author raeesaamir
-     */
-    public static class WalletSingleton {
-
-        /**
-         * This player's wallet.
-         */
-        private static Wallet wallet = null;
-
-        /**
-         * This player's spare wallet.
-         */
-        private static Wallet spareWallet = null;
-
-        /**
-         * The other player's wallet.
-         */
-        private static Wallet otherWallet = null;
-
-        /**
-         * Sets this player's wallet.
-         *
-         * @param wallet - The wallet object.
-         */
-        public static void setWallet(Wallet wallet) {
-            WalletSingleton.wallet = wallet;
-        }
-
-        /**
-         * Sets this player's spare change wallet.
-         *
-         * @param spareWallet - The wallet object.
-         */
-        public static void setSpareWallet(Wallet spareWallet) {
-            WalletSingleton.spareWallet = spareWallet;
-        }
-
-        /**
-         * Sets the other player's wallet.
-         *
-         * @param otherWallet - The wallet object to set.
-         */
-        public static void setOtherWallet(Wallet otherWallet) {
-            WalletSingleton.otherWallet = otherWallet;
-        }
     }
 }

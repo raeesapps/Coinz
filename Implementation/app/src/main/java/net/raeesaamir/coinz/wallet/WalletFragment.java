@@ -100,7 +100,7 @@ public class WalletFragment extends Fragment {
         String dateFormatted = DATE_FORMATTER.format(date);
 
         try {
-            featureCollection = FeatureCollection.fromWebsite(sharedPreferences, gson, dateFormatted);
+            featureCollection = FeatureCollection.fromWebsite(sharedPreferences, gson, mAuth.getUid(), dateFormatted);
         } catch (Exception e) {
             e.printStackTrace();
         }

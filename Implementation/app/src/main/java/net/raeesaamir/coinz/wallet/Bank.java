@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import net.raeesaamir.coinz.game.Container;
-import net.raeesaamir.coinz.game.FeatureCollection;
+import net.raeesaamir.coinz.game.ExchangeRates;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class Bank extends Container {
      *
      * @param userUid - The player's UUID.
      */
-    public Bank(String userUid) {
+    Bank(String userUid) {
         this.userUid = userUid;
     }
 
@@ -62,7 +62,7 @@ public class Bank extends Container {
      * @param coin          - The coin to deposit.
      * @param wallet        - The wallet the coin is from.
      */
-    public void deposit(FeatureCollection.ExchangeRates exchangeRates, String coin, Wallet wallet) {
+    public void deposit(ExchangeRates exchangeRates, String coin, Wallet wallet) {
         wallet.removeCoin(coin);
 
         String[] coinAttributes = coin.split(" ");

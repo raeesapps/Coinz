@@ -9,9 +9,9 @@
         android:title="@string/wallet_nav_home" />
 
     <item
-        android:id="@+id/wallet_nav_messaging"
-        android:icon="@drawable/messaging_24dp"
-        android:title="@string/wallet_nav_game" />
+        android:id="@+id/wallet_nav_user_list"
+        android:icon="@drawable/leaderboard_24dp"
+        android:title="@string/wallet_nav_user_list" />
 
 
     <item

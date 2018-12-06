@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.leaderboard;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,8 +45,14 @@ public class LeaderboardFragment extends Fragment {
     private View view;
 
     /**
+     * The loading dialog.
+     */
+    private ProgressDialog dialog;
+
+    /**
      * Used to sort the leaderboard according to the number of coins each user has
-     * @param t - The number of coins this user has
+     *
+     * @param t  - The number of coins this user has
      * @param t1 - The number of coins the other user has.
      * @return A sorting value.
      */
@@ -63,6 +70,9 @@ public class LeaderboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
+        dialog = ProgressDialog.show(context, "",
+                "Loading. Please wait...", true);
+        dialog.show();
         populateScores();
     }
 
@@ -107,7 +117,7 @@ public class LeaderboardFragment extends Fragment {
 
                 for (DocumentSnapshot snapshot : Objects.requireNonNull(userTask.getResult())) {
 
-                    if(!snapshot.contains("uid") || !snapshot.contains("displayName")) {
+                    if (!snapshot.contains("uid") || !snapshot.contains("displayName")) {
                         continue;
                     }
 
@@ -128,6 +138,7 @@ public class LeaderboardFragment extends Fragment {
                 scoresView.setAdapter(integerArrayAdapter);
 
             });
+            dialog.dismiss();
         });
     }
 

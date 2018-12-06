@@ -4,18 +4,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/messaging_nav_home"
+        android:id="@+id/user_list_nav_home"
         android:icon="@drawable/home_24dp"
         android:title="@string/user_list_nav_home" />
 
     <item
-        android:id="@+id/messaging_nav_users"
+        android:id="@+id/user_list_nav_users"
         android:icon="@drawable/messaging_24dp"
         android:title="@string/user_list_nav_user_list" />
 
 
     <item
-        android:id="@+id/messaging_nav_game"
+        android:id="@+id/user_list_nav_game"
         android:icon="@drawable/game_24dp"
         android:title="@string/user_list_nav_game" />
 </menu>

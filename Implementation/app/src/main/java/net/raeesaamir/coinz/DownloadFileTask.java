@@ -2,18 +2,24 @@ package net.raeesaamir.coinz;
 
 import android.os.AsyncTask;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.Objects;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
- * An asynchronous file downloader that has a read callback.
+ * An asynchronous file downloader that has a read callback. Based on the code from journaldev.com/13629/okhttp-android-example-tutorial
  *
  * @param <T> - The type of object to decode the stream into.
  * @author raeesaamir
  */
 public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
+
+    /**
+     * The HTTP client used for downloading the data.
+     */
+    private final OkHttpClient client = new OkHttpClient();
 
     /**
      * Decodes the stream into an object of type T.
@@ -24,27 +30,15 @@ public abstract class DownloadFileTask<T> extends AsyncTask<String, Void, T> {
     protected abstract T readStream(String inputStream);
 
     @Override
-    protected T doInBackground(String... strings) {
+    protected T doInBackground(String... params) {
+
+        Request.Builder builder = new Request.Builder();
+        builder.url(params[0]);
+        Request request = builder.build();
+
         try {
-            URL url = new URL(strings[0]);
-            URLConnection connection = url.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            connection.setDoInput(true);
-            if (connection instanceof HttpURLConnection) {
-                HttpURLConnection httpConnection = (HttpURLConnection) connection;
-                httpConnection.setRequestMethod("GET");
-            }
-
-            InputStream inputStream = connection.getInputStream();
-            StringBuilder document = new StringBuilder();
-
-            int ptr;
-            while ((ptr = inputStream.read()) != -1) {
-                document.append((char) ptr);
-            }
-
-            return readStream(document.toString());
+            Response response = client.newCall(request).execute();
+            return readStream(Objects.requireNonNull(response.body()).string());
         } catch (Exception e) {
             e.printStackTrace();
         }

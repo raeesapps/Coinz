@@ -1,6 +1,7 @@
 package net.raeesaamir.coinz.game;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -41,9 +42,9 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
-import net.raeesaamir.coinz.DownloadFileTask;
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.wallet.Wallet;
+import net.raeesaamir.coinz.wallet.WalletType;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -121,6 +122,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private FeatureCollection featureCollection;
 
     /**
+     * The loading dialog.
+     */
+    private ProgressDialog dialog;
+
+    /**
      * Today's date formatted using the date formatter.
      */
     private String dateFormatted;
@@ -147,7 +153,10 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
         SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         try {
-            featureCollection = FeatureCollection.fromWebsite(preferences, gson, dateFormatted);
+            dialog = ProgressDialog.show(context, "",
+                    "Loading. Please wait...", true);
+            dialog.show();
+            featureCollection = FeatureCollection.fromWebsite(preferences, gson, mAuth.getUid(), dateFormatted);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -228,11 +237,11 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                     continue;
                 }
 
-                Feature.Geometry geometry = feature.getGeometry();
+                Geometry geometry = feature.getGeometry();
                 double longitude = geometry.getCoordinates()[0];
                 double latitude = geometry.getCoordinates()[1];
 
-                Feature.Properties properties = feature.getProperties();
+                Properties properties = feature.getProperties();
                 String markerColor = properties.getMarkerColor();
                 int resource = -1;
                 switch (markerColor) {
@@ -266,7 +275,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 Preconditions.checkArgument(markerFeatureMap.containsKey(marker));
 
                 Feature feature = markerFeatureMap.get(marker);
-                Feature.Properties properties = feature.getProperties();
+                Properties properties = feature.getProperties();
                 String value = properties.getValue() + " " + properties.getCurrency().toLowerCase();
 
                 Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
@@ -274,6 +283,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             });
 
             enableLocation();
+            dialog.dismiss();
         }
 
     }
@@ -314,8 +324,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         locationEngine.setFastestInterval(1000);
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.activate();
-
-        locationEngine.requestLocationUpdates();
 
         Location lastLocation = locationEngine.getLastLocation();
         if (lastLocation != null) {
@@ -358,6 +366,18 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         if (location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
         } else {
+            long dateNowNum = new Date().getTime();
+            String dateNow = DATE_FORMATTER.format(dateNowNum);
+
+            if (!dateNow.equals(dateFormatted)) {
+                Objects.requireNonNull(getFragmentManager()).findFragmentById(R.id.fragment_container);
+
+                getFragmentManager().beginTransaction()
+                        .detach(this)
+                        .attach(this)
+                        .commit();
+            }
+
             Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
                 System.out.println("[onLocationChanged] callback called!");
                 Log.d(tag, "[onLocationChanged] location is not null");
@@ -365,38 +385,41 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 setCameraPosition(location);
 
                 LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
-                boolean isPlayerAtMarker = locationChangedEvent.atMarker;
-                System.out.println("PLAYER AT MARKER: " + isPlayerAtMarker);
-                if (isPlayerAtMarker) {
+                System.out.println("PLAYER AT MARKER: " + locationChangedEvent.atMarker);
+                if (locationChangedEvent.atMarker) {
                     List<String> coins = wallet.getCoins();
 
-                    Marker marker = featureMarkerMap.get(locationChangedEvent.feature);
-                    map.removeMarker(marker);
+                    locationChangedEvent.featureMap.forEach((indexOfFeature, feature) -> {
 
-                    Feature[] features = featureCollection.getFeatures();
-                    Feature.Properties properties = features[locationChangedEvent.indexOfFeature].getProperties();
-                    String currency = properties.getCurrency();
-                    String value = properties.getValue();
+                        Marker marker = featureMarkerMap.get(feature);
+                        map.removeMarker(marker);
 
-                    features[locationChangedEvent.indexOfFeature] = null;
-                    String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
-                    SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-                    Gson gson = new Gson();
-                    String jSONDocument = gson.toJson(featureCollection);
-                    preferences.edit().putString(dateFormatted, jSONDocument).commit();
+                        Feature[] features = featureCollection.getFeatures();
+                        Properties properties = features[indexOfFeature].getProperties();
+                        String currency = properties.getCurrency();
+                        String value = properties.getValue();
 
-                    if (coins.size() == 25) {
-                        Wallet.loadWallet(mUser.getUid(), dateFormatted, Wallet.WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
-                            spareChangeWallet.addCoin(currency + " " + value);
+                        features[indexOfFeature] = null;
+                        String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
+                        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jSONDocument = gson.toJson(featureCollection);
+                        String key = mUser.getUid() + "/" + dateFormatted;
+                        preferences.edit().putString(key, jSONDocument).commit();
+
+                        if (coins.size() == 25) {
+                            Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
+                                spareChangeWallet.addCoin(currency + " " + value);
+                                System.out.println("[GameFragment]: " + currency + " " + value);
+                                spareChangeWallet.getFuture();
+                            });
+                            Toast.makeText(getActivity(), "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
+                        } else {
+                            wallet.addCoin(currency + " " + value);
                             System.out.println("[GameFragment]: " + currency + " " + value);
-                            spareChangeWallet.getFuture();
-                        });
-                        Toast.makeText(getActivity(), "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
-                    } else {
-                        wallet.addCoin(currency + " " + value);
-                        System.out.println("[GameFragment]: " + currency + " " + value);
-                        wallet.getFuture();
-                    }
+                            wallet.getFuture();
+                        }
+                    });
 
                 }
             });
@@ -410,32 +433,28 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
      * @return If there's a marker at the player's location then a LocationChangedEvent containing the Feature and the Feature's index will be returned; otherwise, an empty LocationChangedEvent will be returned.
      */
     private LocationChangedEvent onPlayerChangesLocation(Location playerLocation) {
+        Map<Integer, Feature> featureMap = Maps.newHashMap();
         Feature[] features = featureCollection.getFeatures();
+        LatLng playerLatLng = new LatLng(playerLocation.getLatitude(), playerLocation.getLongitude());
         for (int i = 0; i < features.length; i++) {
+
             Feature feature = features[i];
 
             if (feature == null) {
                 continue;
             }
 
-            Feature.Geometry geometry = feature.getGeometry();
-            double longitude = geometry.getCoordinates()[0];
-            double latitude = geometry.getCoordinates()[1];
+            Geometry geometry = feature.getGeometry();
+            LatLng featureLatLng = new LatLng(geometry.getCoordinates()[1], geometry.getCoordinates()[0]);
 
-            System.out.println("LATITUDE: " + latitude);
-            System.out.println("LONGITUDE: " + longitude);
+            Log.i("[onPlayerChangesLocation] distance: ", Double.toString(featureLatLng.distanceTo(playerLatLng)));
 
-            double latitudeDelta = Math.abs(playerLocation.getLatitude() - latitude);
-            double longitudeDelta = Math.abs(playerLocation.getLongitude() - longitude);
-
-            System.out.println("LATITUDE DELTA: " + latitudeDelta);
-            System.out.println("LONGITUDE DELTA " + longitudeDelta);
-
-            if (latitudeDelta < 0.0004 && longitudeDelta < 0.0004)
-                return new LocationChangedEvent(feature, i, true);
+            if (featureLatLng.distanceTo(playerLatLng) <= 25) {
+                featureMap.put(i, feature);
+            }
         }
 
-        return new LocationChangedEvent(null, -1, false);
+        return new LocationChangedEvent(featureMap, featureMap.size() > 0);
     }
 
     @Override
@@ -473,14 +492,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private static class LocationChangedEvent {
 
         /**
-         * The information of the marker the player has walked to. If there is no marker at the player's location this will be null.
+         * The information of the markers the player has walked to.
          */
-        private final Feature feature;
-
-        /**
-         * Index of the feature in the FeatureCollection's Feature array.
-         */
-        private final int indexOfFeature;
+        private final Map<Integer, Feature> featureMap;
 
         /**
          * If the player is at a marker on the map, this will be true.
@@ -490,28 +504,12 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         /**
          * Constructs a new LocationChangedEvent instance.
          *
-         * @param feature        - The feature at the player's location
-         * @param indexOfFeature - Index of value.
-         * @param atMarker       - A boolean value of the player being at a marker on the map.
+         * @param featureMap - The features of the markers the player has visited.
+         * @param atMarker   - A boolean value of the player being at a marker on the map.
          */
-        LocationChangedEvent(Feature feature, int indexOfFeature, boolean atMarker) {
-            this.feature = feature;
-            this.indexOfFeature = indexOfFeature;
+        LocationChangedEvent(Map<Integer, Feature> featureMap, boolean atMarker) {
+            this.featureMap = featureMap;
             this.atMarker = atMarker;
-        }
-    }
-
-    /**
-     * Decodes the feature collection data into an object for easy access of the information.
-     *
-     * @author raeesaamir
-     */
-    public static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
-
-        @Override
-        public FeatureCollection readStream(String jSONDocument) {
-
-            return new Gson().fromJson(jSONDocument, FeatureCollection.class);
         }
     }
 }

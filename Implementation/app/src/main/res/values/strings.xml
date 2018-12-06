@@ -32,7 +32,7 @@
     <string name="share_fragment_share_title_text">Share Your Achievements!</string>
 
     <!--Strings related to wallet-->
-    <string name="wallet_fragment_bank_loading_text">Bank Loading…</string>
+    <string name="wallet_fragment_bank_loading_text">Loading…</string>
 
     <!--Strings related to messaging-->
     <string name="messaging_fragment_send_button_text">Send</string>
@@ -73,12 +73,12 @@
     <string name="share_nav_game">Game</string>
 
     <string name="user_list_nav_home">Home</string>
-    <string name="user_list_nav_user_list">User List</string>
+    <string name="user_list_nav_user_list">Users</string>
     <string name="user_list_nav_game">Game</string>
 
     <string name="wallet_nav_home">Home</string>
     <string name="wallet_nav_wallet">Wallet</string>
-    <string name="wallet_nav_game">Game</string>
+    <string name="wallet_nav_user_list">Users</string>
 
     <!--Strings related to mapbox-->
     <string name="mapbox_access_token">pk.eyJ1IjoiczE2MTc5MTAiLCJhIjoiY2pubG1zdWRsMTh0MTNwdGQ1Znp6NXRoNCJ9.Gl6nGxiyoJI6rbUo6L6orQ</string>

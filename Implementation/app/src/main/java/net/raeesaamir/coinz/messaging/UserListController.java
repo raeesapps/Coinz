@@ -35,13 +35,13 @@ public class UserListController extends AppCompatActivity {
             Fragment selectedFragment = null;
 
             switch (item.getItemId()) {
-                case R.id.messaging_nav_users:
+                case R.id.user_list_nav_users:
                     selectedFragment = new UserListFragment();
                     break;
-                case R.id.messaging_nav_home:
+                case R.id.user_list_nav_home:
                     selectedFragment = new MenuFragment();
                     break;
-                case R.id.messaging_nav_game:
+                case R.id.user_list_nav_game:
                     selectedFragment = new GameFragment();
                     break;
             }
