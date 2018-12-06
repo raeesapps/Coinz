@@ -141,15 +141,16 @@ class FirebaseMessage {
             return false;
         }
 
-        if (!(obj instanceof FirebaseMessage)) {
+        if (obj instanceof FirebaseMessage) {
+
+            FirebaseMessage otherMsg = (FirebaseMessage) obj;
+            return Objects.equal(messageText, otherMsg.messageText) &&
+                    Objects.equal(messageFromUser, otherMsg.messageFromUser) &&
+                    Objects.equal(messageToUser, otherMsg.messageToUser) &&
+                    Objects.equal(messageTime, otherMsg.messageTime);
+        } else {
             return false;
         }
-
-        FirebaseMessage otherMsg = (FirebaseMessage) obj;
-        return Objects.equal(messageText, otherMsg.messageText) &&
-                Objects.equal(messageFromUser, otherMsg.messageFromUser) &&
-                Objects.equal(messageToUser, otherMsg.messageToUser) &&
-                Objects.equal(messageTime, otherMsg.messageTime);
     }
 
     @Override

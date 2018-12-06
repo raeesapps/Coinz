@@ -1,5 +1,8 @@
 package net.raeesaamir.coinz.game;
 
+import android.support.annotation.VisibleForTesting;
+
+import com.google.common.base.Objects;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -12,34 +15,34 @@ public final class Properties {
     /**
      * The UUID of the coin
      */
-    @SuppressWarnings("unused")
-    private String id;
+    @VisibleForTesting
+    String id;
 
     /**
      * The monetary value of the coin
      */
-    @SuppressWarnings("unused")
-    private String value;
+    @VisibleForTesting
+    String value;
 
     /**
      * The currency of the monetary value
      */
-    @SuppressWarnings("unused")
-    private String currency;
+    @VisibleForTesting
+    String currency;
 
     /**
      * The symbol of the marker
      */
-    @SuppressWarnings("unused")
+    @VisibleForTesting
     @SerializedName("marker-symbol")
-    private String markerSymbol;
+    String markerSymbol;
 
     /**
      * The color of the marker
      */
-    @SuppressWarnings("unused")
+    @VisibleForTesting
     @SerializedName("marker-color")
-    private String markerColor;
+    String markerColor;
 
     /**
      * Gets the monetary value
@@ -66,5 +69,26 @@ public final class Properties {
      */
     public String getMarkerColor() {
         return markerColor;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+
+        if(obj instanceof Properties) {
+            Properties otherProperties = (Properties) obj;
+            return Objects.equal(id, otherProperties.id) && Objects.equal(value, otherProperties.value) &&
+                    Objects.equal(currency, otherProperties.currency) && Objects.equal(markerColor, otherProperties.markerColor)
+                    && Objects.equal(markerSymbol, otherProperties.markerSymbol);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, value, currency, markerColor, markerSymbol);
     }
 }

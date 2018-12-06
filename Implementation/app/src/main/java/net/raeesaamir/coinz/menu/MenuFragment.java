@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,7 +24,6 @@ import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.LoginController;
 import net.raeesaamir.coinz.wallet.Wallets;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,9 +34,9 @@ import java.util.List;
 public class MenuFragment extends Fragment {
 
     /**
-     * The menu items from the enum held as a list.
+     * The menu items from the enum held as an immutable set.
      */
-    private static final List<MenuItem> MENU_ITEMS = Arrays.asList(MenuItem.values());
+    private static final ImmutableSet<MenuItem> MENU_ITEMS = ImmutableSet.copyOf(MenuItem.values());
 
     /**
      * The prefix of the welcome message.

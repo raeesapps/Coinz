@@ -218,17 +218,18 @@ public class Wallet extends Container {
             return false;
         }
 
-        if (!(obj instanceof Wallet)) {
+        if (obj instanceof Wallet) {
+            Wallet otherWallet = (Wallet) obj;
+            return Objects.equal(this.date, otherWallet.date) && Objects.equal(this.userUid, otherWallet.userUid)
+                    && Objects.equal(this.coins, otherWallet.coins) && Objects.equal(this.walletType, otherWallet.walletType);
+        } else {
             return false;
         }
-
-        Wallet otherWallet = (Wallet) obj;
-        return Objects.equal(this.date, otherWallet.date) && Objects.equal(this.userUid, otherWallet.userUid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(date, userUid);
+        return Objects.hashCode(date, userUid, walletType, coins);
     }
 
     /**

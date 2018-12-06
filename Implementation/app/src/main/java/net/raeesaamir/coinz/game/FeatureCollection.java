@@ -2,6 +2,7 @@ package net.raeesaamir.coinz.game;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.support.annotation.VisibleForTesting;
 
 import com.google.common.base.MoreObjects;
 import com.google.gson.Gson;
@@ -30,17 +31,20 @@ public final class FeatureCollection {
      * The date the map was generated
      */
     @SerializedName("date-generated")
-    private final String dateGenerated;
+    @VisibleForTesting
+    final String dateGenerated;
     /**
      * The time the map was generated
      */
     @SerializedName("time-generated")
-    private final String timeGenerated;
+    @VisibleForTesting
+    final String timeGenerated;
     /**
      * The time left.
      */
     @SerializedName("approximate-time-remaining")
-    private final String approximateTimeRemaining;
+    @VisibleForTesting
+    final String approximateTimeRemaining;
     /**
      * Today's exchange rates of the types of coins on the map.
      */

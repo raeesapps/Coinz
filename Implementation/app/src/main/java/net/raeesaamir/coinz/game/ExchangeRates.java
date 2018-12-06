@@ -1,5 +1,7 @@
 package net.raeesaamir.coinz.game;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 
@@ -13,30 +15,30 @@ public final class ExchangeRates {
     /**
      * The exchange rate of shil to gold.
      */
-    @SuppressWarnings("unused")
+    @VisibleForTesting
     @SerializedName("SHIL")
-    private double shil;
+    double shil;
 
     /**
      * The exchange rate of dolr to gold.
      */
-    @SuppressWarnings("unused")
+    @VisibleForTesting
     @SerializedName("DOLR")
-    private double dolr;
+    double dolr;
 
     /**
      * The exchange rate of quid to gold.
      */
-    @SuppressWarnings("unused")
+    @VisibleForTesting
     @SerializedName("QUID")
-    private double quid;
+    double quid;
 
     /**
      * The exchange rate of peny to gold.
      */
-    @SuppressWarnings("unused")
+    @VisibleForTesting
     @SerializedName("PENY")
-    private double peny;
+    double peny;
 
     @Override
     public String toString() {

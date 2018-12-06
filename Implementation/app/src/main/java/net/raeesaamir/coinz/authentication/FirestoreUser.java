@@ -80,13 +80,14 @@ public class FirestoreUser extends FirestoreDocument {
             return false;
         }
 
-        if (!(obj instanceof FirestoreUser)) {
+        if (obj instanceof FirestoreUser) {
+
+            FirestoreUser otherUsr = (FirestoreUser) obj;
+            return Objects.equal(email, otherUsr.email) && Objects.equal(uid, otherUsr.uid)
+                    && Objects.equal(displayName, otherUsr.displayName);
+        } else {
             return false;
         }
-
-        FirestoreUser otherUsr = (FirestoreUser) obj;
-        return Objects.equal(email, otherUsr.email) && Objects.equal(uid, otherUsr.uid)
-                && Objects.equal(displayName, otherUsr.displayName);
     }
 
     @Override
