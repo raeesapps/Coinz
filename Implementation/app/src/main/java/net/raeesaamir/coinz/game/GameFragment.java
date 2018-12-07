@@ -1,11 +1,13 @@
 package net.raeesaamir.coinz.game;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -14,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,8 +32,6 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
@@ -62,13 +63,15 @@ import java.util.Objects;
  *
  * @author raeesaamir
  */
-public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
+public class GameFragment extends Fragment implements OnMapReadyCallback, LocationEngineListener {
 
     /**
      * The date format used in the map's GeoJSON file and the player's wallet.
      */
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     /**
      * The unique identifier of the shared preferences object
@@ -308,15 +311,15 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
      * Initializes the location engine and location layer if the permissions are granted otherwise it requests permission from the player.
      */
     private void enableLocation() {
-        if (PermissionsManager.areLocationPermissionsGranted(context)) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d(tag, "Permissions are granted");
             initializeLocationEngine();
             initializeLocationLayer();
 
         } else {
             Log.d(tag, "Permissions are not granted");
-            PermissionsManager permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(activity);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
         }
     }
 
@@ -369,11 +372,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onConnected() {
         Log.d(tag, "[onConnected] requesting location update");
         locationEngine.requestLocationUpdates();
-    }
-
-    @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Log.d(tag, "Permissions: " + permissionsToExplain.toString());
     }
 
     @Override
@@ -451,13 +449,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        Log.d(tag, "[onRequestPermissionsResult]");
-    }
-
     /**
      * Called when the player moves somewhere else on the map. If there is no marker at the player's location.
      *
@@ -490,11 +481,22 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     }
 
     @Override
-    public void onPermissionResult(boolean granted) {
-        Log.d(tag, "[onPermissionResult] granted == " + granted);
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.d(tag, "[onRequestPermissionsResult]");
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(context,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
 
-        if (granted) {
-            enableLocation();
+                        enableLocation();
+                    }
+                }
+            }
+
         }
     }
 
