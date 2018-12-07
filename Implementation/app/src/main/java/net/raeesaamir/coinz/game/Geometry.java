@@ -43,7 +43,7 @@ public final class Geometry {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 

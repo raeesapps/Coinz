@@ -1,6 +1,9 @@
 package net.raeesaamir.coinz;
 
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
@@ -11,6 +14,26 @@ import com.mapbox.mapboxsdk.Mapbox;
  */
 @SuppressWarnings("WeakerAccess")
 public class CoinzApplication extends Application {
+
+    /**
+     * Checks if there is an available internet connection to send and receive requests.
+     * <p>
+     * This code is taken from https://stackoverflow.com/questions/39762423/checking-if-there-is-internet-connection
+     *
+     * @param context - The application context.
+     * @return True or false depending on whether there is a connection.
+     */
+    public static boolean isInternetConnectionAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo;
+        if (connectivityManager != null) {
+            activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo.isConnected();
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public void onCreate() {

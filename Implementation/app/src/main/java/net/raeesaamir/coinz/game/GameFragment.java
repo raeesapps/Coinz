@@ -1,6 +1,7 @@
 package net.raeesaamir.coinz.game;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +44,9 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
+import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.menu.MenuFragment;
 import net.raeesaamir.coinz.wallet.Wallet;
 import net.raeesaamir.coinz.wallet.WalletType;
 
@@ -87,9 +91,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     private Context context;
 
     /**
-     * The view object that is passed to onViewCreated.
+     * The parent activity.
      */
-    private View view;
+    private FragmentActivity activity;
 
     /**
      * The object representing the authenticated user.
@@ -140,37 +144,49 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.view = view;
-        configureMapView(savedInstanceState);
-
-        Gson gson = new Gson();
-
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
-
-        long date = new Date().getTime();
-        dateFormatted = DATE_FORMATTER.format(date);
-
-        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-        try {
-            dialog = ProgressDialog.show(context, "",
-                    "Loading. Please wait...", true);
-            dialog.show();
-            featureCollection = FeatureCollection.fromWebsite(preferences, gson, mAuth.getUid(), dateFormatted);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Instantiates the map view and loads the map object in an asynchronous manner.
-     *
-     * @param savedInstanceState - The saved instance.
-     */
-    private void configureMapView(@Nullable Bundle savedInstanceState) {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+        dialog = ProgressDialog.show(context, "",
+                "Loading. Please wait...", true);
+        dialog.show();
+
+        if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+            dialog.dismiss();
+            activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+            AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+            }).create();
+            internetConnectionHangedDialog.show();
+
+        } else {
+            Gson gson = new Gson();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            mUser = mAuth.getCurrentUser();
+
+            long date = new Date().getTime();
+            dateFormatted = DATE_FORMATTER.format(date);
+
+            SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+            try {
+                featureCollection = FeatureCollection.fromWebsite(preferences, gson, mAuth.getUid(), dateFormatted);
+
+                if (featureCollection == null) {
+
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+                    AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+                    }).create();
+                    internetConnectionHangedDialog.show();
+                } else {
+                    mapView.getMapAsync(this);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -262,7 +278,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 }
 
-                IconFactory iconFactory = IconFactory.getInstance(Objects.requireNonNull(getActivity()));
+                IconFactory iconFactory = IconFactory.getInstance(activity);
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resource);
                 Icon icon = iconFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 80, 150, false));
 
@@ -278,7 +294,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 Properties properties = feature.getProperties();
                 String value = properties.getValue() + " " + properties.getCurrency().toLowerCase();
 
-                Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, value, Toast.LENGTH_SHORT).show();
                 return true;
             });
 
@@ -300,7 +316,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         } else {
             Log.d(tag, "Permissions are not granted");
             PermissionsManager permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(getActivity());
+            permissionsManager.requestLocationPermissions(activity);
         }
     }
 
@@ -324,6 +340,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
         locationEngine.setFastestInterval(1000);
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.activate();
+
+        locationEngine.requestLocationUpdates();
 
         Location lastLocation = locationEngine.getLastLocation();
         if (lastLocation != null) {
@@ -387,43 +405,57 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
                 System.out.println("PLAYER AT MARKER: " + locationChangedEvent.atMarker);
                 if (locationChangedEvent.atMarker) {
-                    List<String> coins = wallet.getCoins();
 
-                    locationChangedEvent.featureMap.forEach((indexOfFeature, feature) -> {
+                    if (CoinzApplication.isInternetConnectionAvailable(context)) {
+                        List<String> coins = wallet.getCoins();
 
-                        Marker marker = featureMarkerMap.get(feature);
-                        map.removeMarker(marker);
+                        locationChangedEvent.featureMap.forEach((indexOfFeature, feature) -> {
 
-                        Feature[] features = featureCollection.getFeatures();
-                        Properties properties = features[indexOfFeature].getProperties();
-                        String currency = properties.getCurrency();
-                        String value = properties.getValue();
+                            Marker marker = featureMarkerMap.get(feature);
+                            map.removeMarker(marker);
 
-                        features[indexOfFeature] = null;
-                        String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
-                        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-                        Gson gson = new Gson();
-                        String jSONDocument = gson.toJson(featureCollection);
-                        String key = mUser.getUid() + "/" + dateFormatted;
-                        preferences.edit().putString(key, jSONDocument).commit();
+                            Feature[] features = featureCollection.getFeatures();
+                            Properties properties = features[indexOfFeature].getProperties();
+                            String currency = properties.getCurrency();
+                            String value = properties.getValue();
 
-                        if (coins.size() == 25) {
-                            Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
-                                spareChangeWallet.addCoin(currency + " " + value);
+                            features[indexOfFeature] = null;
+                            String dateFormatted = DATE_FORMATTER.format(new Date().getTime());
+                            SharedPreferences preferences = activity.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jSONDocument = gson.toJson(featureCollection);
+                            String key = mUser.getUid() + "/" + dateFormatted;
+                            preferences.edit().putString(key, jSONDocument).commit();
+
+                            if (coins.size() == 25) {
+                                Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
+                                    spareChangeWallet.addCoin(currency + " " + value);
+                                    System.out.println("[GameFragment]: " + currency + " " + value);
+                                    spareChangeWallet.getFuture();
+                                });
+                                Toast.makeText(activity, "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
+                            } else {
+                                wallet.addCoin(currency + " " + value);
                                 System.out.println("[GameFragment]: " + currency + " " + value);
-                                spareChangeWallet.getFuture();
-                            });
-                            Toast.makeText(getActivity(), "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
-                        } else {
-                            wallet.addCoin(currency + " " + value);
-                            System.out.println("[GameFragment]: " + currency + " " + value);
-                            wallet.getFuture();
-                        }
-                    });
+                                wallet.getFuture();
+                            }
+                        });
+                    } else {
+                        AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try coming back later when you have a connection!").setPositiveButton("Close", (x, y) -> {
+                        }).create();
+                        internetConnectionHangedDialog.show();
+                    }
 
                 }
             });
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Log.d(tag, "[onRequestPermissionsResult]");
     }
 
     /**
@@ -482,6 +514,10 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
+        if (context instanceof FragmentActivity) {
+            this.activity = (FragmentActivity) context;
+        }
     }
 
     /**

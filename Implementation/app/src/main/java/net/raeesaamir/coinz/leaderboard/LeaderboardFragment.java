@@ -1,11 +1,13 @@
 package net.raeesaamir.coinz.leaderboard;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +22,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.menu.MenuFragment;
 import net.raeesaamir.coinz.wallet.Bank;
 
 import java.util.List;
@@ -38,6 +42,11 @@ public class LeaderboardFragment extends Fragment {
      * The context of the fragment.
      */
     private Context context;
+
+    /**
+     * The parent activity.
+     */
+    private FragmentActivity activity;
 
     /**
      * The view returned from onViewCreated.
@@ -73,7 +82,18 @@ public class LeaderboardFragment extends Fragment {
         dialog = ProgressDialog.show(context, "",
                 "Loading. Please wait...", true);
         dialog.show();
-        populateScores();
+
+        if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+            dialog.dismiss();
+            activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+
+            AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(context).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+            }).create();
+            internetConnectionHangedDialog.show();
+        } else {
+            populateScores();
+        }
     }
 
     @Nullable
@@ -146,5 +166,9 @@ public class LeaderboardFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
+        if (context instanceof FragmentActivity) {
+            this.activity = (FragmentActivity) context;
+        }
     }
 }

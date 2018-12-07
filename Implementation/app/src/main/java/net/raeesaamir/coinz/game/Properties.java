@@ -73,11 +73,11 @@ public final class Properties {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 
-        if(obj instanceof Properties) {
+        if (obj instanceof Properties) {
             Properties otherProperties = (Properties) obj;
             return Objects.equal(id, otherProperties.id) && Objects.equal(value, otherProperties.value) &&
                     Objects.equal(currency, otherProperties.currency) && Objects.equal(markerColor, otherProperties.markerColor)

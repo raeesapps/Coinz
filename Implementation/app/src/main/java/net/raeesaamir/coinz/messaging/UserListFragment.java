@@ -1,5 +1,6 @@
 package net.raeesaamir.coinz.messaging;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.menu.MenuFragment;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +50,11 @@ public class UserListFragment extends Fragment {
     private Context context;
 
     /**
+     * The parent activity.
+     */
+    private FragmentActivity activity;
+
+    /**
      * The authenticated user.
      */
     private FirebaseUser mUser;
@@ -65,12 +74,23 @@ public class UserListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        this.mUser = mAuth.getCurrentUser();
         dialog = ProgressDialog.show(context, "",
                 "Loading. Please wait...", true);
         dialog.show();
-        populateUserList();
+
+        if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+            dialog.dismiss();
+            activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+            AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+            }).create();
+            internetConnectionHangedDialog.show();
+        } else {
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            this.mUser = mAuth.getCurrentUser();
+            populateUserList();
+
+        }
     }
 
     /**
@@ -121,5 +141,9 @@ public class UserListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
+        if (context instanceof FragmentActivity) {
+            this.activity = (FragmentActivity) context;
+        }
     }
 }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -33,8 +34,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.authentication.FirestoreUser;
+import net.raeesaamir.coinz.menu.MenuFragment;
 import net.raeesaamir.coinz.wallet.Wallet;
 import net.raeesaamir.coinz.wallet.WalletType;
 import net.raeesaamir.coinz.wallet.Wallets;
@@ -64,12 +67,14 @@ public class MessagingFragment extends Fragment {
      */
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
-
     /**
      * A list of messages sorted by time.
      */
     private final List<FirebaseMessage> firestoreMessageList = new SortedList();
-
+    /**
+     * The parent activity.
+     */
+    private FragmentActivity activity;
     /**
      * The time a message was attempted to be sent, in nanoseconds.
      */
@@ -139,16 +144,29 @@ public class MessagingFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        this.mUser = mAuth.getCurrentUser();
-        this.thisUser = new FirestoreUser(Objects.requireNonNull(mUser).getEmail(), mUser.getUid(), mUser.getDisplayName());
-        this.button = view.findViewById(R.id.button_chatbox_send);
-        this.tradeButton = view.findViewById(R.id.button_chatbox_trade);
-        this.messageContents = view.findViewById(R.id.edittext_chatbox);
         dialog = ProgressDialog.show(context, "",
                 "Loading. Please wait...", true);
         dialog.show();
-        listen(Objects.requireNonNull(getActivity()).getIntent().getStringExtra("username"));
+
+        if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+            dialog.dismiss();
+            activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+
+            AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(context).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+            }).create();
+            internetConnectionHangedDialog.show();
+
+        } else {
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            this.mUser = mAuth.getCurrentUser();
+            this.thisUser = new FirestoreUser(Objects.requireNonNull(mUser).getEmail(), mUser.getUid(), mUser.getDisplayName());
+            this.button = view.findViewById(R.id.button_chatbox_send);
+            this.tradeButton = view.findViewById(R.id.button_chatbox_trade);
+            this.messageContents = view.findViewById(R.id.edittext_chatbox);
+            listen(activity.getIntent().getStringExtra("username"));
+
+        }
     }
 
     /**
@@ -163,15 +181,22 @@ public class MessagingFragment extends Fragment {
             if (msgNanoTime - previousMsgNanoTime < 3000000000L) {
                 Toast.makeText(context, "Please wait", Toast.LENGTH_SHORT).show();
             } else {
-                Preconditions.checkNotNull(mReference);
 
-                FirebaseMessage message = new FirebaseMessage(messageString, thisUser.getUid(), otherUser.getUid());
-                String key = mReference.push().getKey();
-                mReference.child(Objects.requireNonNull(key)).setValue(message);
+                if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+                    AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(context).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+                    }).create();
+                    internetConnectionHangedDialog.show();
+                } else {
+                    Preconditions.checkNotNull(mReference);
 
-                firestoreMessageList.add(message);
-                simpleMessageListAdapter.notifyDataSetChanged();
+                    FirebaseMessage message = new FirebaseMessage(messageString, thisUser.getUid(), otherUser.getUid());
+                    String key = mReference.push().getKey();
+                    mReference.child(Objects.requireNonNull(key)).setValue(message);
 
+                    firestoreMessageList.add(message);
+                    simpleMessageListAdapter.notifyDataSetChanged();
+
+                }
             }
 
             previousMsgNanoTime = msgNanoTime;
@@ -271,30 +296,35 @@ public class MessagingFragment extends Fragment {
                     AlertDialog alertDialog = new AlertDialog.Builder(context)
                             .setMultiChoiceItems(coins, selectedItems, (DialogInterface dialogInterface, int i, boolean b) -> selectedItems[i] = true).setTitle("Select the coins you want to trade").setPositiveButton("Accept", (DialogInterface dialogInterface, int k) -> Wallet.loadWallet(otherUser.getUid(), dateFormatted, WalletType.MAIN_WALLET, (Wallet otherWallet) -> {
 
-                                for (int i = 0; i < selectedItems.length; i++) {
-                                    if (selectedItems[i]) {
-                                        if (otherWallet.numberOfCoins() == 9) {
-                                            Toast.makeText(context, "You cannot transfer coins to this player because they already have too many!", Toast.LENGTH_LONG).show();
-                                            break;
-                                        } else {
-                                            String coin = coinsList.get(i);
-                                            coins[i] = null;
-                                            wallet.removeCoin(coin);
+                                if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+                                    AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(context).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+                                    }).create();
+                                    internetConnectionHangedDialog.show();
+                                } else {
+                                    for (int i = 0; i < selectedItems.length; i++) {
+                                        if (selectedItems[i]) {
+                                            if (otherWallet.numberOfCoins() == 9) {
+                                                Toast.makeText(context, "You cannot transfer coins to this player because they already have too many!", Toast.LENGTH_LONG).show();
+                                                break;
+                                            } else {
+                                                String coin = coinsList.get(i);
+                                                coins[i] = null;
+                                                wallet.removeCoin(coin);
 
-                                            otherWallet.addCoin(coin);
-                                            otherWallet.getFuture();
+                                                otherWallet.addCoin(coin);
+                                                otherWallet.getFuture();
 
-                                            FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
-                                            String key = mReference.push().getKey();
-                                            mReference.child(Objects.requireNonNull(key)).setValue(message);
+                                                FirebaseMessage message = new FirebaseMessage("You have transferred " + coin + " to " + otherUser.getDisplayName(), thisUser.getUid(), otherUser.getUid());
+                                                String key = mReference.push().getKey();
+                                                mReference.child(Objects.requireNonNull(key)).setValue(message);
 
-                                            firestoreMessageList.add(message);
-                                            simpleMessageListAdapter.notifyDataSetChanged();
+                                                firestoreMessageList.add(message);
+                                                simpleMessageListAdapter.notifyDataSetChanged();
+                                            }
                                         }
                                     }
+                                    Wallets.setOtherWallet(null);
                                 }
-
-                                Wallets.setOtherWallet(null);
 
                             }, true)).setNegativeButton("Decline", (DialogInterface dialogInterface, int i) -> {
 
@@ -319,6 +349,10 @@ public class MessagingFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
+        if (context instanceof FragmentActivity) {
+            this.activity = (FragmentActivity) context;
+        }
     }
 
     /**

@@ -1,12 +1,14 @@
 package net.raeesaamir.coinz.wallet;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +27,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
+import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.game.FeatureCollection;
+import net.raeesaamir.coinz.menu.MenuFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,6 +67,11 @@ public class WalletFragment extends Fragment {
     private Context context;
 
     /**
+     * The parent activity.
+     */
+    private FragmentActivity activity;
+
+    /**
      * The player's bank.
      */
     private Bank bank;
@@ -92,20 +101,39 @@ public class WalletFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        this.mUser = mAuth.getCurrentUser();
-        Gson gson = new Gson();
-        SharedPreferences sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-        long date = new Date().getTime();
-        String dateFormatted = DATE_FORMATTER.format(date);
 
-        try {
-            featureCollection = FeatureCollection.fromWebsite(sharedPreferences, gson, mAuth.getUid(), dateFormatted);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+            activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+            AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+            }).create();
+            internetConnectionHangedDialog.show();
+        } else {
+            SharedPreferences sharedPreferences = activity.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            Gson gson = new Gson();
+            this.mUser = mAuth.getCurrentUser();
+
+            long date = new Date().getTime();
+            String dateFormatted = DATE_FORMATTER.format(date);
+
+            try {
+                featureCollection = FeatureCollection.fromWebsite(sharedPreferences, gson, mAuth.getUid(), dateFormatted);
+
+                if (featureCollection == null) {
+                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
+
+                    AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+                    }).create();
+                    internetConnectionHangedDialog.show();
+                } else {
+                    populateWallet();
+                    populateBank();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        populateWallet();
-        populateBank();
     }
 
     /**
@@ -125,11 +153,18 @@ public class WalletFragment extends Fragment {
             walletView.setAdapter(integerArrayAdapter);
 
             walletView.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
-                String coin = wallet.getCoins().get(i);
 
-                bank.deposit(featureCollection.getRates(), coin, wallet);
-                refreshBank();
-                integerArrayAdapter.remove(coin);
+                if (CoinzApplication.isInternetConnectionAvailable(context)) {
+                    String coin = wallet.getCoins().get(i);
+                    bank.deposit(featureCollection.getRates(), coin, wallet);
+                    refreshBank();
+                    integerArrayAdapter.remove(coin);
+
+                } else {
+                    AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+                    }).create();
+                    internetConnectionHangedDialog.show();
+                }
             });
         });
     }
@@ -194,5 +229,9 @@ public class WalletFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
+        if (context instanceof FragmentActivity) {
+            this.activity = (FragmentActivity) context;
+        }
     }
 }

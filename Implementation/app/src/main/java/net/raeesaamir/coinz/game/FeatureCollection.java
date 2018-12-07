@@ -24,10 +24,6 @@ public final class FeatureCollection {
      */
     private static final String FEATURE_COLLECTION_URL = "http://homepages.inf.ed.ac.uk/stg/coinz/";
     /**
-     * The type of JSON object.
-     */
-    private final String type;
-    /**
      * The date the map was generated
      */
     @SerializedName("date-generated")
@@ -45,6 +41,10 @@ public final class FeatureCollection {
     @SerializedName("approximate-time-remaining")
     @VisibleForTesting
     final String approximateTimeRemaining;
+    /**
+     * The type of JSON object.
+     */
+    private final String type;
     /**
      * Today's exchange rates of the types of coins on the map.
      */
@@ -92,16 +92,21 @@ public final class FeatureCollection {
 
         if (preferences.contains(key)) {
             String json = preferences.getString(key, "");
-            System.out.println("[FeatureCollection json not null] " + json);
             featureCollection = gson.fromJson(json, FeatureCollection.class);
 
         } else {
 
             featureCollection = new GeoJsonDownloadTask().execute(url).get();
+
+            if (featureCollection == null) {
+                return null;
+            }
+
             String json = gson.toJson(featureCollection);
             System.out.println("[FeatureCollection json not exists] " + json);
             preferences.edit().putString(key, json).commit();
         }
+
         return featureCollection;
     }
 

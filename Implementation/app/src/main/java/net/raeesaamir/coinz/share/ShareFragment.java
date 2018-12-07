@@ -1,12 +1,14 @@
 package net.raeesaamir.coinz.share;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +26,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
+import net.raeesaamir.coinz.menu.MenuFragment;
 import net.raeesaamir.coinz.wallet.Bank;
 import net.raeesaamir.coinz.wallet.Wallet;
 
@@ -51,6 +55,11 @@ public class ShareFragment extends Fragment {
      * The context of the fragment.
      */
     private Context context;
+
+    /**
+     * The parent activity.
+     */
+    private FragmentActivity activity;
 
     /**
      * The list view that will hold your achievements.
@@ -82,13 +91,23 @@ public class ShareFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         this.achievementsView = view.findViewById(R.id.achievements);
         this.shareButton = view.findViewById(R.id.shareButton);
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
 
-        long date = new Date().getTime();
-        dateFormatted = DATE_FORMATTER.format(date);
+        if (!CoinzApplication.isInternetConnectionAvailable(context)) {
+            activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MenuFragment()).commit();
 
-        fetchAchievements();
+            AlertDialog internetConnectionHangedDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Your internet connection has hanged. Try again later when it's backup and running!").setPositiveButton("Close", (x, y) -> {
+            }).create();
+            internetConnectionHangedDialog.show();
+        } else {
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            mUser = mAuth.getCurrentUser();
+
+            long date = new Date().getTime();
+            dateFormatted = DATE_FORMATTER.format(date);
+
+            fetchAchievements();
+
+        }
     }
 
     /**
@@ -165,5 +184,9 @@ public class ShareFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
+        if (context instanceof FragmentActivity) {
+            this.activity = (FragmentActivity) context;
+        }
     }
 }
