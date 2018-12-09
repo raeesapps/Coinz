@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 
 import com.mapbox.mapboxsdk.Mapbox;
 
+
 /**
  * The application class for the Android project.
  *

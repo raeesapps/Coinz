@@ -96,7 +96,12 @@ public final class FeatureCollection {
 
         } else {
 
-            featureCollection = new GeoJsonDownloadTask().execute(url).get();
+            featureCollection = new DownloadFileTask<FeatureCollection>() {
+                @Override
+                protected FeatureCollection readStream(String json) {
+                    return new Gson().fromJson(json, FeatureCollection.class);
+                }
+            }.execute(url).get();
 
             if (featureCollection == null) {
                 return null;
@@ -133,19 +138,5 @@ public final class FeatureCollection {
         return MoreObjects.toStringHelper(this).add("type", type).add("dateGenerated", dateGenerated)
                 .add("timeGenerated", timeGenerated).add("approximateTimeRemaining", approximateTimeRemaining).
                         add("rates", rates).add("features", features).toString();
-    }
-
-    /**
-     * Decodes the feature collection data into an object for easy access of the information.
-     *
-     * @author raeesaamir
-     */
-    protected static class GeoJsonDownloadTask extends DownloadFileTask<FeatureCollection> {
-
-        @Override
-        public FeatureCollection readStream(String json) {
-
-            return new Gson().fromJson(json, FeatureCollection.class);
-        }
     }
 }

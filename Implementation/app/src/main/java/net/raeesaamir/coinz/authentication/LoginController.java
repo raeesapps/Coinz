@@ -2,6 +2,7 @@ package net.raeesaamir.coinz.authentication;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.tasks.Task;
@@ -19,6 +20,7 @@ public class LoginController extends AuthenticationController {
 
     @Override
     public void onAuthenticationProcess(String email, String password) {
+        System.out.println("[ONAUTHPROCESS123]");
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener((@NonNull Task<AuthResult> task) -> {
             if (!task.isSuccessful()) {
                 throwPasswordError();

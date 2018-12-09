@@ -41,7 +41,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.4.1'
     api 'com.google.guava:guava:26.0-android'
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-all:1.10.19'
+    testImplementation 'org.mockito:mockito-core:2.7.22'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

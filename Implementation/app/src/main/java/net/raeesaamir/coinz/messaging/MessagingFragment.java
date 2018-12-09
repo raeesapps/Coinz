@@ -44,6 +44,7 @@ import net.raeesaamir.coinz.wallet.Wallets;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -303,7 +304,7 @@ public class MessagingFragment extends Fragment {
                                 } else {
                                     for (int i = 0; i < selectedItems.length; i++) {
                                         if (selectedItems[i]) {
-                                            if (otherWallet.numberOfCoins() == 9) {
+                                            if (otherWallet.numberOfCoins() == 25) {
                                                 Toast.makeText(context, "You cannot transfer coins to this player because they already have too many!", Toast.LENGTH_LONG).show();
                                                 break;
                                             } else {
@@ -364,9 +365,7 @@ public class MessagingFragment extends Fragment {
         @Override
         public boolean add(FirebaseMessage firebaseMessage) {
             boolean successful = super.add(firebaseMessage);
-
             this.sort(Comparator.comparingLong(FirebaseMessage::getMessageTime));
-
             return successful;
         }
     }

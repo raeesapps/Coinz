@@ -351,6 +351,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             originalLocation = lastLocation;
             setCameraPosition(originalLocation);
         } else {
+            AlertDialog stepOutsideDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Please step outside and wait a few seconds for the location sensor to grab your location...").setPositiveButton("Close", (x,y) -> {}).create();
+            stepOutsideDialog.show();
             locationEngine.addLocationEngineListener(this);
         }
     }
@@ -376,8 +378,6 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
     @Override
     public void onLocationChanged(Location location) {
-
-        System.out.println("onLocationChanged");
 
         if (location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
