@@ -51,7 +51,7 @@ public class FeatureTest {
 
         Geometry expectedGeometry = new Geometry();
         expectedGeometry.type = "Point";
-        expectedGeometry.coordinates = new double[] { -3.190015783400452, 55.94457042402356 };
+        expectedGeometry.coordinates = new double[]{-3.190015783400452, 55.94457042402356};
 
         assertEquals(expectedGeometry, actualGeometry);
     }

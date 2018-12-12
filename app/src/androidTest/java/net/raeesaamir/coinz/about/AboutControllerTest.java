@@ -23,12 +23,23 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
+/**
+ * An instrumented test for the about section
+ *
+ * @author raeesaamir
+ */
 @RunWith(AndroidJUnit4.class)
 public class AboutControllerTest {
 
+    /**
+     * The controller for which we want to test
+     */
     @Rule
     public ActivityTestRule<AboutController> mActivityTestRule = new ActivityTestRule<>(AboutController.class);
 
+    /**
+     * Makes sure the correct text appears in the about section.
+     */
     @Test
     public void aboutControllerTest() {
 
@@ -44,6 +55,13 @@ public class AboutControllerTest {
 
     }
 
+    /**
+     * Looks at the view tree and returns the child matcher.
+     *
+     * @param parentMatcher - The matcher for the parent tree.
+     * @param position      The position.
+     * @return A hamcrest matcher object representing the child tree.
+     */
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
 

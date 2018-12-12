@@ -30,12 +30,21 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * An instrumented test for the registration system.
+ */
 @RunWith(AndroidJUnit4.class)
 public class RegistrationControllerTest {
 
+    /**
+     * The controller which we want to test.
+     */
     @Rule
     public ActivityTestRule<RegistrationController> mActivityTestRule = new ActivityTestRule<>(RegistrationController.class);
 
+    /**
+     * Checks if registration fails with an invalid email.
+     */
     @Test
     public void registrationControllerInvalidEmailTest() {
 
@@ -90,7 +99,7 @@ public class RegistrationControllerTest {
                 allOf(withId(R.id.email), withText("ayylmao"),
                         childAtPosition(
                                 childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
                                         0),
                                 0),
                         isDisplayed()));
@@ -98,6 +107,9 @@ public class RegistrationControllerTest {
 
     }
 
+    /**
+     * Checks if registration fails with an invalid password.
+     */
     @Test
     public void registrationControllerInvalidPasswordTest() {
 
@@ -179,6 +191,9 @@ public class RegistrationControllerTest {
 
     }
 
+    /**
+     * Checks if registration fails when the password and confirm password are different.
+     */
     @Test
     public void registrationControllerDifferentPasswordsTest() {
 
@@ -254,7 +269,7 @@ public class RegistrationControllerTest {
                 allOf(withId(R.id.confirmPassword), withText("ll12345"),
                         childAtPosition(
                                 childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
                                         0),
                                 0),
                         isDisplayed()));
@@ -262,6 +277,13 @@ public class RegistrationControllerTest {
 
     }
 
+    /**
+     * Looks at the view tree and returns the child matcher.
+     *
+     * @param parentMatcher - The matcher for the parent tree.
+     * @param position      The position.
+     * @return A hamcrest matcher object representing the child tree.
+     */
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
 

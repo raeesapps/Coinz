@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,7 +57,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This fragment handles the rendering, updating and coin collection of the game.
@@ -71,7 +71,10 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy/MM/dd", Locale.UK);
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    /**
+     * The permissions code.
+     */
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     /**
      * The unique identifier of the shared preferences object
@@ -351,7 +354,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             originalLocation = lastLocation;
             setCameraPosition(originalLocation);
         } else {
-            AlertDialog stepOutsideDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Please step outside and wait a few seconds for the location sensor to grab your location...").setPositiveButton("Close", (x,y) -> {}).create();
+            AlertDialog stepOutsideDialog = new AlertDialog.Builder(activity).setTitle("Game").setMessage("Please step outside and wait a few seconds for the location sensor to grab your location...").setPositiveButton("Close", (x, y) -> {
+            }).create();
             stepOutsideDialog.show();
             locationEngine.addLocationEngineListener(this);
         }
@@ -386,12 +390,9 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             String dateNow = DATE_FORMATTER.format(dateNowNum);
 
             if (!dateNow.equals(dateFormatted)) {
-                Objects.requireNonNull(getFragmentManager()).findFragmentById(R.id.fragment_container);
-
-                getFragmentManager().beginTransaction()
-                        .detach(this)
-                        .attach(this)
-                        .commit();
+                FragmentTransaction tr = activity.getSupportFragmentManager().beginTransaction();
+                tr.replace(R.id.fragment_container, new GameFragment());
+                tr.commit();
             }
 
             Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
@@ -427,15 +428,21 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                             if (coins.size() == 25) {
                                 Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
-                                    spareChangeWallet.addCoin(currency + " " + value);
-                                    System.out.println("[GameFragment]: " + currency + " " + value);
-                                    spareChangeWallet.getFuture();
+                                    if (spareChangeWallet.addCoin(currency + " " + value)) {
+                                        System.out.println("[GameFragment]: " + currency + " " + value);
+                                        spareChangeWallet.getFuture();
+                                    } else {
+                                        Toast.makeText(activity, "You have already collected this coin", Toast.LENGTH_LONG).show();
+                                    }
                                 });
                                 Toast.makeText(activity, "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
                             } else {
-                                wallet.addCoin(currency + " " + value);
-                                System.out.println("[GameFragment]: " + currency + " " + value);
-                                wallet.getFuture();
+                                if (wallet.addCoin(currency + " " + value)) {
+                                    System.out.println("[GameFragment]: " + currency + " " + value);
+                                    wallet.getFuture();
+                                } else {
+                                    Toast.makeText(activity, "You have already collected this coin", Toast.LENGTH_LONG).show();
+                                }
                             }
                         });
                     } else {

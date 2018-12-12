@@ -29,25 +29,46 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
+/**
+ * An instrumented test for the splash screen system.
+ *
+ * @author raeesaamir.
+ */
 @RunWith(AndroidJUnit4.class)
 public class SplashScreenControllerTest {
 
+    /**
+     * The controller we want to test.
+     */
     @Rule
     public ActivityTestRule<SplashScreenController> mActivityTestRule = new ActivityTestRule<>(SplashScreenController.class);
 
+    /**
+     * The firebase authentication system.
+     */
     private FirebaseAuth mAuth;
+
+    /**
+     * The items in the menu.
+     */
     private ImmutableSet<MenuItem> menuItemSet;
 
+    /**
+     * Adds the items to the menu and sets up the authentication system.
+     */
     @Before
     public void beforeSplashScreenControllerTest() {
         mAuth = FirebaseAuth.getInstance();
 
-        if(mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null) {
             MenuItem[] items = MenuItem.values();
             menuItemSet = ImmutableSet.copyOf(items);
         }
     }
 
+    /**
+     * Checks if the splash screen segues away after 3 seconds.
+     */
     @Test
     public void splashScreenControllerTest() {
 
@@ -57,7 +78,7 @@ public class SplashScreenControllerTest {
             e.printStackTrace();
         }
 
-        if(mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null) {
 
             menuItemSet.forEach(menuItem -> {
                 ViewInteraction checkedTextView = onView(
@@ -65,7 +86,7 @@ public class SplashScreenControllerTest {
                                 childAtPosition(
                                         allOf(withId(R.id.listView),
                                                 childAtPosition(
-                                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                                        IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
                                                         3)),
                                         menuItem.ordinal()),
                                 isDisplayed()));
@@ -85,6 +106,13 @@ public class SplashScreenControllerTest {
         }
     }
 
+    /**
+     * Looks at the view tree and returns the child matcher.
+     *
+     * @param parentMatcher - The matcher for the parent tree.
+     * @param position      The position.
+     * @return A hamcrest matcher object representing the child tree.
+     */
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
 

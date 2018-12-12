@@ -30,12 +30,23 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * An instrumented test for the login controller section
+ *
+ * @author raeesaamir
+ */
 @RunWith(AndroidJUnit4.class)
 public class LoginControllerTest {
 
+    /**
+     * The controller for which we want to test.
+     */
     @Rule
     public ActivityTestRule<LoginController> mActivityTestRule = new ActivityTestRule<>(LoginController.class);
 
+    /**
+     * Checks if the login system works with an existing test account.
+     */
     @Test
     public void loginControllerTest() {
 
@@ -141,6 +152,9 @@ public class LoginControllerTest {
 
     }
 
+    /**
+     * Checks if the login system rejects an invalid email.
+     */
     @Test
     public void loginControllerInvalidEmailTest() {
 
@@ -194,6 +208,9 @@ public class LoginControllerTest {
 
     }
 
+    /**
+     * Checks if the login system rejects an invalid password.
+     */
     @Test
     public void loginControllerInvalidPasswordTest() {
 
@@ -248,7 +265,7 @@ public class LoginControllerTest {
                 allOf(withId(R.id.password), withText("ll22"),
                         childAtPosition(
                                 childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
                                         0),
                                 0),
                         isDisplayed()));
@@ -256,6 +273,13 @@ public class LoginControllerTest {
 
     }
 
+    /**
+     * Looks at the view tree and returns the child matcher.
+     *
+     * @param parentMatcher - The matcher for the parent tree.
+     * @param position      The position.
+     * @return A hamcrest matcher object representing the child tree.
+     */
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
 

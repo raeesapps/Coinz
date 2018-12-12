@@ -2,7 +2,6 @@ package net.raeesaamir.coinz.authentication;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.tasks.Task;

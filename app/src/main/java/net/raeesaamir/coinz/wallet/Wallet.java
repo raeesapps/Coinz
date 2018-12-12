@@ -265,6 +265,11 @@ public class Wallet extends Container {
         return coins.size();
     }
 
+    @Override
+    public boolean addCoin(String coin) {
+        return !coins.contains(coin) && super.addCoin(coin);
+    }
+
     /**
      * Represents the listener that is called when the wallet is loaded.
      *
