@@ -3,6 +3,7 @@ package net.raeesaamir.coinz.authentication;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.auth.FirebaseAuth;
 
 import net.raeesaamir.coinz.R;
@@ -101,45 +104,57 @@ public abstract class AuthenticationController extends AppCompatActivity {
      * errors are presented and no actual login attempt is made.
      */
     void attemptAuthentication() {
-
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && isPasswordInvalid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (isEmailInvalid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
+        int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+        if(status != ConnectionResult.SUCCESS) {
+            String error;
+            if (status == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
+                error = "Please wait for google play services to update. If it is not updating update it manually by opening google play services in the play store and hitting update";
+            } else {
+                error = "Please download google play service and come back after downloading.";
+            }
+            AlertDialog comeBackLaterDialog = new AlertDialog.Builder(this).setTitle("Google Play Services").setMessage(error).setPositiveButton("Ok", (x, y) -> {
+            }).create();
+            comeBackLaterDialog.show();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            onAuthenticationProcess(email, password);
+            // Reset errors.
+            mEmailView.setError(null);
+            mPasswordView.setError(null);
+
+            // Store values at the time of the login attempt.
+            String email = mEmailView.getText().toString();
+            String password = mPasswordView.getText().toString();
+
+            boolean cancel = false;
+            View focusView = null;
+
+            // Check for a valid password, if the user entered one.
+            if (!TextUtils.isEmpty(password) && isPasswordInvalid(password)) {
+                mPasswordView.setError(getString(R.string.error_invalid_password));
+                focusView = mPasswordView;
+                cancel = true;
+            }
+
+            // Check for a valid email address.
+            if (TextUtils.isEmpty(email)) {
+                mEmailView.setError(getString(R.string.error_field_required));
+                focusView = mEmailView;
+                cancel = true;
+            } else if (isEmailInvalid(email)) {
+                mEmailView.setError(getString(R.string.error_invalid_email));
+                focusView = mEmailView;
+                cancel = true;
+            }
+
+            if (cancel) {
+                // There was an error; don't attempt login and focus the first
+                // form field with an error.
+                focusView.requestFocus();
+            } else {
+                // Show a progress spinner, and kick off a background task to
+                // perform the user login attempt.
+                showProgress(true);
+                onAuthenticationProcess(email, password);
+            }
         }
     }
 
