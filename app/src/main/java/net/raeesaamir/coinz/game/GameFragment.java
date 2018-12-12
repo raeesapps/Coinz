@@ -323,6 +323,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
             Log.d(tag, "Permissions are not granted");
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_LOCATION);
+            Log.d(tag, "Permissions requested!");
         }
     }
 
@@ -499,6 +500,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
 
+                        Log.d(tag, "[onRequestPermissionResult] calling enable location...");
                         enableLocation();
                     }
                 }
