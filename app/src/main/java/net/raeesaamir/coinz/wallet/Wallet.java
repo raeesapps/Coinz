@@ -100,7 +100,16 @@ public class Wallet extends Container {
      * @return A wallet type.
      */
     private static WalletType fromOrdinal(int ordinal) {
-        return ordinal == 0 ? WalletType.MAIN_WALLET : WalletType.SPARE_CHANGE_WALLET;
+        switch (ordinal) {
+            case 0:
+                return WalletType.MAIN_WALLET;
+            case 1:
+                return WalletType.SPARE_CHANGE_WALLET;
+            case 2:
+                return WalletType.HISTORY;
+            default:
+                return null;
+        }
     }
 
     /**
@@ -171,7 +180,7 @@ public class Wallet extends Container {
 
                     WalletType actualWalletType = fromOrdinal(java.util.Objects.requireNonNull(snapshot.getLong("walletType")).intValue());
 
-                    if (!actualWalletType.equals(walletType)) {
+                    if (!java.util.Objects.requireNonNull(actualWalletType).equals(walletType)) {
                         continue;
                     }
 

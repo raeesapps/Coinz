@@ -404,6 +404,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
 
                 LocationChangedEvent locationChangedEvent = onPlayerChangesLocation(location);
                 System.out.println("PLAYER AT MARKER: " + locationChangedEvent.atMarker);
+
                 if (locationChangedEvent.atMarker) {
 
                     if (CoinzApplication.isInternetConnectionAvailable(context)) {
