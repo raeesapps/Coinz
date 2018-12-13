@@ -396,7 +396,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 tr.commit();
             }
 
-            Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
+            Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.HISTORY, (Wallet history) -> {
                 System.out.println("[onLocationChanged] callback called!");
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originalLocation = location;
@@ -427,20 +427,31 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                             String key = mUser.getUid() + "/" + dateFormatted;
                             preferences.edit().putString(key, jSONDocument).commit();
 
+                            String coin = currency + " " + value;
                             if (coins.size() == 25) {
                                 Wallet.loadWallet(mUser.getUid(), dateFormatted, WalletType.SPARE_CHANGE_WALLET, (Wallet spareChangeWallet) -> {
-                                    if (spareChangeWallet.addCoin(currency + " " + value)) {
-                                        System.out.println("[GameFragment]: " + currency + " " + value);
+                                    if (!history.getCoins().contains(coin)) {
+                                        spareChangeWallet.addCoin(coin);
                                         spareChangeWallet.getFuture();
+
+                                        history.addCoin(coin);
+                                        history.getFuture();
+                                        System.out.println("[GameFragment]: " + currency + " " + value);
+
                                     } else {
                                         Toast.makeText(activity, "You have already collected this coin", Toast.LENGTH_LONG).show();
                                     }
                                 });
                                 Toast.makeText(activity, "You have too many coins in your wallet! The coin has been put in your spare change wallet.", Toast.LENGTH_LONG).show();
                             } else {
-                                if (wallet.addCoin(currency + " " + value)) {
-                                    System.out.println("[GameFragment]: " + currency + " " + value);
+                                if (!history.getCoins().contains(coin)) {
+                                    wallet.addCoin(coin);
                                     wallet.getFuture();
+
+                                    history.addCoin(coin);
+                                    history.getFuture();
+                                    System.out.println("[GameFragment]: " + currency + " " + value);
+
                                 } else {
                                     Toast.makeText(activity, "You have already collected this coin", Toast.LENGTH_LONG).show();
                                 }
@@ -453,7 +464,7 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                     }
 
                 }
-            });
+            }));
         }
     }
 

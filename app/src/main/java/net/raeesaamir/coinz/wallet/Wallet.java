@@ -138,10 +138,16 @@ public class Wallet extends Container {
                 listener.onComplete(Wallets.getWallet());
                 return;
             }
-        } else {
+        } else if (walletType.equals(WalletType.SPARE_CHANGE_WALLET)) {
             if (Wallets.getSpareWallet() != null) {
                 System.out.println("[Wallet] not null!");
                 listener.onComplete(Wallets.getSpareWallet());
+                return;
+            }
+        } else {
+            if (Wallets.getHistory() != null) {
+                System.out.println("[Wallet] not null!");
+                listener.onComplete(Wallets.getHistory());
                 return;
             }
         }
@@ -180,8 +186,10 @@ public class Wallet extends Container {
                 }
                 if (walletType.equals(WalletType.MAIN_WALLET)) {
                     Wallets.setWallet(wallet);
-                } else {
+                } else if (walletType.equals(WalletType.SPARE_CHANGE_WALLET)) {
                     Wallets.setSpareWallet(wallet);
+                } else {
+                    Wallets.setHistory(wallet);
                 }
 
                 listener.onComplete(wallet);
@@ -231,11 +239,6 @@ public class Wallet extends Container {
     @Override
     public String getCollectionName() {
         return "Wallets";
-    }
-
-    @Override
-    public boolean addCoin(String coin) {
-        return !coins.contains(coin) && super.addCoin(coin);
     }
 
     /**

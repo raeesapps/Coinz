@@ -55,11 +55,11 @@ public final class ExchangeRates {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
 
-        if(obj instanceof ExchangeRates) {
+        if (obj instanceof ExchangeRates) {
             ExchangeRates otherExchangeRates = (ExchangeRates) obj;
             return Objects.equal(shil, otherExchangeRates.shil) && Objects.equal(dolr, otherExchangeRates.dolr)
                     && Objects.equal(quid, otherExchangeRates.quid) && Objects.equal(peny, otherExchangeRates.peny);

@@ -24,8 +24,8 @@ public abstract class Container extends FirestoreDocument {
      * @param coin - The coin to add.
      * @return - True or false depending on whether the coin was added successfully.
      */
-    public boolean addCoin(String coin) {
-        return ContainerUtils.addCoin(coins, coin);
+    public void addCoin(String coin) {
+        ContainerUtils.addCoin(coins, coin);
     }
 
 

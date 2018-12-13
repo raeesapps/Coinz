@@ -16,5 +16,10 @@ public enum WalletType {
      * If the wallet is a spare change wallet then the coins the player cannot collect will go there.
      * The player can trade coins in his/her spare change wallet to other players.
      */
-    SPARE_CHANGE_WALLET
+    SPARE_CHANGE_WALLET,
+
+    /**
+     * This is the history of all the coins the player has collected today. It's not really a wallet.
+     */
+    HISTORY
 }
