@@ -17,14 +17,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.Task;
 import com.google.common.base.Preconditions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import net.raeesaamir.coinz.CoinzApplication;
@@ -34,9 +29,7 @@ import net.raeesaamir.coinz.menu.MenuFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * The fragment which handles the rendering of all the coins in the wallet.
@@ -156,7 +149,8 @@ public class WalletFragment extends Fragment {
 
                 if (CoinzApplication.isInternetConnectionAvailable(context)) {
                     String coin = wallet.getCoins().get(i);
-                    bank.deposit(featureCollection.getRates(), coin, wallet);
+                    wallet.removeCoin(coin);
+                    bank.deposit(featureCollection.getRates(), coin);
                     refreshBank();
                     integerArrayAdapter.remove(coin);
 
@@ -174,46 +168,10 @@ public class WalletFragment extends Fragment {
      */
     private void populateBank() {
         this.bankView = view.findViewById(R.id.bank);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference banks = db.collection("Banks");
-
-        System.out.println("[BANK] FROM DATABASE");
-        System.out.println("[BANK]: UID=" + mUser.getUid());
-
-
-        banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
-            if (!task.isSuccessful()) {
-                System.out.println("[BANK]: NOT SUCCESSFUL");
-                return;
-            }
-            this.bank = new Bank(mUser.getUid());
-            for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
-
-                if (!snapshot.contains("userUid") || !snapshot.contains("coins")) {
-                    continue;
-                }
-
-                System.out.println("BANK" + snapshot.get("userUid"));
-
-                if (!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
-                    continue;
-                }
-                Object coinsObj = snapshot.get("coins");
-                if (!(coinsObj instanceof List)) {
-                    return;
-                }
-
-                //noinspection unchecked
-                List<String> coins = (List<String>) coinsObj;
-                this.bank = new Bank(mUser.getUid(), coins);
-                break;
-
-            }
+        Bank.loadBank(mUser.getUid(), (Bank bank) -> {
+            this.bank = bank;
             refreshBank();
-
-
-        });
+        }, false);
     }
 
     /**
@@ -222,7 +180,7 @@ public class WalletFragment extends Fragment {
     private void refreshBank() {
         Preconditions.checkNotNull(this.bankView);
         Preconditions.checkNotNull(this.bank);
-        bankView.setText(String.format("TOTAL GOLD: %s", bank.totalGold()));
+        bankView.setText(String.format("TOTAL GOLD IN BANK: %s", bank.totalGold()));
     }
 
     @Override

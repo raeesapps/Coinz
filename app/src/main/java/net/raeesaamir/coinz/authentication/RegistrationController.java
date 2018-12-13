@@ -63,7 +63,7 @@ public class RegistrationController extends AuthenticationController {
     @Override
     void attemptAuthentication() {
         int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
-        if(status != ConnectionResult.SUCCESS) {
+        if (status != ConnectionResult.SUCCESS) {
             String error;
             if (status == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
                 error = "Please wait for google play services to update. If it is not updating update it manually by opening google play services in the play store and hitting update";

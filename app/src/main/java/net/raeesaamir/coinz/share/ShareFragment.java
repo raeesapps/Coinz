@@ -17,14 +17,9 @@ import android.widget.ListView;
 
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareButton;
-import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Lists;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import net.raeesaamir.coinz.CoinzApplication;
 import net.raeesaamir.coinz.R;
@@ -36,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * This fragment shows you the achievements you've obtained. It gives you the option to share them to Facebook.
@@ -77,11 +71,6 @@ public class ShareFragment extends Fragment {
     private FirebaseUser mUser;
 
     /**
-     * The user's bank.
-     */
-    private Bank bank;
-
-    /**
      * Today's date formatted.
      */
     private String dateFormatted;
@@ -115,62 +104,32 @@ public class ShareFragment extends Fragment {
      */
     private void fetchAchievements() {
 
-        Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
-            FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-            CollectionReference banks = firebaseFirestore.collection("Banks");
+        Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> Bank.loadBank(mUser.getUid(), (Bank bank) -> {
+            List<String> achievements = Lists.newArrayList();
+            StringBuilder achievement = new StringBuilder();
 
-            banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
+            double goldCollected = bank.totalGold();
+            achievement.append("I collected ").append(goldCollected).append(" gold from playing Coinz.");
+            achievement.append("\n I collected many coins today: ");
 
-                List<String> achievements = Lists.newArrayList();
-                StringBuilder achievement = new StringBuilder();
-                for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
+            achievements.add("GOLD - " + bank.totalGold());
 
-                    System.out.println("[ShareFragment]: querying");
+            for (String coin : wallet.getCoins()) {
+                achievement.append("\n").append(coin);
+                achievements.add(coin);
+            }
 
-                    if (!snapshot.contains("userUid") || !snapshot.contains("coins")) {
-                        continue;
-                    }
+            ShareLinkContent content = new ShareLinkContent.Builder()
+                    .setContentUrl(Uri.parse("http://www.raeesaamir.net"))
+                    .setQuote(achievement.toString())
+                    .build();
 
-                    if (!Objects.requireNonNull(snapshot.get("userUid")).equals(mUser.getUid())) {
-                        continue;
-                    }
+            shareButton.setShareContent(content);
 
-                    System.out.println("[ShareFragment] found");
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, achievements);
+            achievementsView.setAdapter(arrayAdapter);
 
-                    Object coinsObj = snapshot.get("coins");
-                    if (!(coinsObj instanceof List)) {
-                        return;
-                    }
-                    //noinspection unchecked
-                    List<String> coins = (List<String>) coinsObj;
-
-                    this.bank = new Bank(snapshot.getString("userUid"), coins);
-                    double goldCollected = bank.totalGold();
-                    achievement.append("I collected ").append(goldCollected).append(" gold from playing Coinz.");
-                    achievement.append("\n I collected many coins today: ");
-
-                    achievements.add("GOLD - " + bank.totalGold());
-
-                    for (String coin : wallet.getCoins()) {
-                        achievement.append("\n").append(coin);
-                        achievements.add(coin);
-                    }
-
-                    System.out.println("[ShareFragment]: " + achievement);
-                }
-
-                ShareLinkContent content = new ShareLinkContent.Builder()
-                        .setContentUrl(Uri.parse("http://www.raeesaamir.net"))
-                        .setQuote(achievement.toString())
-                        .build();
-
-                shareButton.setShareContent(content);
-
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, achievements);
-                achievementsView.setAdapter(arrayAdapter);
-
-            });
-        });
+        }, false));
     }
 
 

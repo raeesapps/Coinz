@@ -3,6 +3,7 @@ package net.raeesaamir.coinz.game;
 import android.support.annotation.VisibleForTesting;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -45,6 +46,26 @@ public final class ExchangeRates {
         return MoreObjects.toStringHelper(this).add("shil", shil)
                 .add("dolr", dolr).add("quid", quid).add("peny", peny)
                 .toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(shil, dolr, quid, peny);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+
+        if(obj instanceof ExchangeRates) {
+            ExchangeRates otherExchangeRates = (ExchangeRates) obj;
+            return Objects.equal(shil, otherExchangeRates.shil) && Objects.equal(dolr, otherExchangeRates.dolr)
+                    && Objects.equal(quid, otherExchangeRates.quid) && Objects.equal(peny, otherExchangeRates.peny);
+        } else {
+            return false;
+        }
     }
 
     /**

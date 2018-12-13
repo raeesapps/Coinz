@@ -111,32 +111,19 @@ public class Wallet extends Container {
      * @param listener - The on complete listener.
      */
     public static void loadWallet(String uid, String date, WalletListener listener) {
-        loadWallet(uid, date, WalletType.MAIN_WALLET, listener, false);
+        loadWallet(uid, date, WalletType.MAIN_WALLET, listener);
     }
 
     /**
-     * Loads this player's wallet.
+     * Loads the player's wallet.
      *
-     * @param uid        - The UUID of this player.
+     * @param uid        - The UUID of the player.
      * @param date       - The date of the wallet we want.
-     * @param walletType - The type of wallet to load
+     * @param walletType - The type of wallet to load.
      * @param listener   - The on complete listener.
      */
-    public static void loadWallet(String uid, String date, WalletType walletType, WalletListener listener) {
-        loadWallet(uid, date, walletType, listener, false);
-    }
-
-    /**
-     * Loads the wallet of this player or the wallet of the other player.
-     *
-     * @param uid         - The UUID of the player.
-     * @param date        - The date of the wallet we want.
-     * @param walletType  - The type of wallet to load.
-     * @param listener    - The on complete listener.
-     * @param otherPlayer - A boolean value which is true if we want to load the other player's wallet.
-     */
     @SuppressWarnings("unchecked")
-    public static void loadWallet(String uid, String date, WalletType walletType, WalletListener listener, boolean otherPlayer) {
+    public static void loadWallet(String uid, String date, WalletType walletType, WalletListener listener) {
 
         System.out.println("[Wallet] loadWallet");
 
@@ -144,27 +131,21 @@ public class Wallet extends Container {
         CollectionReference wallets = db.collection("Wallets");
         DocumentReference reference = wallets.document();
 
-        if (otherPlayer) {
-            if (Wallets.getOtherWallet() != null) {
+
+        if (walletType.equals(WalletType.MAIN_WALLET)) {
+            if (Wallets.getWallet() != null) {
                 System.out.println("[Wallet] not null!");
-                listener.onComplete(Wallets.getOtherWallet());
+                listener.onComplete(Wallets.getWallet());
                 return;
             }
         } else {
-            if (walletType.equals(WalletType.MAIN_WALLET)) {
-                if (Wallets.getWallet() != null) {
-                    System.out.println("[Wallet] not null!");
-                    listener.onComplete(Wallets.getWallet());
-                    return;
-                }
-            } else {
-                if (Wallets.getSpareWallet() != null) {
-                    System.out.println("[Wallet] not null!");
-                    listener.onComplete(Wallets.getSpareWallet());
-                    return;
-                }
+            if (Wallets.getSpareWallet() != null) {
+                System.out.println("[Wallet] not null!");
+                listener.onComplete(Wallets.getSpareWallet());
+                return;
             }
         }
+
 
         wallets.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
 
@@ -197,16 +178,12 @@ public class Wallet extends Container {
                         break;
                     }
                 }
-
-                if (otherPlayer) {
-                    Wallets.setOtherWallet(wallet);
+                if (walletType.equals(WalletType.MAIN_WALLET)) {
+                    Wallets.setWallet(wallet);
                 } else {
-                    if (walletType.equals(WalletType.MAIN_WALLET)) {
-                        Wallets.setWallet(wallet);
-                    } else {
-                        Wallets.setSpareWallet(wallet);
-                    }
+                    Wallets.setSpareWallet(wallet);
                 }
+
                 listener.onComplete(wallet);
             }
         });
@@ -254,15 +231,6 @@ public class Wallet extends Container {
     @Override
     public String getCollectionName() {
         return "Wallets";
-    }
-
-    /**
-     * Returns the number of coins in the wallet.
-     *
-     * @return The number of coins.
-     */
-    public int numberOfCoins() {
-        return coins.size();
     }
 
     @Override

@@ -1,12 +1,20 @@
 package net.raeesaamir.coinz.wallet;
 
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.Task;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import net.raeesaamir.coinz.game.Container;
 import net.raeesaamir.coinz.game.ExchangeRates;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represent's the player's bank of gold. Stored in cloud-firestore.
@@ -25,7 +33,7 @@ public class Bank extends Container {
      *
      * @param userUid - The player's UUID.
      */
-    Bank(String userUid) {
+    private Bank(String userUid) {
         this.userUid = userUid;
     }
 
@@ -38,6 +46,66 @@ public class Bank extends Container {
     public Bank(String userUid, List<String> coins) {
         this.userUid = userUid;
         this.coins = coins;
+    }
+
+    /**
+     * Loads the bank of the player or it loads the bank of the other player.
+     *
+     * @param uid         - The player's UID.
+     * @param listener    - The bank listener.
+     * @param otherPlayer - True if we want to load the bank of the other player, otherwise false.
+     */
+    public static void loadBank(String uid, BankListener listener, boolean otherPlayer) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference banks = db.collection("Banks");
+
+        if (otherPlayer) {
+            if (Banks.getOtherBank() != null) {
+                listener.onComplete(Banks.getOtherBank());
+                return;
+            }
+        } else {
+            if (Banks.getBank() != null) {
+                listener.onComplete(Banks.getBank());
+                return;
+            }
+        }
+
+        banks.get().addOnCompleteListener((@NonNull Task<QuerySnapshot> task) -> {
+            if (task.isSuccessful()) {
+                Bank bank = new Bank(uid);
+                for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
+
+                    if (!snapshot.contains("userUid") || !snapshot.contains("coins")) {
+                        continue;
+                    }
+
+                    System.out.println("BANK" + snapshot.get("userUid"));
+
+                    if (!Objects.requireNonNull(snapshot.get("userUid")).equals(uid)) {
+                        continue;
+                    }
+                    Object coinsObj = snapshot.get("coins");
+                    if (!(coinsObj instanceof List)) {
+                        return;
+                    }
+
+                    //noinspection unchecked
+                    List<String> coins = (List<String>) coinsObj;
+                    bank = new Bank(uid, coins);
+                    break;
+
+                }
+                if (otherPlayer) {
+                    Banks.setOtherBank(bank);
+                } else {
+                    Banks.setBank(bank);
+                }
+
+                listener.onComplete(bank);
+            }
+
+        });
     }
 
     @Override
@@ -56,15 +124,12 @@ public class Bank extends Container {
     }
 
     /**
-     * Deposits a coin from the player's a wallet into the bank based on today's exchange rates.
+     * Deposits a coin into the bank based on today's exchange rates.
      *
      * @param exchangeRates - The exchange rates.
      * @param coin          - The coin to deposit.
-     * @param wallet        - The wallet the coin is from.
      */
-    public void deposit(ExchangeRates exchangeRates, String coin, Wallet wallet) {
-        wallet.removeCoin(coin);
-
+    public void deposit(ExchangeRates exchangeRates, String coin) {
         String[] coinAttributes = coin.split(" ");
 
         String coinType = coinAttributes[0];
@@ -109,6 +174,21 @@ public class Bank extends Container {
         }
 
         return totalGold;
+    }
+
+    /**
+     * Represents the listener that is called when the wallet is loaded.
+     *
+     * @author raeesaamir
+     */
+    public interface BankListener {
+
+        /**
+         * Called when the bank is loaded.
+         *
+         * @param bank - The bank.
+         */
+        void onComplete(Bank bank);
     }
 
 }
