@@ -42,7 +42,7 @@ public class MenuFragment extends Fragment {
     /**
      * The prefix of the welcome message.
      */
-    private static final String WELCOME_STRING = "Welcome \n";
+    private static final String WELCOME_STRING = "Welcome ";
 
     /**
      * The context of the fragment.
@@ -91,7 +91,8 @@ public class MenuFragment extends Fragment {
         if (mUser == null) {
             welcomeMessage.setText(WELCOME_STRING);
         } else {
-            welcomeMessage.setText(String.format("%s%s!", WELCOME_STRING, mUser.getDisplayName()));
+            String suffix = mUser.getDisplayName() == null ? "to Coinz" : mUser.getDisplayName();
+            welcomeMessage.setText(String.format("%s%s!", WELCOME_STRING, suffix));
         }
 
         Button signOutButton = view.findViewById(R.id.signOut);
