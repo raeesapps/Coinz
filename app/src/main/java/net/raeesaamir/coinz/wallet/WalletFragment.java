@@ -140,6 +140,7 @@ public class WalletFragment extends Fragment {
             for (String coin : wallet.getCoins()) {
                 System.out.println("[WalletFragment]: " + coin);
             }
+            System.out.println("[WalletFragment]: " + wallet.getCoins().size());
             ListView walletView = view.findViewById(R.id.wallet_items);
 
             ArrayAdapter<String> integerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, wallet.getCoins());
