@@ -98,7 +98,6 @@ public class MenuFragment extends Fragment {
         signOutButton.setOnClickListener((View view) -> {
             Wallets.setWallet(null);
             Wallets.setSpareWallet(null);
-            Wallets.setHistory(null);
             Banks.setBank(null);
             Banks.setOtherBank(null);
             mAuth.signOut();

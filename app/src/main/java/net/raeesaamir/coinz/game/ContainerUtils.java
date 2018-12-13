@@ -16,11 +16,12 @@ class ContainerUtils {
      *
      * @param coins - The list containing the coins.
      * @param coin  - The coin to remove.
+     * @return - True or false depending on whether the coin was added successfully.
      */
-    public static void addCoin(List<String> coins, String coin) {
+    public static boolean addCoin(List<String> coins, String coin) {
         Preconditions.checkNotNull(coin);
 
-        coins.add(coin);
+        return coins.add(coin);
     }
 
     /**

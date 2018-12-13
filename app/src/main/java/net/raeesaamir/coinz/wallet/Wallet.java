@@ -100,16 +100,7 @@ public class Wallet extends Container {
      * @return A wallet type.
      */
     private static WalletType fromOrdinal(int ordinal) {
-        switch (ordinal) {
-            case 0:
-                return WalletType.MAIN_WALLET;
-            case 1:
-                return WalletType.SPARE_CHANGE_WALLET;
-            case 2:
-                return WalletType.HISTORY;
-            default:
-                return null;
-        }
+        return ordinal == 0 ? WalletType.MAIN_WALLET : WalletType.SPARE_CHANGE_WALLET;
     }
 
     /**
@@ -147,16 +138,10 @@ public class Wallet extends Container {
                 listener.onComplete(Wallets.getWallet());
                 return;
             }
-        } else if (walletType.equals(WalletType.SPARE_CHANGE_WALLET)) {
+        } else {
             if (Wallets.getSpareWallet() != null) {
                 System.out.println("[Wallet] not null!");
                 listener.onComplete(Wallets.getSpareWallet());
-                return;
-            }
-        } else {
-            if (Wallets.getHistory() != null) {
-                System.out.println("[Wallet] not null!");
-                listener.onComplete(Wallets.getHistory());
                 return;
             }
         }
@@ -180,7 +165,7 @@ public class Wallet extends Container {
 
                     WalletType actualWalletType = fromOrdinal(java.util.Objects.requireNonNull(snapshot.getLong("walletType")).intValue());
 
-                    if (!java.util.Objects.requireNonNull(actualWalletType).equals(walletType)) {
+                    if (!actualWalletType.equals(walletType)) {
                         continue;
                     }
 
@@ -195,10 +180,8 @@ public class Wallet extends Container {
                 }
                 if (walletType.equals(WalletType.MAIN_WALLET)) {
                     Wallets.setWallet(wallet);
-                } else if (walletType.equals(WalletType.SPARE_CHANGE_WALLET)) {
-                    Wallets.setSpareWallet(wallet);
                 } else {
-                    Wallets.setHistory(wallet);
+                    Wallets.setSpareWallet(wallet);
                 }
 
                 listener.onComplete(wallet);
@@ -248,6 +231,11 @@ public class Wallet extends Container {
     @Override
     public String getCollectionName() {
         return "Wallets";
+    }
+
+    @Override
+    public boolean addCoin(String coin) {
+        return !coins.contains(coin) && super.addCoin(coin);
     }
 
     /**

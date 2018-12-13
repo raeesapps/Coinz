@@ -18,29 +18,6 @@ public final class Wallets {
     private static Wallet spareWallet = null;
 
     /**
-     * The history of the coins the player has collected today.
-     */
-    private static Wallet history = null;
-
-    /**
-     * Get's the players history.
-     *
-     * @return - The history.
-     */
-    public static Wallet getHistory() {
-        return history;
-    }
-
-    /**
-     * Sets the player history.
-     *
-     * @param history - The history.
-     */
-    public static void setHistory(Wallet history) {
-        Wallets.history = history;
-    }
-
-    /**
      * Gets the spare wallet.
      *
      * @return The spare wallet.
