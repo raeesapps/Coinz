@@ -31,13 +31,19 @@
     <string name="share_fragment_share_button_text">Share</string>
     <string name="share_fragment_share_title_text">Share Your Achievements!</string>
 
+    <!-- Strings related to the leaderboard-->
+    <string name="leaderboard_fragment_leaderboard_text">Below is a list of users and their total amount of gold they have achieved!</string>
+
     <!--Strings related to wallet-->
     <string name="wallet_fragment_bank_loading_text">Loading…</string>
+    <string name="wallet_fragment_wallet_title_text">Below are the coins in your wallet. Tap the coin to deposit it into your bank.</string>
 
     <!--Strings related to messaging-->
     <string name="messaging_fragment_send_button_text">Send</string>
     <string name="messaging_fragment_trade_button_text">Trade</string>
     <string name="messaging_fragment_input_hint_text">Enter message</string>
+
+    <string name="user_list_fragment_user_list_title_text">Below is a list of users you can message. Tap their name to open a chat.</string>
 
     <string name="message_sent_body_text">Hello</string>
     <string name="message_sent_message_time_text">11:40</string>

@@ -13,6 +13,15 @@
         android:contentDescription="@string/logo"
         app:srcCompat="@drawable/logo" />
 
+    <!-- The instructions -->
+    <TextView
+        android:id="@+id/user_list_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/user_list_fragment_user_list_title_text"
+        android:textSize="18sp"
+        android:visibility="visible" />
+
     <!-- The list of users -->
     <ListView
         android:id="@+id/usersListView"

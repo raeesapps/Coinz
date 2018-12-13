@@ -22,6 +22,15 @@
         android:textSize="24sp"
         android:visibility="visible" />
 
+    <!-- The wallet text -->
+    <TextView
+        android:id="@+id/wallet_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/wallet_fragment_wallet_title_text"
+        android:textSize="18sp"
+        android:visibility="visible" />
+
     <!-- The list of coins in the wallet -->
     <ListView
         android:id="@+id/wallet_items"

@@ -13,6 +13,16 @@
         android:contentDescription="@string/logo"
         app:srcCompat="@drawable/logo" />
 
+    <!-- The instructions -->
+    <TextView
+        android:id="@+id/leaderboard_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/leaderboard_fragment_leaderboard_text"
+        android:textSize="18sp"
+        android:visibility="visible" />
+
+
     <!-- The leaderboard itself -->
     <ListView
         android:id="@+id/scoresFragment"

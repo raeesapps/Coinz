@@ -13,6 +13,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public final class ExchangeRates {
 
+
     /**
      * The exchange rate of shil to gold.
      */
