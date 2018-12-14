@@ -141,14 +141,14 @@ public class LoginControllerTest {
         }
 
         ViewInteraction textView = onView(
-                allOf(withId(R.id.welcomeMessage), withText("Welcome \ntest!"),
+                allOf(withId(R.id.welcomeMessage), withText("Welcome test!"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.fragment_container),
                                         0),
                                 1),
                         isDisplayed()));
-        textView.check(matches(withText("Welcome \ntest!")));
+        textView.check(matches(withText("Welcome test!")));
 
     }
 
