@@ -51,6 +51,7 @@ import net.raeesaamir.coinz.R;
 import net.raeesaamir.coinz.menu.MenuFragment;
 import net.raeesaamir.coinz.wallet.Wallet;
 import net.raeesaamir.coinz.wallet.WalletType;
+import net.raeesaamir.coinz.wallet.Wallets;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -394,6 +395,8 @@ public class GameFragment extends Fragment implements OnMapReadyCallback, Locati
                 FragmentTransaction tr = activity.getSupportFragmentManager().beginTransaction();
                 tr.replace(R.id.fragment_container, new GameFragment());
                 tr.commit();
+                Wallets.setWallet(null);
+                Wallets.setSpareWallet(null);
             }
 
             Wallet.loadWallet(mUser.getUid(), dateFormatted, (Wallet wallet) -> {
